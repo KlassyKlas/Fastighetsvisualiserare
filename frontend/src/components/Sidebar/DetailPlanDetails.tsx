@@ -102,9 +102,7 @@ export default function DetailPlanDetails() {
           <FileText className="w-4 h-4 text-slate-500 flex-shrink-0" />
           <div>
             <p className="text-xs text-slate-500">Källa</p>
-            <p className="text-sm text-slate-200">
-              {SOURCE_LABELS[props.source] ?? props.source}
-            </p>
+            <p className="text-sm text-slate-200">{SOURCE_LABELS[props.source] ?? props.source}</p>
           </div>
         </div>
       </div>

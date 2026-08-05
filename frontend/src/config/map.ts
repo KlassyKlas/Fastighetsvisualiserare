@@ -107,15 +107,13 @@ export const DEMOGRAPHICS_GRADIENT = {
   high: '#ec4899',
 } as const;
 
-export const DEMOGRAPHICS_METRICS: Record<
-  DemographicsMetric,
-  { label: string; property: string }
-> = {
-  population: { label: 'Befolkning', property: 'population' },
-  density: { label: 'Täthet (inv/km²)', property: 'population_density' },
-  income: { label: 'Medelinkomst', property: 'mean_income_sek' },
-  education: { label: 'Eftergymnasial utb.', property: 'higher_education_share' },
-};
+export const DEMOGRAPHICS_METRICS: Record<DemographicsMetric, { label: string; property: string }> =
+  {
+    population: { label: 'Befolkning', property: 'population' },
+    density: { label: 'Täthet (inv/km²)', property: 'population_density' },
+    income: { label: 'Medelinkomst', property: 'mean_income_sek' },
+    education: { label: 'Eftergymnasial utb.', property: 'higher_education_share' },
+  };
 
 /**
  * Svenska etiketter för datakällor. `source` är en fri sträng i

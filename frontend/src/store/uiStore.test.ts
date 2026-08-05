@@ -91,9 +91,7 @@ describe('uiStore', () => {
 
   it('setIsochroneOrigin avslutar väljarläget', () => {
     useUiStore.getState().setIsochronePicking(true);
-    useUiStore
-      .getState()
-      .setIsochroneOrigin({ longitude: 18, latitude: 59, label: 'Testpunkt' });
+    useUiStore.getState().setIsochroneOrigin({ longitude: 18, latitude: 59, label: 'Testpunkt' });
 
     const state = useUiStore.getState();
     expect(state.isochroneOrigin?.label).toBe('Testpunkt');

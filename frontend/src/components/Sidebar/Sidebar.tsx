@@ -38,8 +38,7 @@ export default function Sidebar() {
         if (selectedDetailPlan) return <DetailPlanDetails />;
         return (
           <div className="p-4 text-slate-500 text-sm">
-            Klicka på ett projekt, en fastighet eller en detaljplan på kartan för att se
-            detaljer.
+            Klicka på ett projekt, en fastighet eller en detaljplan på kartan för att se detaljer.
           </div>
         );
     }

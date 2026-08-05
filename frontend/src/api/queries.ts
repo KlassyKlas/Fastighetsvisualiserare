@@ -294,13 +294,10 @@ export function desoLookupQuery(longitude: number, latitude: number) {
   return queryOptions({
     queryKey: ['deso-lookup', { longitude, latitude }],
     queryFn: async ({ signal }): Promise<DesoAreaFeature> => {
-      const { data, error, response } = await client.GET(
-        '/api/v1/demographics/deso-areas/lookup',
-        {
-          params: { query: { lng: longitude, lat: latitude } },
-          signal,
-        },
-      );
+      const { data, error, response } = await client.GET('/api/v1/demographics/deso-areas/lookup', {
+        params: { query: { lng: longitude, lat: latitude } },
+        signal,
+      });
       ensureOk(error, response);
       return data as unknown as DesoAreaFeature;
     },
