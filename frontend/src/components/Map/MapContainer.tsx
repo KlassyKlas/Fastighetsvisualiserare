@@ -10,6 +10,7 @@ import Map, {
 } from 'react-map-gl/mapbox';
 import type { LayerProps } from 'react-map-gl/mapbox';
 
+import { isochroneQuery } from '@/api/isochrone';
 import {
   impactZonesQuery,
   projectsQuery,
@@ -21,6 +22,7 @@ import type { ProjectFeature, PropertyFeature } from '@/domain';
 import { useUiStore } from '@/store/uiStore';
 import ImpactZoneLayer from './layers/ImpactZoneLayer';
 import InfrastructureLayer from './layers/InfrastructureLayer';
+import IsochroneLayer from './layers/IsochroneLayer';
 import PropertyLayer from './layers/PropertyLayer';
 
 const buildings3dLayer: LayerProps = {
@@ -55,6 +57,12 @@ export default function MapContainer() {
 
   const scoreColoring = useUiStore((s) => s.scoreColoring);
 
+  const isochroneOrigin = useUiStore((s) => s.isochroneOrigin);
+  const isochroneProfile = useUiStore((s) => s.isochroneProfile);
+  const isochroneMinutes = useUiStore((s) => s.isochroneMinutes);
+  const isochronePicking = useUiStore((s) => s.isochronePicking);
+  const setIsochroneOrigin = useUiStore((s) => s.setIsochroneOrigin);
+
   const { data: projectData } = useQuery(projectsQuery(filters));
   const { data: propertyData } = useQuery(propertiesQuery(filters));
   const { data: zoneData } = useQuery(impactZonesQuery(filters));
@@ -62,6 +70,9 @@ export default function MapContainer() {
     ...proximityScoresQuery(filters),
     enabled: scoreColoring,
   });
+  const { data: isochroneData } = useQuery(
+    isochroneQuery(isochroneOrigin, isochroneProfile, isochroneMinutes),
+  );
 
   const [cursor, setCursor] = useState('');
 
@@ -108,6 +119,17 @@ export default function MapContainer() {
 
   const handleClick = useCallback(
     (event: MapLayerMouseEvent) => {
+      // I väljarläget blir nästa kartklick startpunkt för restidsanalysen —
+      // och får inte samtidigt markera fastigheten/projektet under muspekaren.
+      if (isochronePicking) {
+        setIsochroneOrigin({
+          longitude: event.lngLat.lng,
+          latitude: event.lngLat.lat,
+          label: 'Vald punkt på kartan',
+        });
+        return;
+      }
+
       const feature = event.features?.[0];
       if (!feature) return;
 
@@ -124,7 +146,7 @@ export default function MapContainer() {
         setSelectedProperty(feature as unknown as PropertyFeature);
       }
     },
-    [setSelectedProject, setSelectedProperty, setSidebarOpen],
+    [isochronePicking, setIsochroneOrigin, setSelectedProject, setSelectedProperty, setSidebarOpen],
   );
 
   const handleMouseEnter = useCallback(() => setCursor('pointer'), []);
@@ -176,7 +198,7 @@ export default function MapContainer() {
       onClick={handleClick}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      cursor={cursor}
+      cursor={isochronePicking ? 'crosshair' : cursor}
     >
       <NavigationControl position="top-right" />
       <GeolocateControl position="top-right" />
@@ -193,6 +215,10 @@ export default function MapContainer() {
       {layers.buildings3d && <Layer {...buildings3dLayer} />}
 
       {zoneData && <ImpactZoneLayer data={zoneData} visible={layers.impactZones} />}
+      {/* Under fastigheterna så att de förblir klickbara ovanpå zonerna. */}
+      {isochroneOrigin && (
+        <IsochroneLayer origin={isochroneOrigin} data={isochroneData} minutes={isochroneMinutes} />
+      )}
       {enrichedPropertyData && (
         <PropertyLayer
           data={enrichedPropertyData}

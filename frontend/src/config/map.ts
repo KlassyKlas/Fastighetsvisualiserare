@@ -1,5 +1,5 @@
 import type { ExpressionSpecification } from 'mapbox-gl';
-import type { ProjectStatus, ProjectType, PropertyType } from '@/domain';
+import type { IsochroneProfile, ProjectStatus, ProjectType, PropertyType } from '@/domain';
 
 export const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN ?? '';
 
@@ -25,6 +25,18 @@ export const SCORE_GRADIENT = {
   high: '#ef4444',
   none: '#334155',
 } as const;
+
+/** Färger för restidskonturer: kortast restid först. Högst fyra konturer. */
+export const ISOCHRONE_PALETTE = ['#22c55e', '#eab308', '#f97316', '#ef4444'];
+
+export const ISOCHRONE_PROFILE_LABELS: Record<IsochroneProfile, string> = {
+  walking: 'Gång',
+  cycling: 'Cykel',
+  driving: 'Bil',
+};
+
+/** Startpunktsmarkörens färg på kartan. */
+export const ISOCHRONE_ORIGIN_COLOR = '#3b82f6';
 
 export const STATUS_COLORS: Record<ProjectStatus, string> = {
   planerad: '#f59e0b',

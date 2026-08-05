@@ -1,4 +1,4 @@
-import { Calendar, FileText, MapPin, Radio, Tag, Wallet, X } from 'lucide-react';
+import { Calendar, FileText, MapPin, Radio, Tag, Timer, Wallet, X } from 'lucide-react';
 import {
   FALLBACK_COLOR,
   PROJECT_TYPE_LABELS,
@@ -7,16 +7,20 @@ import {
   STATUS_LABELS,
 } from '@/config/map';
 import { formatDate, formatSek } from '@/lib/format';
+import { geometryAnchor } from '@/lib/isochrone';
 import { useUiStore } from '@/store/uiStore';
 
 export default function ProjectDetails() {
   const selectedProject = useUiStore((s) => s.selectedProject);
   const clearSelection = useUiStore((s) => s.clearSelection);
+  const setIsochroneOrigin = useUiStore((s) => s.setIsochroneOrigin);
+  const setSidebarTab = useUiStore((s) => s.setSidebarTab);
 
   if (!selectedProject) return null;
 
   const props = selectedProject.properties;
   const statusColor = (props.status && STATUS_COLORS[props.status]) || FALLBACK_COLOR;
+  const isochroneAnchor = geometryAnchor(selectedProject.geometry);
 
   return (
     <div className="p-4">
@@ -111,9 +115,22 @@ export default function ProjectDetails() {
         )}
       </div>
 
+      {isochroneAnchor && (
+        <button
+          onClick={() => {
+            setIsochroneOrigin({ ...isochroneAnchor, label: props.name });
+            setSidebarTab('analysis');
+          }}
+          className="w-full mt-6 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-colors"
+        >
+          <Timer className="w-4 h-4" />
+          Restider härifrån
+        </button>
+      )}
+
       <button
         onClick={clearSelection}
-        className="w-full mt-6 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg text-sm transition-colors"
+        className="w-full mt-3 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg text-sm transition-colors"
       >
         Stäng
       </button>

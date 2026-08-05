@@ -101,7 +101,9 @@ annars säger CI ifrån.
    ur Bilaga 1 (synka via lagerpanelen)
 2. ~~Närhetspoäng~~ — byggd: Analys-fliken rankar fastigheter med transparent poängmodell
 3. ~~Tidsreglage~~ — byggt: dra i årsreglaget under filterraden
-4. Isokroner (restid) via Mapbox Isochrone API
+4. ~~Isokroner (restid) via Mapbox Isochrone API~~ — byggt: restidsanalys i Analys-fliken
+   (gång/cykel/bil, upp till fyra restider à ≤60 min; startpunkt via kartklick eller
+   "Restider härifrån" i detaljpanelerna; fungerar även i demo-läge)
 5. Detaljplaner via Lantmäteriets NGP · SCB-demografi per DeSO-område
 6. Bevakade områden med notiser · exporterbara objektsrapporter
 7. "Nytt sedan senast": panel över projekt som tillkommit/ändrats sedan förra synken (created_at/updated_at finns redan)

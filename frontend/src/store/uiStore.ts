@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import type {
   FilterState,
+  IsochroneOrigin,
+  IsochroneProfile,
   LayerVisibility,
   ProjectFeature,
   ProjectStatus,
@@ -8,6 +10,7 @@ import type {
   PropertyFeature,
 } from '@/domain';
 import { EMPTY_FILTERS } from '@/domain';
+import { toggleMinute } from '@/lib/isochrone';
 
 export type SidebarTab = 'search' | 'layers' | 'analysis' | 'details';
 export type MapStyleId = 'dark' | 'satellite';
@@ -25,6 +28,13 @@ interface UiState {
   demoMode: boolean;
   /** Färga fastigheterna på kartan efter närhetspoäng */
   scoreColoring: boolean;
+  /** Startpunkt för restidsanalysen (null = ingen analys aktiv) */
+  isochroneOrigin: IsochroneOrigin | null;
+  isochroneProfile: IsochroneProfile;
+  /** Valda restider i minuter — högst fyra (Mapbox-gräns) */
+  isochroneMinutes: number[];
+  /** true medan användaren väljer startpunkt genom att klicka i kartan */
+  isochronePicking: boolean;
 
   toggleLayer: (layer: keyof LayerVisibility) => void;
   setSelectedProject: (feature: ProjectFeature | null) => void;
@@ -38,6 +48,11 @@ interface UiState {
   setSearchQuery: (query: string) => void;
   setDemoMode: (demo: boolean) => void;
   setScoreColoring: (enabled: boolean) => void;
+  setIsochroneOrigin: (origin: IsochroneOrigin | null) => void;
+  setIsochroneProfile: (profile: IsochroneProfile) => void;
+  toggleIsochroneMinute: (minute: number) => void;
+  setIsochronePicking: (picking: boolean) => void;
+  clearIsochrone: () => void;
   clearSelection: () => void;
 }
 
@@ -59,6 +74,10 @@ export const useUiStore = create<UiState>((set) => ({
   searchQuery: '',
   demoMode: false,
   scoreColoring: false,
+  isochroneOrigin: null,
+  isochroneProfile: 'walking',
+  isochroneMinutes: [10, 20, 30],
+  isochronePicking: false,
 
   toggleLayer: (layer) =>
     set((state) => ({
@@ -106,6 +125,19 @@ export const useUiStore = create<UiState>((set) => ({
   setSearchQuery: (query) => set({ searchQuery: query }),
   setDemoMode: (demo) => set({ demoMode: demo }),
   setScoreColoring: (enabled) => set({ scoreColoring: enabled }),
+
+  // Att sätta en startpunkt avslutar alltid väljarläget — oavsett om
+  // punkten kom från kartklick eller från en detaljpanel.
+  setIsochroneOrigin: (origin) => set({ isochroneOrigin: origin, isochronePicking: false }),
+  setIsochroneProfile: (profile) => set({ isochroneProfile: profile }),
+
+  toggleIsochroneMinute: (minute) =>
+    set((state) => ({ isochroneMinutes: toggleMinute(state.isochroneMinutes, minute) })),
+
+  setIsochronePicking: (picking) => set({ isochronePicking: picking }),
+
+  /** Profil och minutval behålls — bara analysen stängs av. */
+  clearIsochrone: () => set({ isochroneOrigin: null, isochronePicking: false }),
 
   clearSelection: () =>
     set({

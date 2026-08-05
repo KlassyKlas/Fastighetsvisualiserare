@@ -1,12 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import { proximityScoresQuery } from '@/api/queries';
 import {
+  ISOCHRONE_PROFILE_LABELS,
   PROPERTY_TYPE_COLORS,
   PROPERTY_TYPE_LABELS,
   SCORE_GRADIENT,
   STATUS_COLORS,
   STATUS_LABELS,
 } from '@/config/map';
+import { isochroneColorByMinute } from '@/lib/isochrone';
 import { useUiStore } from '@/store/uiStore';
 
 const statusEntries = Object.entries(STATUS_COLORS);
@@ -15,6 +17,9 @@ const propertyEntries = Object.entries(PROPERTY_TYPE_COLORS);
 export default function Legend() {
   const scoreColoring = useUiStore((s) => s.scoreColoring);
   const filters = useUiStore((s) => s.filters);
+  const isochroneOrigin = useUiStore((s) => s.isochroneOrigin);
+  const isochroneProfile = useUiStore((s) => s.isochroneProfile);
+  const isochroneMinutes = useUiStore((s) => s.isochroneMinutes);
   // Gradienten visas först när poängdatat faktiskt renderas på kartan —
   // samma villkor som MapContainer, via samma cachade query.
   const { data: scoreData } = useQuery({
@@ -22,6 +27,10 @@ export default function Legend() {
     enabled: scoreColoring,
   });
   const showScoreGradient = scoreColoring && scoreData != null;
+  // Färgerna är deterministiska utifrån minutvalen — legenden kan visas
+  // direkt när en startpunkt finns, även medan zonerna hämtas.
+  const isochroneEntries =
+    isochroneOrigin != null ? Object.entries(isochroneColorByMinute(isochroneMinutes)) : [];
 
   return (
     <div className="absolute bottom-6 right-4 z-10 bg-slate-800/90 backdrop-blur-sm border border-slate-700 rounded-lg p-3 shadow-lg min-w-[160px]">
@@ -81,6 +90,28 @@ export default function Legend() {
             ))}
           </div>
         </div>
+      )}
+
+      {isochroneEntries.length > 0 && (
+        <>
+          <div className="border-t border-slate-700 my-2" />
+          <div>
+            <h4 className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
+              Restid ({ISOCHRONE_PROFILE_LABELS[isochroneProfile].toLowerCase()})
+            </h4>
+            <div className="space-y-1">
+              {isochroneEntries.map(([minute, color]) => (
+                <div key={minute} className="flex items-center gap-2">
+                  <span
+                    className="w-2.5 h-2.5 rounded-full flex-shrink-0 border"
+                    style={{ backgroundColor: color + '40', borderColor: color }}
+                  />
+                  <span className="text-[11px] text-slate-300">≤ {minute} min</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
       )}
     </div>
   );

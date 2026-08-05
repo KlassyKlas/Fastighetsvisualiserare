@@ -4,6 +4,7 @@ import { Info, Palette } from 'lucide-react';
 import { proximityScoresQuery } from '@/api/queries';
 import { formatDistance } from '@/lib/format';
 import { useUiStore } from '@/store/uiStore';
+import IsochroneControls from './IsochroneControls';
 import Toggle from '../UI/Toggle';
 import type { PropertyFeature, ProximityScoreFeature } from '@/domain';
 
@@ -34,6 +35,11 @@ export default function AnalysisPanel() {
 
   return (
     <div className="p-4 space-y-4">
+      {/* Restidsanalysen först — närhetslistan nedanför kan bli lång. */}
+      <IsochroneControls />
+
+      <div className="border-t border-slate-700" />
+
       <div>
         <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
           Närhetspoäng

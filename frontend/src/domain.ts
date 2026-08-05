@@ -3,7 +3,7 @@
  * `api/schema.d.ts` (körs om med `npm run typegen`) — inget dupliceras
  * för hand mot backend.
  */
-import type { Feature, FeatureCollection, Geometry } from 'geojson';
+import type { Feature, FeatureCollection, Geometry, Polygon } from 'geojson';
 import type { components } from '@/api/schema';
 
 export type ProjectStatus = components['schemas']['ProjectStatus'];
@@ -38,6 +38,26 @@ export type PropertyCollection = FeatureCollection<Geometry, PropertyProps> & Pa
 export type ImpactZoneCollection = FeatureCollection<Geometry, ImpactZoneProps>;
 export type ProximityScoresCollection = FeatureCollection<Geometry, ProximityScoreProps> &
   PaginatedCollection & { max_distance_m?: number };
+
+/**
+ * Restidsanalys (isokroner). Datat kommer från Mapbox Isochrone API,
+ * inte från backendens kontrakt — därför definieras typerna här.
+ */
+export type IsochroneProfile = 'walking' | 'cycling' | 'driving';
+
+export interface IsochroneOrigin {
+  longitude: number;
+  latitude: number;
+  /** Visningsnamn i panelen och legenden, t.ex. fastighetsbeteckning. */
+  label: string;
+}
+
+export interface IsochroneContourProps {
+  /** Restid i minuter för konturen. */
+  contour: number;
+}
+
+export type IsochroneCollection = FeatureCollection<Polygon, IsochroneContourProps>;
 
 export interface LayerVisibility {
   infrastructure: boolean;

@@ -55,4 +55,35 @@ describe('uiStore', () => {
     useUiStore.getState().setDemoMode(true);
     expect(useUiStore.getState().demoMode).toBe(true);
   });
+
+  it('toggleIsochroneMinute stannar vid fyra konturer', () => {
+    useUiStore.setState({ isochroneMinutes: [5, 10, 15, 20] });
+    useUiStore.getState().toggleIsochroneMinute(30);
+    expect(useUiStore.getState().isochroneMinutes).toEqual([5, 10, 15, 20]);
+    useUiStore.getState().toggleIsochroneMinute(5);
+    expect(useUiStore.getState().isochroneMinutes).toEqual([10, 15, 20]);
+  });
+
+  it('setIsochroneOrigin avslutar väljarläget', () => {
+    useUiStore.getState().setIsochronePicking(true);
+    useUiStore
+      .getState()
+      .setIsochroneOrigin({ longitude: 18, latitude: 59, label: 'Testpunkt' });
+
+    const state = useUiStore.getState();
+    expect(state.isochroneOrigin?.label).toBe('Testpunkt');
+    expect(state.isochronePicking).toBe(false);
+  });
+
+  it('clearIsochrone nollställer startpunkten men behåller inställningarna', () => {
+    useUiStore.getState().setIsochroneProfile('driving');
+    useUiStore.getState().setIsochroneOrigin({ longitude: 18, latitude: 59, label: 'X' });
+    useUiStore.getState().clearIsochrone();
+
+    const state = useUiStore.getState();
+    expect(state.isochroneOrigin).toBeNull();
+    expect(state.isochronePicking).toBe(false);
+    expect(state.isochroneProfile).toBe('driving');
+    expect(state.isochroneMinutes).toEqual([10, 20, 30]);
+  });
 });

@@ -1,5 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
-import { Calendar, Grid3X3, Home, Landmark, MapPin, Radar, Ruler, User, X } from 'lucide-react';
+import {
+  Calendar,
+  Grid3X3,
+  Home,
+  Landmark,
+  MapPin,
+  Radar,
+  Ruler,
+  Timer,
+  User,
+  X,
+} from 'lucide-react';
 import { nearbyProjectsQuery } from '@/api/queries';
 import {
   FALLBACK_COLOR,
@@ -9,6 +20,7 @@ import {
   STATUS_LABELS,
 } from '@/config/map';
 import { formatArea, formatCurrency, formatDistance } from '@/lib/format';
+import { geometryAnchor } from '@/lib/isochrone';
 import { useUiStore } from '@/store/uiStore';
 
 /** Närliggande projekt inom denna radie visas i detaljpanelen. */
@@ -77,10 +89,13 @@ function NearbyProjects({ propertyId }: { propertyId: number }) {
 export default function PropertyDetails() {
   const selectedProperty = useUiStore((s) => s.selectedProperty);
   const clearSelection = useUiStore((s) => s.clearSelection);
+  const setIsochroneOrigin = useUiStore((s) => s.setIsochroneOrigin);
+  const setSidebarTab = useUiStore((s) => s.setSidebarTab);
 
   if (!selectedProperty) return null;
 
   const props = selectedProperty.properties;
+  const isochroneAnchor = geometryAnchor(selectedProperty.geometry);
   const typeColor =
     (props.property_type && PROPERTY_TYPE_COLORS[props.property_type]) || FALLBACK_COLOR;
   const propertyId = Number(props.id);
@@ -234,9 +249,22 @@ export default function PropertyDetails() {
         </div>
       </div>
 
+      {isochroneAnchor && (
+        <button
+          onClick={() => {
+            setIsochroneOrigin({ ...isochroneAnchor, label: props.designation });
+            setSidebarTab('analysis');
+          }}
+          className="w-full mt-6 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-colors"
+        >
+          <Timer className="w-4 h-4" />
+          Restider härifrån
+        </button>
+      )}
+
       <button
         onClick={clearSelection}
-        className="w-full mt-6 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg text-sm transition-colors"
+        className="w-full mt-3 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg text-sm transition-colors"
       >
         Stäng
       </button>
