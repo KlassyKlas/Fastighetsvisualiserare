@@ -1,0 +1,3880 @@
+{
+  "properties": {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [
+              [
+                [
+                  18.0635,
+                  59.334
+                ],
+                [
+                  18.0665,
+                  59.334
+                ],
+                [
+                  18.0665,
+                  59.336
+                ],
+                [
+                  18.0635,
+                  59.336
+                ],
+                [
+                  18.0635,
+                  59.334
+                ]
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "id": 1,
+          "designation": "Norrmalm 1:5",
+          "municipality": "Stockholm",
+          "county": "Stockholms län",
+          "area_sqm": 4500.0,
+          "assessed_value_sek": 85000000,
+          "property_type": "kontor",
+          "owner_name": "Vasakronan AB",
+          "owner_org_number": "556061-4603",
+          "address": "Kungsgatan 10",
+          "postal_code": "111 43",
+          "city": "Stockholm",
+          "building_year": 1965,
+          "living_area_sqm": null,
+          "zoning": "C",
+          "metadata_json": {},
+          "created_at": null,
+          "updated_at": null
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [
+              [
+                [
+                  18.0685,
+                  59.314
+                ],
+                [
+                  18.0715,
+                  59.314
+                ],
+                [
+                  18.0715,
+                  59.315999999999995
+                ],
+                [
+                  18.0685,
+                  59.315999999999995
+                ],
+                [
+                  18.0685,
+                  59.314
+                ]
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "id": 2,
+          "designation": "Södermalm 3:12",
+          "municipality": "Stockholm",
+          "county": "Stockholms län",
+          "area_sqm": 2800.0,
+          "assessed_value_sek": 120000000,
+          "property_type": "bostad",
+          "owner_name": "Stockholms Kooperativa Bostadsförening",
+          "owner_org_number": "702001-1234",
+          "address": "Hornsgatan 45",
+          "postal_code": "118 49",
+          "city": "Stockholm",
+          "building_year": 1928,
+          "living_area_sqm": 5200.0,
+          "zoning": "B",
+          "metadata_json": {},
+          "created_at": null,
+          "updated_at": null
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [
+              [
+                [
+                  17.9985,
+                  59.359
+                ],
+                [
+                  18.0015,
+                  59.359
+                ],
+                [
+                  18.0015,
+                  59.361
+                ],
+                [
+                  17.9985,
+                  59.361
+                ],
+                [
+                  17.9985,
+                  59.359
+                ]
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "id": 3,
+          "designation": "Solna Centrum 2:1",
+          "municipality": "Solna",
+          "county": "Stockholms län",
+          "area_sqm": 12000.0,
+          "assessed_value_sek": 350000000,
+          "property_type": "handel",
+          "owner_name": "Unibail-Rodamco-Westfield",
+          "owner_org_number": "556079-1415",
+          "address": "Solnavägen 25",
+          "postal_code": "171 45",
+          "city": "Solna",
+          "building_year": 1995,
+          "living_area_sqm": null,
+          "zoning": "C",
+          "metadata_json": {},
+          "created_at": null,
+          "updated_at": null
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [
+              [
+                [
+                  18.1385,
+                  59.309000000000005
+                ],
+                [
+                  18.1415,
+                  59.309000000000005
+                ],
+                [
+                  18.1415,
+                  59.311
+                ],
+                [
+                  18.1385,
+                  59.311
+                ],
+                [
+                  18.1385,
+                  59.309000000000005
+                ]
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "id": 4,
+          "designation": "Nacka Strand 5:3",
+          "municipality": "Nacka",
+          "county": "Stockholms län",
+          "area_sqm": 5000.0,
+          "assessed_value_sek": 95000000,
+          "property_type": "bostad",
+          "owner_name": "JM AB",
+          "owner_org_number": "556045-2770",
+          "address": "Strandvägen 1",
+          "postal_code": "131 52",
+          "city": "Nacka",
+          "building_year": 2018,
+          "living_area_sqm": 8500.0,
+          "zoning": "B",
+          "metadata_json": {},
+          "created_at": null,
+          "updated_at": null
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [
+              [
+                [
+                  17.9685,
+                  59.359
+                ],
+                [
+                  17.9715,
+                  59.359
+                ],
+                [
+                  17.9715,
+                  59.361
+                ],
+                [
+                  17.9685,
+                  59.361
+                ],
+                [
+                  17.9685,
+                  59.359
+                ]
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "id": 5,
+          "designation": "Sundbyberg 1:8",
+          "municipality": "Sundbyberg",
+          "county": "Stockholms län",
+          "area_sqm": 3200.0,
+          "assessed_value_sek": 78000000,
+          "property_type": "bostad",
+          "owner_name": "Sundbybergs Bostäder AB",
+          "owner_org_number": "556055-1234",
+          "address": "Sturegatan 12",
+          "postal_code": "172 31",
+          "city": "Sundbyberg",
+          "building_year": 1972,
+          "living_area_sqm": 4800.0,
+          "zoning": "B",
+          "metadata_json": {},
+          "created_at": null,
+          "updated_at": null
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [
+              [
+                [
+                  17.9485,
+                  59.399
+                ],
+                [
+                  17.9515,
+                  59.399
+                ],
+                [
+                  17.9515,
+                  59.400999999999996
+                ],
+                [
+                  17.9485,
+                  59.400999999999996
+                ],
+                [
+                  17.9485,
+                  59.399
+                ]
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "id": 6,
+          "designation": "Kista 4:2",
+          "municipality": "Stockholm",
+          "county": "Stockholms län",
+          "area_sqm": 25000.0,
+          "assessed_value_sek": 420000000,
+          "property_type": "kontor",
+          "owner_name": "Castellum AB",
+          "owner_org_number": "556475-5550",
+          "address": "Kistagången 8",
+          "postal_code": "164 40",
+          "city": "Stockholm",
+          "building_year": 2002,
+          "living_area_sqm": null,
+          "zoning": "J",
+          "metadata_json": {},
+          "created_at": null,
+          "updated_at": null
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [
+              [
+                [
+                  18.0985,
+                  59.299
+                ],
+                [
+                  18.1015,
+                  59.299
+                ],
+                [
+                  18.1015,
+                  59.300999999999995
+                ],
+                [
+                  18.0985,
+                  59.300999999999995
+                ],
+                [
+                  18.0985,
+                  59.299
+                ]
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "id": 7,
+          "designation": "Hammarby Sjöstad 7:1",
+          "municipality": "Stockholm",
+          "county": "Stockholms län",
+          "area_sqm": 6000.0,
+          "assessed_value_sek": 180000000,
+          "property_type": "bostad",
+          "owner_name": "HSB Stockholm",
+          "owner_org_number": "504001-1234",
+          "address": "Hammarby Allé 42",
+          "postal_code": "120 63",
+          "city": "Stockholm",
+          "building_year": 2006,
+          "living_area_sqm": 9200.0,
+          "zoning": "B",
+          "metadata_json": {},
+          "created_at": null,
+          "updated_at": null
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [
+              [
+                [
+                  17.9385,
+                  59.339000000000006
+                ],
+                [
+                  17.9415,
+                  59.339000000000006
+                ],
+                [
+                  17.9415,
+                  59.341
+                ],
+                [
+                  17.9385,
+                  59.341
+                ],
+                [
+                  17.9385,
+                  59.339000000000006
+                ]
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "id": 8,
+          "designation": "Bromma 12:4",
+          "municipality": "Stockholm",
+          "county": "Stockholms län",
+          "area_sqm": 800.0,
+          "assessed_value_sek": 12500000,
+          "property_type": "villa",
+          "owner_name": "Anna Lindström",
+          "owner_org_number": null,
+          "address": "Åkeshovsvägen 18",
+          "postal_code": "168 39",
+          "city": "Stockholm",
+          "building_year": 1945,
+          "living_area_sqm": 220.0,
+          "zoning": "B",
+          "metadata_json": {},
+          "created_at": null,
+          "updated_at": null
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [
+              [
+                [
+                  18.0685,
+                  59.439
+                ],
+                [
+                  18.0715,
+                  59.439
+                ],
+                [
+                  18.0715,
+                  59.440999999999995
+                ],
+                [
+                  18.0685,
+                  59.440999999999995
+                ],
+                [
+                  18.0685,
+                  59.439
+                ]
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "id": 9,
+          "designation": "Täby Centrum 3:7",
+          "municipality": "Täby",
+          "county": "Stockholms län",
+          "area_sqm": 15000.0,
+          "assessed_value_sek": 280000000,
+          "property_type": "handel",
+          "owner_name": "Unibail-Rodamco-Westfield",
+          "owner_org_number": "556079-1415",
+          "address": "Stora Marknadsvägen 15",
+          "postal_code": "183 34",
+          "city": "Täby",
+          "building_year": 1968,
+          "living_area_sqm": null,
+          "zoning": "C",
+          "metadata_json": {},
+          "created_at": null,
+          "updated_at": null
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [
+              [
+                [
+                  17.9485,
+                  59.219
+                ],
+                [
+                  17.9515,
+                  59.219
+                ],
+                [
+                  17.9515,
+                  59.221
+                ],
+                [
+                  17.9485,
+                  59.221
+                ],
+                [
+                  17.9485,
+                  59.219
+                ]
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "id": 10,
+          "designation": "Flemingsberg 2:5",
+          "municipality": "Huddinge",
+          "county": "Stockholms län",
+          "area_sqm": 8000.0,
+          "assessed_value_sek": 150000000,
+          "property_type": "utbildning",
+          "owner_name": "Akademiska Hus AB",
+          "owner_org_number": "556459-9156",
+          "address": "Alfred Nobels Allé 7",
+          "postal_code": "141 52",
+          "city": "Huddinge",
+          "building_year": 2012,
+          "living_area_sqm": null,
+          "zoning": "S",
+          "metadata_json": {},
+          "created_at": null,
+          "updated_at": null
+        }
+      }
+    ],
+    "numberMatched": 10,
+    "numberReturned": 10
+  },
+  "infrastructureProjects": {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              17.88,
+              59.39
+            ],
+            [
+              17.86,
+              59.35
+            ],
+            [
+              17.84,
+              59.3
+            ],
+            [
+              17.85,
+              59.25
+            ]
+          ]
+        },
+        "properties": {
+          "id": 1,
+          "external_id": "seed-forbifart-stockholm",
+          "source": "manual",
+          "name": "Förbifart Stockholm",
+          "description": "Motorvägsförbindelse väster om Stockholm, huvudsakligen i tunnel. Förbinder Kungens Kurva i söder med Häggvik i norr.",
+          "project_type": "tunnel",
+          "status": "pågående",
+          "start_date": "2015-01-01",
+          "end_date": "2030-12-31",
+          "budget_sek": 34000000000,
+          "impact_radius_m": 3000.0,
+          "metadata_json": {
+            "trafikverket_id": "TRV2015/1234",
+            "kommun": "Stockholm, Järfälla, Sollentuna"
+          },
+          "created_at": null,
+          "updated_at": null
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              11.93,
+              57.71
+            ],
+            [
+              11.97,
+              57.715
+            ],
+            [
+              12.01,
+              57.72
+            ]
+          ]
+        },
+        "properties": {
+          "id": 2,
+          "external_id": "seed-vastlanken",
+          "source": "manual",
+          "name": "Västlänken",
+          "description": "Järnvägstunnel under centrala Göteborg med tre nya stationer: Göteborg Central, Haga och Korsvägen.",
+          "project_type": "järnväg",
+          "status": "pågående",
+          "start_date": "2018-01-01",
+          "end_date": "2029-12-31",
+          "budget_sek": 20000000000,
+          "impact_radius_m": 2000.0,
+          "metadata_json": {
+            "trafikverket_id": "TRV2014/5678",
+            "kommun": "Göteborg"
+          },
+          "created_at": null,
+          "updated_at": null
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              17.1,
+              59.0
+            ],
+            [
+              16.5,
+              58.7
+            ],
+            [
+              15.6,
+              58.4
+            ]
+          ]
+        },
+        "properties": {
+          "id": 3,
+          "external_id": "seed-ostlanken",
+          "source": "manual",
+          "name": "Ostlänken",
+          "description": "Ny järnväg för höghastighetståg mellan Järna och Linköping. Del av den planerade nya stambanan.",
+          "project_type": "järnväg",
+          "status": "planerad",
+          "start_date": "2024-01-01",
+          "end_date": "2040-12-31",
+          "budget_sek": 90000000000,
+          "impact_radius_m": 5000.0,
+          "metadata_json": {
+            "trafikverket_id": "TRV2017/9012",
+            "kommun": "Nyköping, Norrköping, Linköping"
+          },
+          "created_at": null,
+          "updated_at": null
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            18.0717,
+            59.3195
+          ]
+        },
+        "properties": {
+          "id": 4,
+          "external_id": "seed-nya-slussen",
+          "source": "manual",
+          "name": "Nya Slussen",
+          "description": "Ombyggnad av Slussen i Stockholm med ny bussterminal, gångstråk och förbättrad vattenreglering mellan Mälaren och Saltsjön.",
+          "project_type": "bro",
+          "status": "pågående",
+          "start_date": "2016-01-01",
+          "end_date": "2027-12-31",
+          "budget_sek": 12000000000,
+          "impact_radius_m": 1000.0,
+          "metadata_json": {
+            "kommun": "Stockholm",
+            "stadsdel": "Södermalm"
+          },
+          "created_at": null,
+          "updated_at": null
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              20.26,
+              63.83
+            ],
+            [
+              21.0,
+              64.75
+            ],
+            [
+              22.15,
+              65.58
+            ]
+          ]
+        },
+        "properties": {
+          "id": 5,
+          "external_id": "seed-norrbotniabanan",
+          "source": "manual",
+          "name": "Norrbotniabanan",
+          "description": "Ny kustjärnväg mellan Umeå och Luleå. Avsevärt förbättrar godstransporter och persontrafik i norra Sverige.",
+          "project_type": "järnväg",
+          "status": "planerad",
+          "start_date": "2024-01-01",
+          "end_date": "2040-12-31",
+          "budget_sek": 30000000000,
+          "impact_radius_m": 5000.0,
+          "metadata_json": {
+            "trafikverket_id": "TRV2018/3456",
+            "kommun": "Umeå, Skellefteå, Piteå, Luleå"
+          },
+          "created_at": null,
+          "updated_at": null
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              17.93,
+              59.22
+            ],
+            [
+              18.04,
+              59.2
+            ],
+            [
+              18.15,
+              59.19
+            ]
+          ]
+        },
+        "properties": {
+          "id": 6,
+          "external_id": "seed-tvarbana-sodertorn",
+          "source": "manual",
+          "name": "Tvärförbindelse Södertörn",
+          "description": "Ny väg mellan E4/E20 vid Vårby backe och väg 73 vid Jordbro. Knyter ihop de södra delarna av Stockholmsregionen.",
+          "project_type": "väg",
+          "status": "planerad",
+          "start_date": "2025-01-01",
+          "end_date": "2032-12-31",
+          "budget_sek": 10000000000,
+          "impact_radius_m": 2000.0,
+          "metadata_json": {
+            "trafikverket_id": "TRV2019/7890",
+            "kommun": "Huddinge, Haninge"
+          },
+          "created_at": null,
+          "updated_at": null
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              18.04,
+              59.345
+            ],
+            [
+              18.055,
+              59.335
+            ],
+            [
+              18.07,
+              59.32
+            ]
+          ]
+        },
+        "properties": {
+          "id": 7,
+          "external_id": "seed-citybanan",
+          "source": "manual",
+          "name": "Citybanan",
+          "description": "Pendeltågstunnel under centrala Stockholm mellan Tomteboda och Stockholms södra. Två nya stationer: Stockholm City och Stockholm Odenplan.",
+          "project_type": "järnväg",
+          "status": "avslutad",
+          "start_date": "2009-01-01",
+          "end_date": "2017-07-10",
+          "budget_sek": 16800000000,
+          "impact_radius_m": 1500.0,
+          "metadata_json": {
+            "trafikverket_id": "TRV2006/0001",
+            "kommun": "Stockholm, Solna"
+          },
+          "created_at": null,
+          "updated_at": null
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            12.0,
+            57.72
+          ]
+        },
+        "properties": {
+          "id": 8,
+          "external_id": "seed-marieholmstunneln",
+          "source": "manual",
+          "name": "Marieholmstunneln",
+          "description": "Ny vägtunnel under Göta älv i Göteborg. Avlastar Tingstadstunneln och förbättrar trafikflödet.",
+          "project_type": "tunnel",
+          "status": "pågående",
+          "start_date": "2018-01-01",
+          "end_date": "2026-12-31",
+          "budget_sek": 4000000000,
+          "impact_radius_m": 1500.0,
+          "metadata_json": {
+            "trafikverket_id": "TRV2016/4567",
+            "kommun": "Göteborg"
+          },
+          "created_at": null,
+          "updated_at": null
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              18.07,
+              59.36
+            ],
+            [
+              18.1,
+              59.38
+            ],
+            [
+              18.17,
+              59.43
+            ]
+          ]
+        },
+        "properties": {
+          "id": 9,
+          "external_id": "seed-roslagsbanan",
+          "source": "manual",
+          "name": "Roslagsbanan utbyggnad",
+          "description": "Utbyggnad och modernisering av Roslagsbanan i nordöstra Stockholm. Dubbelspår, nya stationer och ökad kapacitet.",
+          "project_type": "kollektivtrafik",
+          "status": "planerad",
+          "start_date": "2023-01-01",
+          "end_date": "2030-12-31",
+          "budget_sek": 6000000000,
+          "impact_radius_m": 1500.0,
+          "metadata_json": {
+            "kommun": "Stockholm, Täby, Vallentuna"
+          },
+          "created_at": null,
+          "updated_at": null
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              17.25,
+              62.36
+            ],
+            [
+              17.3,
+              62.39
+            ],
+            [
+              17.38,
+              62.42
+            ]
+          ]
+        },
+        "properties": {
+          "id": 10,
+          "external_id": "seed-e4-sundsvall",
+          "source": "manual",
+          "name": "E4 Förbifart Sundsvall",
+          "description": "Ny sträckning av E4 förbi Sundsvall med bro över Sundsvallsfjärden. Minskar genomfartstrafiken i centrala Sundsvall.",
+          "project_type": "väg",
+          "status": "avslutad",
+          "start_date": "2010-01-01",
+          "end_date": "2015-10-19",
+          "budget_sek": 4100000000,
+          "impact_radius_m": 2000.0,
+          "metadata_json": {
+            "trafikverket_id": "TRV2007/8901",
+            "kommun": "Sundsvall"
+          },
+          "created_at": null,
+          "updated_at": null
+        }
+      }
+    ],
+    "numberMatched": 10,
+    "numberReturned": 10
+  },
+  "impactZones": {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                17.911496123261994,
+                59.343971124800504
+              ],
+              [
+                17.89336467452949,
+                59.298642502969244
+              ],
+              [
+                17.90254601126003,
+                59.25273581931657
+              ],
+              [
+                17.9028185579035,
+                59.25009479534891
+              ],
+              [
+                17.902582432960806,
+                59.24745285845021
+              ],
+              [
+                17.90183991044421,
+                59.24483545191705
+              ],
+              [
+                17.90059814125146,
+                59.24226778280515
+              ],
+              [
+                17.898869084298706,
+                59.23977457917171
+              ],
+              [
+                17.896669391349594,
+                59.23737985193062
+              ],
+              [
+                17.8940202466497,
+                59.23510666361431
+              ],
+              [
+                17.890947162910656,
+                59.232976906268924
+              ],
+              [
+                17.887479735608785,
+                59.23101109062194
+              ],
+              [
+                17.883651357964492,
+                59.22922814855266
+              ],
+              [
+                17.879498899347304,
+                59.22764525076787
+              ],
+              [
+                17.875062350203656,
+                59.22627764143853
+              ],
+              [
+                17.870384436927075,
+                59.2251384913901
+              ],
+              [
+                17.86551021037962,
+                59.22423877126027
+              ],
+              [
+                17.860486612027465,
+                59.223587145845705
+              ],
+              [
+                17.855362021868924,
+                59.2231898906554
+              ],
+              [
+                17.8501857925086,
+                59.22305083147398
+              ],
+              [
+                17.845007773864857,
+                59.22317130751736
+              ],
+              [
+                17.839877833087822,
+                59.223550158535424
+              ],
+              [
+                17.834845374311495,
+                59.22418373598573
+              ],
+              [
+                17.829958862864906,
+                59.22506593817111
+              ],
+              [
+                17.825265358524526,
+                59.22618826900225
+              ],
+              [
+                17.82081006230289,
+                59.22753991981971
+              ],
+              [
+                17.816635881138115,
+                59.22910787348723
+              ],
+              [
+                17.81278301467667,
+                59.23087702975388
+              ],
+              [
+                17.809288568128753,
+                59.23283035067766
+              ],
+              [
+                17.806186194924894,
+                59.23494902471031
+              ],
+              [
+                17.80350577261497,
+                59.2372126478627
+              ],
+              [
+                17.801273115131092,
+                59.239599420206446
+              ],
+              [
+                17.79950972418533,
+                59.24208635581914
+              ],
+              [
+                17.798232582196455,
+                59.24464950415134
+              ],
+              [
+                17.797453988739974,
+                59.24726418068343
+              ],
+              [
+                17.787453988739973,
+                59.297264180683435
+              ],
+              [
+                17.787181127791307,
+                59.29998148757785
+              ],
+              [
+                17.78744667161916,
+                59.30269898317712
+              ],
+              [
+                17.788247913424627,
+                59.30538896691606
+              ],
+              [
+                17.808247913424626,
+                59.35538896691606
+              ],
+              [
+                17.808820292182695,
+                59.356661706088886
+              ],
+              [
+                17.828820292182694,
+                59.39666170608888
+              ],
+              [
+                17.830346496857054,
+                59.399189148938
+              ],
+              [
+                17.832350891910046,
+                59.40162809525954
+              ],
+              [
+                17.834814173921597,
+                59.40395505666717
+              ],
+              [
+                17.837712620139367,
+                59.40614762325049
+              ],
+              [
+                17.84101831694183,
+                59.40818467939472
+              ],
+              [
+                17.8446994286617,
+                59.41004660713561
+              ],
+              [
+                17.84872050418081,
+                59.411715475091206
+              ],
+              [
+                17.85304281834377,
+                59.41317521115079
+              ],
+              [
+                17.857624744902378,
+                59.414411757258115
+              ],
+              [
+                17.86242215739913,
+                59.415413204798234
+              ],
+              [
+                17.867388854129157,
+                59.41616990928388
+              ],
+              [
+                17.872477003087873,
+                59.41667458323718
+              ],
+              [
+                17.87763760261934,
+                59.416922366372106
+              ],
+              [
+                17.882820953329006,
+                59.4169108724016
+              ],
+              [
+                17.887977136716017,
+                59.41664021201888
+              ],
+              [
+                17.89305649591571,
+                59.41611299183141
+              ],
+              [
+                17.898010113922325,
+                59.41533428925779
+              ],
+              [
+                17.902790284686542,
+                59.414311603629486
+              ],
+              [
+                17.90735097255079,
+                59.41305478396816
+              ],
+              [
+                17.91164825559781,
+                59.41157593413418
+              ],
+              [
+                17.915640748642726,
+                59.40988929625989
+              ],
+              [
+                17.919290001795,
+                59.408011113590014
+              ],
+              [
+                17.922560870751887,
+                59.4059594740504
+              ],
+              [
+                17.925421855257294,
+                59.40375413605134
+              ],
+              [
+                17.927845402466463,
+                59.40141633820333
+              ],
+              [
+                17.929808172294923,
+                59.39896859477762
+              ],
+              [
+                17.931291262196265,
+                59.39643447888147
+              ],
+              [
+                17.932280389204,
+                59.39383839543624
+              ],
+              [
+                17.932766027484334,
+                59.39120534614469
+              ],
+              [
+                17.932743500075148,
+                59.38856068871085
+              ],
+              [
+                17.93221302392771,
+                59.38592989263152
+              ],
+              [
+                17.931179707817304,
+                59.383338293911116
+              ],
+              [
+                17.911496123261994,
+                59.343971124800504
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "project_id": 1,
+          "name": "Förbifart Stockholm",
+          "project_type": "tunnel",
+          "status": "pågående",
+          "impact_radius_m": 3000.0
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                11.962335342271402,
+                57.73249356769616
+              ],
+              [
+                12.002335342271424,
+                57.737493567696156
+              ],
+              [
+                12.00558245345376,
+                57.73781060685628
+              ],
+              [
+                12.008872108024214,
+                57.73795612013609
+              ],
+              [
+                12.01217262481096,
+                57.73792870616319
+              ],
+              [
+                12.0154522180331,
+                57.73772862894911
+              ],
+              [
+                12.018679303415096,
+                57.73735781534679
+              ],
+              [
+                12.021822802360616,
+                57.736819836493936
+              ],
+              [
+                12.0248524412564,
+                57.73611987342099
+              ],
+              [
+                12.027739043023717,
+                57.73526466715497
+              ],
+              [
+                12.030454808109566,
+                57.73426245379974
+              ],
+              [
+                12.032973582211584,
+                57.733122885217774
+              ],
+              [
+                12.03527110815827,
+                57.73185693607745
+              ],
+              [
+                12.037325259518797,
+                57.73047679816105
+              ],
+              [
+                12.03911625369265,
+                57.72899576295115
+              ],
+              [
+                12.040626842426882,
+                57.72742809362646
+              ],
+              [
+                12.041842477926208,
+                57.72578888769952
+              ],
+              [
+                12.042751452956233,
+                57.724093931619514
+              ],
+              [
+                12.043345013590526,
+                57.722359548740044
+              ],
+              [
+                12.043617443515704,
+                57.720602442116345
+              ],
+              [
+                12.04356611908266,
+                57.718839533645735
+              ],
+              [
+                12.043191534573744,
+                57.71708780110049
+              ],
+              [
+                12.042497297442544,
+                57.715364114622616
+              ],
+              [
+                12.041490093572145,
+                57.71368507425517
+              ],
+              [
+                12.040179622886408,
+                57.71206685007473
+              ],
+              [
+                12.038578505934414,
+                57.71052502646477
+              ],
+              [
+                12.036702162347671,
+                57.709074452029505
+              ],
+              [
+                12.034568662340634,
+                57.707729096593695
+              ],
+              [
+                12.032198552684662,
+                57.706501916665665
+              ],
+              [
+                12.029614658831369,
+                57.705404730658934
+              ],
+              [
+                12.02684186509107,
+                57.70444810507455
+              ],
+              [
+                12.023906874983243,
+                57.70364125273983
+              ],
+              [
+                12.020837954067057,
+                57.70299194408381
+              ],
+              [
+                12.017664657728576,
+                57.702506432303835
+              ],
+              [
+                11.977664657728576,
+                57.69750643230385
+              ],
+              [
+                11.937664657728599,
+                57.692506432303844
+              ],
+              [
+                11.934417546546262,
+                57.69218939314373
+              ],
+              [
+                11.931127891975812,
+                57.69204387986391
+              ],
+              [
+                11.927827375189064,
+                57.69207129383681
+              ],
+              [
+                11.924547781966924,
+                57.69227137105089
+              ],
+              [
+                11.921320696584926,
+                57.69264218465321
+              ],
+              [
+                11.918177197639407,
+                57.693180163506064
+              ],
+              [
+                11.915147558743621,
+                57.69388012657901
+              ],
+              [
+                11.912260956976304,
+                57.69473533284502
+              ],
+              [
+                11.909545191890455,
+                57.69573754620025
+              ],
+              [
+                11.907026417788433,
+                57.69687711478221
+              ],
+              [
+                11.904728891841748,
+                57.69814306392254
+              ],
+              [
+                11.902674740481219,
+                57.699523201838936
+              ],
+              [
+                11.900883746307363,
+                57.701004237048835
+              ],
+              [
+                11.899373157573129,
+                57.702571906373535
+              ],
+              [
+                11.8981575220738,
+                57.70421111230046
+              ],
+              [
+                11.897248547043771,
+                57.705906068380465
+              ],
+              [
+                11.896654986409477,
+                57.70764045125994
+              ],
+              [
+                11.896382556484296,
+                57.70939755788364
+              ],
+              [
+                11.896433880917337,
+                57.71116046635425
+              ],
+              [
+                11.896808465426252,
+                57.712912198899495
+              ],
+              [
+                11.897502702557448,
+                57.71463588537736
+              ],
+              [
+                11.898509906427847,
+                57.71631492574481
+              ],
+              [
+                11.899820377113581,
+                57.71793314992525
+              ],
+              [
+                11.901421494065572,
+                57.71947497353521
+              ],
+              [
+                11.903297837652312,
+                57.72092554797049
+              ],
+              [
+                11.905431337659348,
+                57.72227090340628
+              ],
+              [
+                11.907801447315322,
+                57.72349808333432
+              ],
+              [
+                11.91038534116861,
+                57.72459526934105
+              ],
+              [
+                11.913158134908908,
+                57.72555189492544
+              ],
+              [
+                11.916093125016735,
+                57.726358747260164
+              ],
+              [
+                11.91916204593292,
+                57.72700805591617
+              ],
+              [
+                11.922335342271401,
+                57.72749356769616
+              ],
+              [
+                11.962335342271402,
+                57.73249356769616
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "project_id": 2,
+          "name": "Västlänken",
+          "project_type": "järnväg",
+          "status": "pågående",
+          "impact_radius_m": 2000.0
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                16.559885008080986,
+                58.66762628602768
+              ],
+              [
+                16.553513204737836,
+                58.664738658711684
+              ],
+              [
+                16.54662912330183,
+                58.66218858570131
+              ],
+              [
+                15.646629123301828,
+                58.36218858570131
+              ],
+              [
+                15.639276016033,
+                58.359994466231036
+              ],
+              [
+                15.631544659259314,
+                58.35818562192021
+              ],
+              [
+                15.623509510172896,
+                58.356779472928345
+              ],
+              [
+                15.615247951651913,
+                58.355789561238936
+              ],
+              [
+                15.606839547021139,
+                58.35522542024267
+              ],
+              [
+                15.598365273813675,
+                58.355092482925755
+              ],
+              [
+                15.58990674391302,
+                58.3553920295472
+              ],
+              [
+                15.581545417586014,
+                58.356121175309305
+              ],
+              [
+                15.573361818975958,
+                58.35727289813979
+              ],
+              [
+                15.565434760611074,
+                58.3588361063182
+              ],
+              [
+                15.55784058439679,
+                58.360795745295235
+              ],
+              [
+                15.550652426401442,
+                58.3631329426763
+              ],
+              [
+                15.543939512515978,
+                58.36582518997299
+              ],
+              [
+                15.537766491770764,
+                58.36884655937208
+              ],
+              [
+                15.532192813730092,
+                58.37216795343461
+              ],
+              [
+                15.52727215596038,
+                58.37575738532013
+              ],
+              [
+                15.523051907085852,
+                58.37958028683737
+              ],
+              [
+                15.519572710410195,
+                58.383599841354915
+              ],
+              [
+                15.516868072499316,
+                58.387777338365446
+              ],
+              [
+                15.514964040494803,
+                58.392072546289114
+              ],
+              [
+                15.51387895126571,
+                58.396444099925596
+              ],
+              [
+                15.51362325481448,
+                58.40084989882365
+              ],
+              [
+                15.51419941363772,
+                58.405247512731435
+              ],
+              [
+                15.515601879011,
+                58.40959459022303
+              ],
+              [
+                15.51781714442611,
+                58.41384926656584
+              ],
+              [
+                15.520823875666116,
+                58.41797056690085
+              ],
+              [
+                15.524593116265528,
+                58.42191880085288
+              ],
+              [
+                15.529088566376899,
+                58.425655944770675
+              ],
+              [
+                15.534266932358193,
+                58.42914600791535
+              ],
+              [
+                15.54007834371423,
+                58.43235537907098
+              ],
+              [
+                15.546466833376806,
+                58.4352531502389
+              ],
+              [
+                15.553370876698171,
+                58.43781141429869
+              ],
+              [
+                16.4462294243189,
+                58.735430930172264
+              ],
+              [
+                17.040114991919015,
+                59.032373713972326
+              ],
+              [
+                17.04650676178426,
+                59.035269529282466
+              ],
+              [
+                17.053413700775902,
+                59.03782567974532
+              ],
+              [
+                17.06076929129573,
+                59.040017548234616
+              ],
+              [
+                17.068502694986073,
+                59.04182402585859
+              ],
+              [
+                17.076539434941875,
+                59.04322771525021
+              ],
+              [
+                17.084802112964034,
+                59.0442150981133
+              ],
+              [
+                17.093211154946363,
+                59.04477666541113
+              ],
+              [
+                17.101685577217715,
+                59.04490700894362
+              ],
+              [
+                17.110143766459036,
+                59.044604873431325
+              ],
+              [
+                17.118504265684205,
+                59.043873168604385
+              ],
+              [
+                17.126686558715377,
+                59.04271894118027
+              ],
+              [
+                17.13461184559776,
+                59.04115330700003
+              ],
+              [
+                17.14220380148628,
+                59.03919134397671
+              ],
+              [
+                17.14938931169554,
+                59.03685194688671
+              ],
+              [
+                17.15609917583423,
+                59.034157645402885
+              ],
+              [
+                17.16226877424271,
+                59.03113438712135
+              ],
+              [
+                17.16783869031565,
+                59.02781128767205
+              ],
+              [
+                17.172755282716455,
+                59.02422035031928
+              ],
+              [
+                17.176971201972616,
+                59.02039615775274
+              ],
+              [
+                17.180445846477046,
+                59.01637553903736
+              ],
+              [
+                17.183145753503727,
+                59.01219721492928
+              ],
+              [
+                17.185044921472073,
+                59.007901424973745
+              ],
+              [
+                17.18612506035636,
+                59.00352953997636
+              ],
+              [
+                17.186375767828668,
+                58.99912366357957
+              ],
+              [
+                17.18579462943899,
+                58.99472622678155
+              ],
+              [
+                17.1843872418677,
+                58.99037957930256
+              ],
+              [
+                17.18216715902646,
+                58.98612558173395
+              ],
+              [
+                17.179155761526662,
+                58.98200520239777
+              ],
+              [
+                17.17538205077242,
+                58.97805812279945
+              ],
+              [
+                17.17088236966122,
+                58.974322355473234
+              ],
+              [
+                17.165700052581936,
+                58.97083387790064
+              ],
+              [
+                17.159885008080987,
+                58.967626286027674
+              ],
+              [
+                16.559885008080986,
+                58.66762628602768
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "project_id": 3,
+          "name": "Ostlänken",
+          "project_type": "järnväg",
+          "status": "planerad",
+          "impact_radius_m": 5000.0
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                18.089305306032266,
+                59.319500000000005
+              ],
+              [
+                18.0892205316717,
+                59.31861950107501
+              ],
+              [
+                18.08896702501344,
+                59.31774748183601
+              ],
+              [
+                18.088547227465185,
+                59.31689234030494
+              ],
+              [
+                18.087965181906807,
+                59.31606231196223
+              ],
+              [
+                18.087226493755214,
+                59.315265390434554
+              ],
+              [
+                18.086338276981113,
+                59.31450925051186
+              ],
+              [
+                18.08530908559759,
+                59.31380117423497
+              ],
+              [
+                18.084148831280277,
+                59.313147980765486
+              ],
+              [
+                18.082868687912516,
+                59.312555960713595
+              ],
+              [
+                18.08148098397473,
+                59.312030815556035
+              ],
+              [
+                18.07999908381443,
+                59.31157760272774
+              ],
+              [
+                18.078437258940266,
+                59.311200686915996
+              ],
+              [
+                18.07681055057954,
+                59.310903698026124
+              ],
+              [
+                18.075134624823026,
+                59.31068949622347
+              ],
+              [
+                18.07342562175191,
+                59.3105601443885
+              ],
+              [
+                18.0717,
+                59.31051688825009
+              ],
+              [
+                18.06997437824809,
+                59.3105601443885
+              ],
+              [
+                18.06826537517697,
+                59.31068949622347
+              ],
+              [
+                18.066589449420455,
+                59.310903698026124
+              ],
+              [
+                18.064962741059734,
+                59.311200686915996
+              ],
+              [
+                18.063400916185564,
+                59.31157760272774
+              ],
+              [
+                18.06191901602527,
+                59.312030815556035
+              ],
+              [
+                18.060531312087484,
+                59.312555960713595
+              ],
+              [
+                18.05925116871972,
+                59.313147980765486
+              ],
+              [
+                18.05809091440241,
+                59.31380117423497
+              ],
+              [
+                18.057061723018887,
+                59.31450925051186
+              ],
+              [
+                18.056173506244786,
+                59.315265390434554
+              ],
+              [
+                18.055434818093193,
+                59.31606231196223
+              ],
+              [
+                18.054852772534815,
+                59.31689234030494
+              ],
+              [
+                18.05443297498656,
+                59.31774748183601
+              ],
+              [
+                18.054179468328297,
+                59.31861950107501
+              ],
+              [
+                18.054094693967734,
+                59.319500000000005
+              ],
+              [
+                18.054179468328297,
+                59.32038049892499
+              ],
+              [
+                18.05443297498656,
+                59.321252518163995
+              ],
+              [
+                18.054852772534815,
+                59.322107659695064
+              ],
+              [
+                18.055434818093193,
+                59.322937688037776
+              ],
+              [
+                18.056173506244786,
+                59.32373460956545
+              ],
+              [
+                18.057061723018887,
+                59.32449074948814
+              ],
+              [
+                18.05809091440241,
+                59.325198825765035
+              ],
+              [
+                18.05925116871972,
+                59.32585201923452
+              ],
+              [
+                18.060531312087484,
+                59.32644403928641
+              ],
+              [
+                18.06191901602527,
+                59.32696918444397
+              ],
+              [
+                18.063400916185564,
+                59.327422397272265
+              ],
+              [
+                18.064962741059734,
+                59.32779931308401
+              ],
+              [
+                18.066589449420455,
+                59.32809630197388
+              ],
+              [
+                18.06826537517697,
+                59.328310503776535
+              ],
+              [
+                18.06997437824809,
+                59.3284398556115
+              ],
+              [
+                18.0717,
+                59.32848311174991
+              ],
+              [
+                18.07342562175191,
+                59.3284398556115
+              ],
+              [
+                18.075134624823026,
+                59.328310503776535
+              ],
+              [
+                18.07681055057954,
+                59.32809630197388
+              ],
+              [
+                18.078437258940266,
+                59.32779931308401
+              ],
+              [
+                18.07999908381443,
+                59.327422397272265
+              ],
+              [
+                18.08148098397473,
+                59.32696918444397
+              ],
+              [
+                18.082868687912516,
+                59.32644403928641
+              ],
+              [
+                18.084148831280277,
+                59.32585201923452
+              ],
+              [
+                18.08530908559759,
+                59.325198825765035
+              ],
+              [
+                18.086338276981113,
+                59.32449074948814
+              ],
+              [
+                18.087226493755214,
+                59.32373460956545
+              ],
+              [
+                18.087965181906807,
+                59.322937688037776
+              ],
+              [
+                18.088547227465185,
+                59.322107659695064
+              ],
+              [
+                18.08896702501344,
+                59.321252518163995
+              ],
+              [
+                18.0892205316717,
+                59.32038049892499
+              ],
+              [
+                18.089305306032266,
+                59.319500000000005
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "project_id": 4,
+          "name": "Nya Slussen",
+          "project_type": "bro",
+          "status": "pågående",
+          "impact_radius_m": 1000.0
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                20.90033302713949,
+                64.76456836381433
+              ],
+              [
+                20.904312914435803,
+                64.76880229719924
+              ],
+              [
+                20.909279580389818,
+                64.77284233079631
+              ],
+              [
+                22.059279580389816,
+                65.60284233079629
+              ],
+              [
+                22.064968543944996,
+                65.60652299920731
+              ],
+              [
+                22.071476406904907,
+                65.60994823663701
+              ],
+              [
+                22.07874049499169,
+                65.61308505617652
+              ],
+              [
+                22.086690851066106,
+                65.61590324853891
+              ],
+              [
+                22.095250908853057,
+                65.61837567299119
+              ],
+              [
+                22.104338230316653,
+                65.62047851873426
+              ],
+              [
+                22.113865299583566,
+                65.62219153421412
+              ],
+              [
+                22.123740365768715,
+                65.62349822215526
+              ],
+              [
+                22.133868326586498,
+                65.62438599843848
+              ],
+              [
+                22.14415164423772,
+                65.6248463132929
+              ],
+              [
+                22.154491284751963,
+                65.62487473363483
+              ],
+              [
+                22.164787671738864,
+                65.62447098576082
+              ],
+              [
+                22.174941645363155,
+                65.62363895798362
+              ],
+              [
+                22.18485541730811,
+                65.62238666318555
+              ],
+              [
+                22.19443351253048,
+                65.6207261616501
+              ],
+              [
+                22.203583688737346,
+                65.61867344491478
+              ],
+              [
+                22.212217824729855,
+                65.61624828176387
+              ],
+              [
+                22.22025276905849,
+                65.61347402784426
+              ],
+              [
+                22.22761114081702,
+                65.61037740073773
+              ],
+              [
+                22.23422207486292,
+                65.60698822265613
+              ],
+              [
+                22.240021904287417,
+                65.60333913323707
+              ],
+              [
+                22.244954773562647,
+                65.59946527520648
+              ],
+              [
+                22.248973176460915,
+                65.59540395593486
+              ],
+              [
+                22.252038413565618,
+                65.59119428814692
+              ],
+              [
+                22.254120964967814,
+                65.5868768132447
+              ],
+              [
+                22.255200774559064,
+                65.58249311087168
+              ],
+              [
+                22.255267443182714,
+                65.57808539847811
+              ],
+              [
+                22.25432032878347,
+                65.57369612474382
+              ],
+              [
+                22.25236855259076,
+                65.56936756077428
+              ],
+              [
+                22.249430911276253,
+                65.56514139300678
+              ],
+              [
+                22.245535695931693,
+                65.56105832174717
+              ],
+              [
+                22.24072041961018,
+                65.55715766920369
+              ],
+              [
+                21.09618303213201,
+                64.73110025041511
+              ],
+              [
+                20.359666972860513,
+                63.81543163618567
+              ],
+              [
+                20.355837356210703,
+                63.81133730373257
+              ],
+              [
+                20.351084773430557,
+                63.8074227032466
+              ],
+              [
+                20.34545499449027,
+                63.80372553447037
+              ],
+              [
+                20.339002237238596,
+                63.80028140316026
+              ],
+              [
+                20.331788645255294,
+                63.79712347818357
+              ],
+              [
+                20.32388368937452,
+                63.79428217208411
+              ],
+              [
+                20.31536349864269,
+                63.79178484819282
+              ],
+              [
+                20.306310127154166,
+                63.78965555710396
+              ],
+              [
+                20.296810763825455,
+                63.78791480505472
+              ],
+              [
+                20.286956892718297,
+                63.7865793564389
+              ],
+              [
+                20.276843411998126,
+                63.785662072356715
+              ],
+              [
+                20.266567720012862,
+                63.7851717867553
+              ],
+              [
+                20.256228777293597,
+                63.785113221353036
+              ],
+              [
+                20.245926153510556,
+                63.78548694016674
+              ],
+              [
+                20.235759068562754,
+                63.78628934407997
+              ],
+              [
+                20.225825437036132,
+                63.787512705504376
+              ],
+              [
+                20.21622092523257,
+                63.78914524280069
+              ],
+              [
+                20.2070380298511,
+                63.791171233742325
+              ],
+              [
+                20.198365187194113,
+                63.79357116692897
+              ],
+              [
+                20.190285921477468,
+                63.79632192969212
+              ],
+              [
+                20.182878040446585,
+                63.79939703068265
+              ],
+              [
+                20.176212886045352,
+                63.802766854996975
+              ],
+              [
+                20.170354647354202,
+                63.80639894938485
+              ],
+              [
+                20.16535974241416,
+                63.81025833479178
+              ],
+              [
+                20.1612762748903,
+                63.814307843226565
+              ],
+              [
+                20.158143570807127,
+                63.81850847570927
+              ],
+              [
+                20.155991799817464,
+                63.82281977785282
+              ],
+              [
+                20.15484168465223,
+                63.82720022946075
+              ],
+              [
+                20.154704301549174,
+                63.83160764438947
+              ],
+              [
+                20.155580973582683,
+                63.83599957682391
+              ],
+              [
+                20.15746325792184,
+                63.84033373005382
+              ],
+              [
+                20.16033302713949,
+                63.844568363814325
+              ],
+              [
+                20.90033302713949,
+                64.76456836381433
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "project_id": 5,
+          "name": "Norrbotniabanan",
+          "project_type": "järnväg",
+          "status": "planerad",
+          "impact_radius_m": 5000.0
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                18.04899991578671,
+                59.21742905199622
+              ],
+              [
+                18.156134457427115,
+                59.20768954821073
+              ],
+              [
+                18.159491369519806,
+                59.207296509002695
+              ],
+              [
+                18.162756874535514,
+                59.20673689495772
+              ],
+              [
+                18.165899523875826,
+                59.206016095465
+              ],
+              [
+                18.16888905210965,
+                59.205141052217655
+              ],
+              [
+                18.17169666844585,
+                59.20412019236051
+              ],
+              [
+                18.174295334004317,
+                59.202963347332066
+              ],
+              [
+                18.176660022215138,
+                59.20168165818231
+              ],
+              [
+                18.178767959838176,
+                59.200287468278425
+              ],
+              [
+                18.180598846281807,
+                59.198794204431316
+              ],
+              [
+                18.182135049108712,
+                59.19721624758812
+              ],
+              [
+                18.1833617738459,
+                59.19556879433586
+              ],
+              [
+                18.184267206463545,
+                59.19386771054994
+              ],
+              [
+                18.184842627150587,
+                59.19212937859711
+              ],
+              [
+                18.18508249429125,
+                59.19037053956435
+              ],
+              [
+                18.18498449783385,
+                59.188608132033025
+              ],
+              [
+                18.184549581537837,
+                59.1868591289511
+              ],
+              [
+                18.18378193388489,
+                59.18514037417435
+              ],
+              [
+                18.18268894774155,
+                59.18346842025085
+              ],
+              [
+                18.181281149161862,
+                59.18185936901085
+              ],
+              [
+                18.179572096015733,
+                59.1803287164974
+              ],
+              [
+                18.177578247419216,
+                59.178891203730934
+              ],
+              [
+                18.175318805224247,
+                59.17756067474524
+              ],
+              [
+                18.172815529094304,
+                59.17634994326176
+              ],
+              [
+                18.17009252694695,
+                59.17527066928656
+              ],
+              [
+                18.167176022781398,
+                59.174333246817994
+              ],
+              [
+                18.164094104127095,
+                59.173546703746894
+              ],
+              [
+                18.160876451545427,
+                59.172918614913
+              ],
+              [
+                18.1575540527897,
+                59.172455029155124
+              ],
+              [
+                18.154158904376146,
+                59.17216041105755
+              ],
+              [
+                18.15072370343996,
+                59.17203759795359
+              ],
+              [
+                18.147281532844033,
+                59.17208777260059
+              ],
+              [
+                18.14386554257288,
+                59.172310451789265
+              ],
+              [
+                18.03386554257288,
+                59.18231045178927
+              ],
+              [
+                18.031030879027348,
+                59.18263058460801
+              ],
+              [
+                18.02825759437011,
+                59.18306958252072
+              ],
+              [
+                17.91825759437011,
+                59.20306958252071
+              ],
+              [
+                17.915073012526253,
+                59.20374040251506
+              ],
+              [
+                17.91203218573169,
+                59.2045678113216
+              ],
+              [
+                17.909164398810738,
+                59.20554384054119
+              ],
+              [
+                17.906497270119132,
+                59.20665909047892
+              ],
+              [
+                17.904056485564183,
+                59.20790282066822
+              ],
+              [
+                17.901865551235417,
+                59.20926305330747
+              ],
+              [
+                17.89994556702811,
+                59.21072668861278
+              ],
+              [
+                17.898315023439743,
+                59.212279630976056
+              ],
+              [
+                17.89698962349642,
+                59.21390692471342
+              ],
+              [
+                17.895982131524136,
+                59.21559289809661
+              ],
+              [
+                17.895302250221334,
+                59.21732131428029
+              ],
+              [
+                17.89495652721662,
+                59.219075527671784
+              ],
+              [
+                17.89494829201152,
+                59.22083864423715
+              ],
+              [
+                17.89527762391556,
+                59.22259368420006
+              ],
+              [
+                17.89594135128248,
+                59.22432374556629
+              ],
+              [
+                17.896933082054897,
+                59.2260121668991
+              ],
+              [
+                17.89824326532334,
+                59.22764268777809
+              ],
+              [
+                17.899859283306718,
+                59.22919960539587
+              ],
+              [
+                17.901765572868445,
+                59.230667925784665
+              ],
+              [
+                17.90394377539796,
+                59.23203350821647
+              ],
+              [
+                17.906372913614167,
+                59.233283201385966
+              ],
+              [
+                17.90902959358815,
+                59.23440497006478
+              ],
+              [
+                17.911888230039473,
+                59.23538801100731
+              ],
+              [
+                17.914921292736416,
+                59.2362228569919
+              ],
+              [
+                17.918099571627163,
+                59.23690146799534
+              ],
+              [
+                17.921392458148578,
+                59.2374173086227
+              ],
+              [
+                17.924768240003388,
+                59.23776541104676
+              ],
+              [
+                17.92819440656693,
+                59.23794242285088
+              ],
+              [
+                17.931637961982272,
+                59.237946639314615
+              ],
+              [
+                17.935065742928327,
+                59.23777801983112
+              ],
+              [
+                17.93844473800076,
+                59.23743818829819
+              ],
+              [
+                17.94174240562989,
+                59.23693041747928
+              ],
+              [
+                18.04899991578671,
+                59.21742905199622
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "project_id": 6,
+          "name": "Tvärförbindelse Södertörn",
+          "project_type": "väg",
+          "status": "planerad",
+          "impact_radius_m": 2000.0
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                18.075982207918724,
+                59.34318761943583
+              ],
+              [
+                18.077350117452433,
+                59.34218450449825
+              ],
+              [
+                18.078534242737845,
+                59.34112231162689
+              ],
+              [
+                18.093534242737846,
+                59.32612231162689
+              ],
+              [
+                18.09459746748955,
+                59.32491628245996
+              ],
+              [
+                18.095423805182985,
+                59.323662906805424
+              ],
+              [
+                18.096005297734447,
+                59.32237425535601
+              ],
+              [
+                18.09633634505278,
+                59.32106273852961
+              ],
+              [
+                18.096413758971345,
+                59.319740986950215
+              ],
+              [
+                18.09623679395179,
+                59.31842172980809
+              ],
+              [
+                18.095807154263984,
+                59.317117672270676
+              ],
+              [
+                18.09512897757299,
+                59.31584137312495
+              ],
+              [
+                18.094208795091077,
+                59.314605123829345
+              ],
+              [
+                18.09305546867856,
+                59.313420830140416
+              ],
+              [
+                18.091680105499268,
+                59.31229989745378
+              ],
+              [
+                18.090095951052465,
+                59.311253120963954
+              ],
+              [
+                18.088318261611466,
+                59.310290581700784
+              ],
+              [
+                18.086364157297364,
+                59.30942154944354
+              ],
+              [
+                18.084252457202933,
+                59.30865439344793
+              ],
+              [
+                18.082003498154453,
+                59.30799650184555
+              ],
+              [
+                18.079638938856963,
+                59.30745421049218
+              ],
+              [
+                18.0771815513091,
+                59.30703274195
+              ],
+              [
+                18.074655001496296,
+                59.306736155191466
+              ],
+              [
+                18.072083621474402,
+                59.30656730650919
+              ],
+              [
+                18.069492175038686,
+                59.30652782200828
+              ],
+              [
+                18.06690561923495,
+                59.30661808194608
+              ],
+              [
+                18.064348864009546,
+                59.30683721707004
+              ],
+              [
+                18.061846532312952,
+                59.30718311698912
+              ],
+              [
+                18.059422722967323,
+                59.30765245049802
+              ],
+              [
+                18.05710077858165,
+                59.30824069765848
+              ],
+              [
+                18.054903060749663,
+                59.30894219332878
+              ],
+              [
+                18.052850734695486,
+                59.30975018172214
+              ],
+              [
+                18.050963565440934,
+                59.310656881468624
+              ],
+              [
+                18.049259727457557,
+                59.31165356055404
+              ],
+              [
+                18.04775562963655,
+                59.312730620413944
+              ],
+              [
+                18.046465757262155,
+                59.31387768837312
+              ],
+              [
+                18.032557611050738,
+                59.32778583458453
+              ],
+              [
+                18.019017792081275,
+                59.33681238056416
+              ],
+              [
+                18.017545380307556,
+                59.33790077074956
+              ],
+              [
+                18.016289218796413,
+                59.339057530393475
+              ],
+              [
+                18.015261405069896,
+                59.340271519268185
+              ],
+              [
+                18.01447183753605,
+                59.3415310459972
+              ],
+              [
+                18.01392812016184,
+                59.342823980649584
+              ],
+              [
+                18.013635489242812,
+                59.344137871557834
+              ],
+              [
+                18.013596762974686,
+                59.34546006523428
+              ],
+              [
+                18.013812314312588,
+                59.34677782823101
+              ],
+              [
+                18.014280067379307,
+                59.34807846977002
+              ],
+              [
+                18.01499551745711,
+                59.3493494639623
+              ],
+              [
+                18.015951774370638,
+                59.35057857043894
+              ],
+              [
+                18.017139628843076,
+                59.35175395223271
+              ],
+              [
+                18.0185476411865,
+                59.352864289774395
+              ],
+              [
+                18.020162251472357,
+                59.35389888990648
+              ],
+              [
+                18.021967910120953,
+                59.35484778886415
+              ],
+              [
+                18.02394722765242,
+                59.3557018482317
+              ],
+              [
+                18.026081142156936,
+                59.35645284295057
+              ],
+              [
+                18.028349102871303,
+                59.357093540531054
+              ],
+              [
+                18.03072926809405,
+                59.35761777070521
+              ],
+              [
+                18.033198715532944,
+                59.358020484849916
+              ],
+              [
+                18.03573366305922,
+                59.358297804607794
+              ],
+              [
+                18.03830969774245,
+                59.358447059237974
+              ],
+              [
+                18.040902010960433,
+                59.35846681133679
+              ],
+              [
+                18.04348563731978,
+                59.358356870680716
+              ],
+              [
+                18.046035695086292,
+                59.35811829605838
+              ],
+              [
+                18.048527625809676,
+                59.35775338507381
+              ],
+              [
+                18.050937430834843,
+                59.35726565201928
+              ],
+              [
+                18.05324190242206,
+                59.35665979403071
+              ],
+              [
+                18.055418847250188,
+                59.355941645851736
+              ],
+              [
+                18.057447300150503,
+                59.355118123641894
+              ],
+              [
+                18.0593077260127,
+                59.354197158370255
+              ],
+              [
+                18.060982207918723,
+                59.35318761943582
+              ],
+              [
+                18.075982207918724,
+                59.34318761943583
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "project_id": 7,
+          "name": "Citybanan",
+          "project_type": "järnväg",
+          "status": "avslutad",
+          "impact_radius_m": 1500.0
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                12.025230754289797,
+                57.71999999999999
+              ],
+              [
+                12.025109261311625,
+                57.718679251612514
+              ],
+              [
+                12.024745952420904,
+                57.717371222754
+              ],
+              [
+                12.024144326480856,
+                57.716088510457396
+              ],
+              [
+                12.023310177478166,
+                57.71484346794334
+              ],
+              [
+                12.02225153872372,
+                57.71364808565182
+              ],
+              [
+                12.02097860548744,
+                57.71251387576778
+              ],
+              [
+                12.01950363681224,
+                57.71145176135244
+              ],
+              [
+                12.017840837452768,
+                57.710471971148216
+              ],
+              [
+                12.016006221075832,
+                57.709583941070385
+              ],
+              [
+                12.014017456040044,
+                57.70879622333405
+              ],
+              [
+                12.011893695239868,
+                57.7081164040916
+              ],
+              [
+                12.00965539165278,
+                57.70755103037399
+              ],
+              [
+                12.0073241013659,
+                57.70710554703918
+              ],
+              [
+                12.004922275979107,
+                57.706784244335196
+              ],
+              [
+                12.002473046383844,
+                57.70659021658275
+              ],
+              [
+                12.0,
+                57.70652533237513
+              ],
+              [
+                11.997526953616156,
+                57.70659021658275
+              ],
+              [
+                11.995077724020893,
+                57.706784244335196
+              ],
+              [
+                11.9926758986341,
+                57.70710554703918
+              ],
+              [
+                11.99034460834722,
+                57.70755103037399
+              ],
+              [
+                11.988106304760132,
+                57.7081164040916
+              ],
+              [
+                11.985982543959956,
+                57.70879622333405
+              ],
+              [
+                11.983993778924168,
+                57.709583941070385
+              ],
+              [
+                11.982159162547232,
+                57.710471971148216
+              ],
+              [
+                11.98049636318776,
+                57.71145176135244
+              ],
+              [
+                11.97902139451256,
+                57.71251387576778
+              ],
+              [
+                11.97774846127628,
+                57.71364808565182
+              ],
+              [
+                11.976689822521834,
+                57.71484346794334
+              ],
+              [
+                11.975855673519144,
+                57.716088510457396
+              ],
+              [
+                11.975254047579096,
+                57.717371222754
+              ],
+              [
+                11.974890738688375,
+                57.718679251612514
+              ],
+              [
+                11.974769245710203,
+                57.71999999999999
+              ],
+              [
+                11.974890738688375,
+                57.72132074838748
+              ],
+              [
+                11.975254047579096,
+                57.722628777245994
+              ],
+              [
+                11.975855673519144,
+                57.723911489542594
+              ],
+              [
+                11.976689822521834,
+                57.72515653205665
+              ],
+              [
+                11.97774846127628,
+                57.72635191434817
+              ],
+              [
+                11.97902139451256,
+                57.72748612423221
+              ],
+              [
+                11.98049636318776,
+                57.72854823864755
+              ],
+              [
+                11.982159162547232,
+                57.729528028851774
+              ],
+              [
+                11.983993778924168,
+                57.730416058929606
+              ],
+              [
+                11.985982543959956,
+                57.73120377666594
+              ],
+              [
+                11.988106304760132,
+                57.73188359590839
+              ],
+              [
+                11.99034460834722,
+                57.732448969626
+              ],
+              [
+                11.9926758986341,
+                57.73289445296081
+              ],
+              [
+                11.995077724020893,
+                57.73321575566479
+              ],
+              [
+                11.997526953616156,
+                57.733409783417244
+              ],
+              [
+                12.0,
+                57.73347466762486
+              ],
+              [
+                12.002473046383844,
+                57.733409783417244
+              ],
+              [
+                12.004922275979107,
+                57.73321575566479
+              ],
+              [
+                12.0073241013659,
+                57.73289445296081
+              ],
+              [
+                12.00965539165278,
+                57.732448969626
+              ],
+              [
+                12.011893695239868,
+                57.73188359590839
+              ],
+              [
+                12.014017456040044,
+                57.73120377666594
+              ],
+              [
+                12.016006221075832,
+                57.730416058929606
+              ],
+              [
+                12.017840837452768,
+                57.729528028851774
+              ],
+              [
+                12.01950363681224,
+                57.72854823864755
+              ],
+              [
+                12.02097860548744,
+                57.72748612423221
+              ],
+              [
+                12.02225153872372,
+                57.72635191434817
+              ],
+              [
+                12.023310177478166,
+                57.72515653205665
+              ],
+              [
+                12.024144326480856,
+                57.723911489542594
+              ],
+              [
+                12.024745952420904,
+                57.722628777245994
+              ],
+              [
+                12.025109261311625,
+                57.72132074838748
+              ],
+              [
+                12.025230754289797,
+                57.71999999999999
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "project_id": 8,
+          "name": "Marieholmstunneln",
+          "project_type": "tunnel",
+          "status": "pågående",
+          "impact_radius_m": 1500.0
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                18.078701031190615,
+                59.38800179583644
+              ],
+              [
+                18.148447884121165,
+                59.4378209765011
+              ],
+              [
+                18.150057373997946,
+                59.43885882389587
+              ],
+              [
+                18.151858922264875,
+                59.439811355973795
+              ],
+              [
+                18.153835179027315,
+                59.440669399330254
+              ],
+              [
+                18.15596711185231,
+                59.441424690538675
+              ],
+              [
+                18.158234189061325,
+                59.442069955731846
+              ],
+              [
+                18.160614577461523,
+                59.4425989806532
+              ],
+              [
+                18.163085352611365,
+                59.44300667050356
+              ],
+              [
+                18.16562271959549,
+                59.443289099006805
+              ],
+              [
+                18.168202242182772,
+                59.443443546222056
+              ],
+              [
+                18.17079907816059,
+                59.4434685247382
+              ],
+              [
+                18.173388218578904,
+                59.443363793998465
+              ],
+              [
+                18.17594472860011,
+                59.44313036261713
+              ],
+              [
+                18.17844398763518,
+                59.44277047866602
+              ],
+              [
+                18.18086192645337,
+                59.442287608024294
+              ],
+              [
+                18.183175258982082,
+                59.4416864010002
+              ],
+              [
+                18.185361706564464,
+                59.44097264754604
+              ],
+              [
+                18.18740021251507,
+                59.44015322149775
+              ],
+              [
+                18.18927114490723,
+                59.43923601437613
+              ],
+              [
+                18.190956485639255,
+                59.43822985938714
+              ],
+              [
+                18.192440003958595,
+                59.43714444635335
+              ],
+              [
+                18.19370741277286,
+                59.43599022839563
+              ],
+              [
+                18.194746506242332,
+                59.43477832126388
+              ],
+              [
+                18.195547277328874,
+                59.43352039628625
+              ],
+              [
+                18.196102014169174,
+                59.43222856796793
+              ],
+              [
+                18.196405374344216,
+                59.43091527732184
+              ],
+              [
+                18.196454436329674,
+                59.42959317205479
+              ],
+              [
+                18.196248727631815,
+                59.42827498476324
+              ],
+              [
+                18.19579022933784,
+                59.426973410311426
+              ],
+              [
+                18.195083357036978,
+                59.425700983572796
+              ],
+              [
+                18.194134918295887,
+                59.42446995871245
+              ],
+              [
+                18.19295404709812,
+                59.42329219117274
+              ],
+              [
+                18.19155211587884,
+                59.42217902349889
+              ],
+              [
+                18.12155211587884,
+                59.372179023498894
+              ],
+              [
+                18.121034256955806,
+                59.37182172959452
+              ],
+              [
+                18.091034256955805,
+                59.35182172959452
+              ],
+              [
+                18.089358473750927,
+                59.35081144519627
+              ],
+              [
+                18.087496257861407,
+                59.34988965160376
+              ],
+              [
+                18.085465543444254,
+                59.34906522619319
+              ],
+              [
+                18.083285887389405,
+                59.34834610863194
+              ],
+              [
+                18.080978280976193,
+                59.347739224415214
+              ],
+              [
+                18.07856494771584,
+                59.34725041816979
+              ],
+              [
+                18.07606912932691,
+                59.346884397367035
+              ],
+              [
+                18.073514861904837,
+                59.346644686987354
+              ],
+              [
+                18.0709267444412,
+                59.34653359557273
+              ],
+              [
+                18.068329701921986,
+                59.34655219299423
+              ],
+              [
+                18.065748745286342,
+                59.34670030014852
+              ],
+              [
+                18.06320873055756,
+                59.34697649068273
+              ],
+              [
+                18.060734119465994,
+                59.347378104731035
+              ],
+              [
+                18.058348743869217,
+                59.34790127453062
+              ],
+              [
+                18.056075576238204,
+                59.34854096167031
+              ],
+              [
+                18.05393650841988,
+                59.34929100561325
+              ],
+              [
+                18.051952140806673,
+                59.35014418302628
+              ],
+              [
+                18.05014158394346,
+                59.3510922773445
+              ],
+              [
+                18.048522274482586,
+                59.352126157901345
+              ],
+              [
+                18.047109807259364,
+                59.35323586786189
+              ],
+              [
+                18.04591778510529,
+                59.35441072011257
+              ],
+              [
+                18.044957687845322,
+                59.355639400183975
+              ],
+              [
+                18.044238761740928,
+                59.35691007521535
+              ],
+              [
+                18.043767930443494,
+                59.35821050791154
+              ],
+              [
+                18.0435497283158,
+                59.359528174394775
+              ],
+              [
+                18.043586256763607,
+                59.3608503848165
+              ],
+              [
+                18.04387716399801,
+                59.36216440556759
+              ],
+              [
+                18.0444196484233,
+                59.36345758190987
+              ],
+              [
+                18.04520848561792,
+                59.36471745984826
+              ],
+              [
+                18.046236078648455,
+                59.365931906069484
+              ],
+              [
+                18.04749253123229,
+                59.36708922479254
+              ],
+              [
+                18.048965743044196,
+                59.36817827040549
+              ],
+              [
+                18.078701031190615,
+                59.38800179583644
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "project_id": 9,
+          "name": "Roslagsbanan utbyggnad",
+          "project_type": "kollektivtrafik",
+          "status": "planerad",
+          "impact_radius_m": 1500.0
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                17.269316311093064,
+                62.40098199752069
+              ],
+              [
+                17.272276306700267,
+                62.40255909049848
+              ],
+              [
+                17.275611528535514,
+                62.40396620251072
+              ],
+              [
+                17.355611528535512,
+                62.43396620251073
+              ],
+              [
+                17.358683015763113,
+                62.435006720205074
+              ],
+              [
+                17.361959797201965,
+                62.43590271498035
+              ],
+              [
+                17.36541031565554,
+                62.43664555791705
+              ],
+              [
+                17.369001340744887,
+                62.43722809503163
+              ],
+              [
+                17.372698288935336,
+                62.43764471617321
+              ],
+              [
+                17.376465556594862,
+                62.43789140905247
+              ],
+              [
+                17.3802668628765,
+                62.437965797882114
+              ],
+              [
+                17.384065599122756,
+                62.43786716625704
+              ],
+              [
+                17.38782518142698,
+                62.437596464053726
+              ],
+              [
+                17.39150940295638,
+                62.437156298282375
+              ],
+              [
+                17.395082782643634,
+                62.43655090797997
+              ],
+              [
+                17.398510906888937,
+                62.43578612338607
+              ],
+              [
+                17.401760760981812,
+                62.43486930979441
+              ],
+              [
+                17.40480104705079,
+                62.43380929662102
+              ],
+              [
+                17.407602485479035,
+                62.432616292372245
+              ],
+              [
+                17.410138096883067,
+                62.43130178633116
+              ],
+              [
+                17.41238346193895,
+                62.429878437909515
+              ],
+              [
+                17.414316956553765,
+                62.4283599547307
+              ],
+              [
+                17.41591996011741,
+                62.42676096061781
+              ],
+              [
+                17.417177034829276,
+                62.42509685475826
+              ],
+              [
+                17.4180760743727,
+                62.42338366340116
+              ],
+              [
+                17.418608420505418,
+                62.421637885515814
+              ],
+              [
+                17.41876894644316,
+                62.419876333897584
+              ],
+              [
+                17.418556106233385,
+                62.418115973251524
+              ],
+              [
+                17.417971949643675,
+                62.41637375681297
+              ],
+              [
+                17.41702210242132,
+                62.41466646307862
+              ],
+              [
+                17.415715712114306,
+                62.41301053422041
+              ],
+              [
+                17.41406535997544,
+                62.41142191773851
+              ],
+              [
+                17.412086939797987,
+                62.409915912878034
+              ],
+              [
+                17.409799504849772,
+                62.40850702328906
+              ],
+              [
+                17.407225084379792,
+                62.40720881734852
+              ],
+              [
+                17.404388471464486,
+                62.40603379748928
+              ],
+              [
+                17.327912584688644,
+                62.37735533994833
+              ],
+              [
+                17.280683688906937,
+                62.34901800247931
+              ],
+              [
+                17.278213090200776,
+                62.347677174784636
+              ],
+              [
+                17.275470784013137,
+                62.34645502263313
+              ],
+              [
+                17.272483180251704,
+                62.3453633160181
+              ],
+              [
+                17.269279051173893,
+                62.34441256867104
+              ],
+              [
+                17.265889254294276,
+                62.34361193680864
+              ],
+              [
+                17.262346435209853,
+                62.3429691309534
+              ],
+              [
+                17.258684713205113,
+                62.3424903416771
+              ],
+              [
+                17.25493935266466,
+                62.34218017998219
+              ],
+              [
+                17.25114642345792,
+                62.34204163289537
+              ],
+              [
+                17.247342453566585,
+                62.3420760347008
+              ],
+              [
+                17.243564077300164,
+                62.34228305409031
+              ],
+              [
+                17.239847682487575,
+                62.34266069735399
+              ],
+              [
+                17.236229060042454,
+                62.343205327580776
+              ],
+              [
+                17.232743059277084,
+                62.343911699683865
+              ],
+              [
+                17.22942325228448,
+                62.344773010913755
+              ],
+              [
+                17.22630161062077,
+                62.345780966372466
+              ],
+              [
+                17.22340819740164,
+                62.346925858897926
+              ],
+              [
+                17.22077087777809,
+                62.34819666254925
+              ],
+              [
+                17.2184150505798,
+                62.34958113879258
+              ],
+              [
+                17.216363403710517,
+                62.35106595436488
+              ],
+              [
+                17.214635695651136,
+                62.35263680968048
+              ],
+              [
+                17.213248565174727,
+                62.35427857654399
+              ],
+              [
+                17.212215371106065,
+                62.35597544384303
+              ],
+              [
+                17.211546063668834,
+                62.35771106981791
+              ],
+              [
+                17.211247088659526,
+                62.359468739441695
+              ],
+              [
+                17.21132132537093,
+                62.36123152539508
+              ],
+              [
+                17.211768058862923,
+                62.362982451085685
+              ],
+              [
+                17.212582986847767,
+                62.36470465414196
+              ],
+              [
+                17.21375826112349,
+                62.36638154880703
+              ],
+              [
+                17.215282563156347,
+                62.36799698566857
+              ],
+              [
+                17.217141213084485,
+                62.369535407186525
+              ],
+              [
+                17.21931631109306,
+                62.370981997520694
+              ],
+              [
+                17.269316311093064,
+                62.40098199752069
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "project_id": 10,
+          "name": "E4 Förbifart Sundsvall",
+          "project_type": "väg",
+          "status": "avslutad",
+          "impact_radius_m": 2000.0
+        }
+      }
+    ]
+  }
+}

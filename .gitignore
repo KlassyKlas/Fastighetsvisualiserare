@@ -45,3 +45,8 @@ npm-debug.log*
 coverage/
 htmlcov/
 .coverage
+
+# Test- och verktygscache
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
