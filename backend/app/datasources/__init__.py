@@ -1,5 +1,8 @@
 # Importeras för sina @register-sidoeffekter
-from app.datasources import trafikverket  # noqa: F401  (registrerar TrafikverketDataSource)
+from app.datasources import (
+    nationell_plan,  # noqa: F401  (registrerar NationellPlanDataSource)
+    trafikverket,  # noqa: F401  (registrerar TrafikverketDataSource)
+)
 from app.datasources.base import (
     Bbox,
     DataSource,

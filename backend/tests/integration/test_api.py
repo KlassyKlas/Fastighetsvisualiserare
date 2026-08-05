@@ -235,4 +235,6 @@ async def test_sync_unknown_source_gives_404(client):
 
 async def test_sources_listed(client):
     response = await client.get("/api/v1/infrastructure/sources")
-    assert "trafikverket" in response.json()
+    sources = response.json()
+    assert "trafikverket" in sources
+    assert sources["nationell_plan"] == "Trafikverket (nationell plan)"

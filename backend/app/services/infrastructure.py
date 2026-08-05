@@ -2,7 +2,7 @@ import logging
 from datetime import date
 
 from fastapi import HTTPException
-from geoalchemy2 import Geography
+from geoalchemy2 import Geography, Geometry
 from sqlalchemy import ColumnElement, cast, func, or_, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
@@ -30,6 +30,13 @@ from app.services.geo import WGS84_SRID, geojson_to_element
 from app.services.serializers import impact_zone_feature, project_feature
 
 logger = logging.getLogger(__name__)
+
+# 6 decimaler ≈ 0,1 m — mer precision är brus som fördubblar payloaden
+# (nationell plan-korridorerna är megabytestora i full precision).
+GEOJSON_DECIMALER = 6
+# Påverkanszoner är visuella hjälpytor: förenkla med ~20 m tolerans så
+# att buffrade korridorer inte skickar tiotusentals hörn per svar.
+ZON_FORENKLING_GRADER = 0.0002
 
 
 def _filter_conditions(
@@ -91,7 +98,7 @@ async def list_projects(
     rows = await session.execute(
         select(
             InfrastructureProject,
-            func.ST_AsGeoJSON(InfrastructureProject.geometry),
+            func.ST_AsGeoJSON(InfrastructureProject.geometry, GEOJSON_DECIMALER),
         )
         .where(*conditions)
         .order_by(InfrastructureProject.id)
@@ -114,7 +121,7 @@ async def get_project(
         await session.execute(
             select(
                 InfrastructureProject,
-                func.ST_AsGeoJSON(InfrastructureProject.geometry),
+                func.ST_AsGeoJSON(InfrastructureProject.geometry, GEOJSON_DECIMALER),
             ).where(InfrastructureProject.id == project_id)
         )
     ).one_or_none()
@@ -173,11 +180,20 @@ async def impact_zones(
 
     # OBS: Geography(srid=4326) — utan srid renderas geography(GEOMETRY,-1)
     # som varken är giltig typmod eller matchar det funktionella indexet.
+    # Bufferten förenklas innan serialisering (kräver geometry, därav
+    # casten tillbaka) — en buffrad korridor har annars tiotusentals hörn.
     zone_geojson = func.ST_AsGeoJSON(
-        func.ST_Buffer(
-            cast(InfrastructureProject.geometry, Geography(srid=WGS84_SRID)),
-            InfrastructureProject.impact_radius_m,
-        )
+        func.ST_SimplifyPreserveTopology(
+            cast(
+                func.ST_Buffer(
+                    cast(InfrastructureProject.geometry, Geography(srid=WGS84_SRID)),
+                    InfrastructureProject.impact_radius_m,
+                ),
+                Geometry(srid=WGS84_SRID),
+            ),
+            ZON_FORENKLING_GRADER,
+        ),
+        GEOJSON_DECIMALER,
     )
 
     rows = await session.execute(

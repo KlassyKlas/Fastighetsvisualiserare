@@ -1,5 +1,11 @@
 import { Calendar, FileText, MapPin, Radio, Tag, Wallet, X } from 'lucide-react';
-import { FALLBACK_COLOR, PROJECT_TYPE_LABELS, STATUS_COLORS, STATUS_LABELS } from '@/config/map';
+import {
+  FALLBACK_COLOR,
+  PROJECT_TYPE_LABELS,
+  SOURCE_LABELS,
+  STATUS_COLORS,
+  STATUS_LABELS,
+} from '@/config/map';
 import { formatDate, formatSek } from '@/lib/format';
 import { useUiStore } from '@/store/uiStore';
 
@@ -99,7 +105,7 @@ export default function ProjectDetails() {
             <MapPin className="w-4 h-4 text-slate-500 flex-shrink-0" />
             <div>
               <p className="text-xs text-slate-500">Källa</p>
-              <p className="text-sm text-slate-200 capitalize">{props.source}</p>
+              <p className="text-sm text-slate-200">{SOURCE_LABELS[props.source] ?? props.source}</p>
             </div>
           </div>
         )}

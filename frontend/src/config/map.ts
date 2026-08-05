@@ -66,6 +66,17 @@ export const PROPERTY_TYPE_LABELS: Record<PropertyType, string> = {
   villa: 'Villa',
 };
 
+/**
+ * Svenska etiketter för datakällor. `source` är en fri sträng i
+ * kontraktet (inte enum) — okända källnamn visas som de är.
+ * Etiketterna speglar backendens display_name i datasource-registret.
+ */
+export const SOURCE_LABELS: Record<string, string> = {
+  manual: 'Manuellt inlagd',
+  trafikverket: 'Trafikverket (trafikinformation)',
+  nationell_plan: 'Trafikverket (nationell plan)',
+};
+
 export const PROJECT_STATUSES = Object.keys(STATUS_LABELS) as ProjectStatus[];
 export const PROJECT_TYPES = Object.keys(PROJECT_TYPE_LABELS) as ProjectType[];
 

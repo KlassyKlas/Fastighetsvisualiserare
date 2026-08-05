@@ -1,9 +1,14 @@
 import { CalendarClock, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { useUiStore } from '@/store/uiStore';
 
 const YEAR_MIN = 2005;
 const YEAR_MAX = 2040;
 const DEFAULT_YEAR = 2026;
+/** Varje årssteg avfyrar tre serverfrågor (projekt, zoner, poäng) —
+ * zonfrågan buffrar dessutom korridorgeometrier i databasen. Filtret
+ * uppdateras därför först när draget vilat en stund. */
+const COMMIT_DELAY_MS = 200;
 
 /**
  * Tidsreglage: visa kartan som den ser ut ett visst år — vilka projekt
@@ -13,13 +18,38 @@ export default function TimelineBar() {
   const year = useUiStore((s) => s.filters.year);
   const setFilters = useUiStore((s) => s.setFilters);
 
+  // Reglaget och etiketten följer draftYear direkt; store-filtret (och
+  // därmed API-anropen) uppdateras debouncat. Ändras året utifrån
+  // (t.ex. filterrensning) justeras utkastet under renderingen.
+  const [draftYear, setDraftYear] = useState<number | null>(year);
+  const [syncedYear, setSyncedYear] = useState<number | null>(year);
+  if (year !== syncedYear) {
+    setSyncedYear(year);
+    setDraftYear(year);
+  }
+
+  const commitTimer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(commitTimer.current), []);
+
+  const commitDebounced = (value: number) => {
+    setDraftYear(value);
+    window.clearTimeout(commitTimer.current);
+    commitTimer.current = window.setTimeout(() => setFilters({ year: value }), COMMIT_DELAY_MS);
+  };
+
   // I "Alla år"-läget står reglaget redan på standardåret — webbläsaren
   // avfyrar då ingen change-händelse om interaktionen landar på samma
   // värde, så själva beröringen måste aktivera filtret.
   const activate = () => {
-    if (year == null) {
-      setFilters({ year: DEFAULT_YEAR });
+    if (year == null && draftYear == null) {
+      commitDebounced(DEFAULT_YEAR);
     }
+  };
+
+  const clear = () => {
+    window.clearTimeout(commitTimer.current);
+    setDraftYear(null);
+    setFilters({ year: null });
   };
 
   return (
@@ -29,24 +59,26 @@ export default function TimelineBar() {
         type="range"
         min={YEAR_MIN}
         max={YEAR_MAX}
-        value={year ?? DEFAULT_YEAR}
-        onChange={(e) => setFilters({ year: Number(e.target.value) })}
+        value={draftYear ?? DEFAULT_YEAR}
+        onChange={(e) => commitDebounced(Number(e.target.value))}
         onPointerDown={activate}
         onKeyDown={activate}
         className="w-44 accent-blue-500"
         aria-label="Visa projekt aktiva under år"
-        aria-valuetext={year != null ? `År ${year}` : 'Alla år'}
+        aria-valuetext={draftYear != null ? `År ${draftYear}` : 'Alla år'}
       />
       <span
         className={
-          year != null ? 'text-xs font-medium text-blue-400 w-16' : 'text-xs text-slate-500 w-16'
+          draftYear != null
+            ? 'text-xs font-medium text-blue-400 w-16'
+            : 'text-xs text-slate-500 w-16'
         }
       >
-        {year != null ? `År ${year}` : 'Alla år'}
+        {draftYear != null ? `År ${draftYear}` : 'Alla år'}
       </span>
-      {year != null && (
+      {draftYear != null && (
         <button
-          onClick={() => setFilters({ year: null })}
+          onClick={clear}
           className="p-1 rounded hover:bg-slate-700 text-slate-400 hover:text-slate-200 transition-colors"
           title="Visa alla år"
         >

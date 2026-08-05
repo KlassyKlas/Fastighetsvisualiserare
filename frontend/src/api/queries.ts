@@ -11,6 +11,7 @@
  */
 import { keepPreviousData, queryOptions } from '@tanstack/react-query';
 import { client } from '@/api/client';
+import { SOURCE_LABELS } from '@/config/map';
 import {
   sampleImpactZones,
   sampleProjects,
@@ -170,6 +171,7 @@ export function impactZonesQuery(filters: FilterState) {
           signal,
         });
         ensureOk(error, response);
+        markDemoMode(false);
         return data as unknown as ImpactZoneCollection;
       } catch (error) {
         if (isBackendUnreachable(error) && !signal.aborted) {
@@ -245,9 +247,41 @@ export function nearbyProjectsQuery(propertyId: number, maxDistanceM = 5000) {
   });
 }
 
-export async function syncTrafikverket(): Promise<SyncResult> {
+/** Utan backend (demo-läge, laddning, fel) visas de kända källorna så
+ * att synk-sektionen aldrig blir tomt tyst. "manual" är ingen extern
+ * källa. */
+export const FALLBACK_SOURCES: Record<string, string> = Object.fromEntries(
+  Object.entries(SOURCE_LABELS).filter(([name]) => name !== 'manual'),
+);
+
+/** Registrerade datakällor (källnamn → visningsnamn) — driver synkknapparna. */
+export function sourcesQuery() {
+  return queryOptions({
+    queryKey: ['sources'],
+    queryFn: async ({ signal }): Promise<Record<string, string>> => {
+      try {
+        const { data, error, response } = await client.GET('/api/v1/infrastructure/sources', {
+          signal,
+        });
+        ensureOk(error, response);
+        markDemoMode(false);
+        return data as Record<string, string>;
+      } catch (error) {
+        if (isBackendUnreachable(error) && !signal.aborted) {
+          markDemoMode(true);
+          return FALLBACK_SOURCES;
+        }
+        throw error;
+      }
+    },
+    staleTime: 5 * 60_000,
+    refetchInterval: retryWhileDemo,
+  });
+}
+
+export async function syncSource(sourceName: string): Promise<SyncResult> {
   const { data, error, response } = await client.POST('/api/v1/infrastructure/sync/{source_name}', {
-    params: { path: { source_name: 'trafikverket' } },
+    params: { path: { source_name: sourceName } },
   });
   ensureOk(error, response);
   return data as SyncResult;

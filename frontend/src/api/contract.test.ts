@@ -19,6 +19,7 @@ const USED_PATHS = [
   '/api/v1/health',
   '/api/v1/infrastructure/projects',
   '/api/v1/infrastructure/impact-zones',
+  '/api/v1/infrastructure/sources',
   '/api/v1/infrastructure/sync/{source_name}',
   '/api/v1/properties',
   '/api/v1/properties/{property_id}/nearby-projects',

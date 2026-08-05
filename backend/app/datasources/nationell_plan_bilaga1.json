@@ -1,0 +1,1654 @@
+{
+ "BVGB009": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 2536,
+  "lan": "Västra Götaland",
+  "namn": "Västra stambanan, Göteborg-Skövde, kapacitetsförstärkning.",
+  "trafikslag": "Järnväg"
+ },
+ "BVGB015": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 9916,
+  "lan": "Halland",
+  "namn": "Varberg, dubbelspår (tunnel) inklusive resecentrum",
+  "trafikslag": "Järnväg"
+ },
+ "BVGV007": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 1174,
+  "lan": "Västernorrland",
+  "namn": "Sundsvall resecentrum, tillgänglighet och plattformar m.m.",
+  "trafikslag": "Järnväg"
+ },
+ "BVLU014": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 7904,
+  "lan": "Norrbotten",
+  "namn": "ERTMS, Nord, Malmbanan",
+  "trafikslag": "Järnväg"
+ },
+ "BVLU015b": {
+  "fas": "Öppet för trafik",
+  "kostnad_mnkr": 1193,
+  "lan": "Norrbotten",
+  "namn": "Malmbanan, bangårdsförlängningar m.m.",
+  "trafikslag": "Järnväg"
+ },
+ "BVNA001": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 4722,
+  "lan": "Hela Landet",
+  "namn": "ERTMS, TC Hallsberg Norrköping",
+  "trafikslag": "Järnväg"
+ },
+ "BVNA001a": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 13175,
+  "lan": "Hela Landet",
+  "namn": "ERTMS, TC Malmö",
+  "trafikslag": "Järnväg"
+ },
+ "BVNA002": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 6212,
+  "lan": "Hela Landet",
+  "namn": "ERTMS utveckling",
+  "trafikslag": "Järnväg"
+ },
+ "BVNA006": {
+  "fas": null,
+  "kostnad_mnkr": 21844,
+  "lan": "Hela Landet",
+  "namn": "Ränta, Avskrivning och Hyra, järnväg",
+  "trafikslag": "Järnväg"
+ },
+ "BVST014": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 33838,
+  "lan": "Stockholm",
+  "namn": "Tomteboda-Kallhäll, ökad kapacitet",
+  "trafikslag": "Järnväg"
+ },
+ "BVST016": {
+  "fas": "Öppet för trafik",
+  "kostnad_mnkr": 641,
+  "lan": "Dalarna",
+  "namn": "Uppsala-Borlänge, hastighetshöjande åtgärder och ökad kapacitet etapp 1",
+  "trafikslag": "Järnväg"
+ },
+ "BVST030c": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 6191,
+  "lan": "Örebro",
+  "namn": "Godsstråket Hallsberg – Åsbro, dubbelspår",
+  "trafikslag": "Järnväg"
+ },
+ "BVTH001": {
+  "fas": "Öppet för trafik",
+  "kostnad_mnkr": 2722,
+  "lan": "Stockholm",
+  "namn": "Alvik-Ulvsunda-Solna station, snabbspårväg (statlig medfinansiering)",
+  "trafikslag": "Järnväg"
+ },
+ "BVTH003": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 796,
+  "lan": "Stockholm",
+  "namn": "Tvärspårväg Ost/Saltsjöbanan (statlig medfinansiering)",
+  "trafikslag": "Järnväg"
+ },
+ "BVTH004": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 3747,
+  "lan": "Stockholm",
+  "namn": "Roslagsbanan, dubbelspår etapp 1+2 (statlig medfinansiering)",
+  "trafikslag": "Järnväg"
+ },
+ "JM1806": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 325,
+  "lan": "Dalarna",
+  "namn": "Dalabanan, åtgärder för ökad turtäthet och kortare restid (5)",
+  "trafikslag": "Järnväg"
+ },
+ "JM1807": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 489,
+  "lan": "Västernorrland",
+  "namn": "Sundsvall-Ånge, kapacitets- och hastighetshöjande åtgärder - inkl säkerhetshöjande åtg (5)",
+  "trafikslag": "Järnväg"
+ },
+ "JM1808": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 148,
+  "lan": "Gävleborg Dalarna",
+  "namn": "Godsstråket, Kapacitetshöjande åtgärder (5)",
+  "trafikslag": "Järnväg"
+ },
+ "JM1812": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 222,
+  "lan": "Dalarna",
+  "namn": "Borlänge-Falun, Kapacitets- och hastighetshöjande åtgärder",
+  "trafikslag": "Järnväg"
+ },
+ "JM1814": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 133,
+  "lan": "Västernorrland Jämtland",
+  "namn": "Ånge-Östersund, Kapacitets- och hastighetshöjande åtgärder (5)",
+  "trafikslag": "Järnväg"
+ },
+ "JM1815": {
+  "fas": "Planering",
+  "kostnad_mnkr": 225,
+  "lan": "Jämtland",
+  "namn": "Östersund-Storlien, Hastighetshöjande åtgärder",
+  "trafikslag": "Järnväg"
+ },
+ "JM2209": {
+  "fas": "Förberedelse för byggstart",
+  "kostnad_mnkr": 140,
+  "lan": "Västernorrland",
+  "namn": "Ådalsbanan, Västeraspby vändslinga",
+  "trafikslag": "Järnväg"
+ },
+ "JMR2608": {
+  "fas": "Planering",
+  "kostnad_mnkr": 305,
+  "lan": "Uppsala",
+  "namn": "Knivsta plankorsning",
+  "trafikslag": "Väg"
+ },
+ "JN1801": {
+  "fas": "Byggstart",
+  "kostnad_mnkr": 189,
+  "lan": "Norrbotten",
+  "namn": "Luleå C flytt av personvagnsuppställning (etapp 1)",
+  "trafikslag": "Järnväg"
+ },
+ "JN1802": {
+  "fas": "Planering",
+  "kostnad_mnkr": 392,
+  "lan": "Norrbotten",
+  "namn": "Luleå C ombyggnad av personbangård (etapp 2)",
+  "trafikslag": "Järnväg"
+ },
+ "JN1803": {
+  "fas": "Planering",
+  "kostnad_mnkr": 658,
+  "lan": "Västerbotten",
+  "namn": "SgöN Umeå C-Umeå Ö dubbelspår",
+  "trafikslag": "Järnväg"
+ },
+ "JN1804a": {
+  "fas": "Planering",
+  "kostnad_mnkr": 1405,
+  "lan": "Norrbotten",
+  "namn": "Kiruna ny järnvägsstation, alt Väst till nya centrum (3), (5)",
+  "trafikslag": "Järnväg"
+ },
+ "JN2201": {
+  "fas": "Planering",
+  "kostnad_mnkr": 37488,
+  "lan": "Norrbotten",
+  "namn": "Norrbotniabanan Skellefteå - Luleå ny järnväg",
+  "trafikslag": "Järnväg"
+ },
+ "JN2202": {
+  "fas": "Byggstart",
+  "kostnad_mnkr": 162,
+  "lan": "Norrbotten",
+  "namn": "Malmbanan Harrträsk, förlängning av mötesstation (5)",
+  "trafikslag": "Järnväg"
+ },
+ "JN2203": {
+  "fas": "Planering",
+  "kostnad_mnkr": 289,
+  "lan": "Norrbotten",
+  "namn": "Malmbanan Kiruna-Riksgränsen Stax 32.5 ton",
+  "trafikslag": "Järnväg"
+ },
+ "JN2204": {
+  "fas": "Planering",
+  "kostnad_mnkr": 298,
+  "lan": "Norrbotten",
+  "namn": "Malmbanan Svappavaara-Kiruna Stax 32.5 ton",
+  "trafikslag": "Järnväg"
+ },
+ "JN2206": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 420,
+  "lan": "Norrbotten",
+  "namn": "SgöN Sävastklinten-Norra Sunderbyn ny mötesstation och partiellt dubbelspår",
+  "trafikslag": "Järnväg"
+ },
+ "JN2212": {
+  "fas": "Byggstart",
+  "kostnad_mnkr": 131,
+  "lan": "Norrbotten",
+  "namn": "Malmbanan Nuortikon, förlängning av mötesstation (5)",
+  "trafikslag": "Järnväg"
+ },
+ "JN2213": {
+  "fas": "Byggstart",
+  "kostnad_mnkr": 102,
+  "lan": "Norrbotten",
+  "namn": "Malmbanan Näsberg, förlängning av mötesstation (5)",
+  "trafikslag": "Järnväg"
+ },
+ "JNR2606": {
+  "fas": "Planering",
+  "kostnad_mnkr": 243,
+  "lan": "Norrbotten",
+  "namn": "Malmbanan, Kaisepakte, 3-spårsstation",
+  "trafikslag": "Järnväg"
+ },
+ "JO1801": {
+  "fas": "Byggstart",
+  "kostnad_mnkr": 546,
+  "lan": "Örebro",
+  "namn": "Laxå, bangårdsombyggnad",
+  "trafikslag": "Järnväg"
+ },
+ "JO1802": {
+  "fas": "Förberedelse för byggstart",
+  "kostnad_mnkr": 246,
+  "lan": "Uppsala",
+  "namn": "Heby Mötesspår",
+  "trafikslag": "Järnväg"
+ },
+ "JO1806": {
+  "fas": "Planering",
+  "kostnad_mnkr": 1179,
+  "lan": "Uppsala",
+  "namn": "Hjulsta ny- eller ombyggnad av bro",
+  "trafikslag": "Sjöfart"
+ },
+ "JO1807": {
+  "fas": "Förberedelse för byggstart",
+  "kostnad_mnkr": 17161,
+  "lan": "Uppsala",
+  "namn": "Ostkustbanan, fyrspår (Uppsala – länsgränsen Uppsala/Stockholm)",
+  "trafikslag": "Järnväg"
+ },
+ "JO1809": {
+  "fas": "Förberedelse för byggstart",
+  "kostnad_mnkr": 329,
+  "lan": "Södermanland",
+  "namn": "Högsjö västra, förbigångsspår",
+  "trafikslag": "Järnväg"
+ },
+ "JO1810": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 346,
+  "lan": "Södermanland",
+  "namn": "Katrineholm, förbigångsspår",
+  "trafikslag": "Järnväg"
+ },
+ "JO1811": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 106226,
+  "lan": "Östergötland",
+  "namn": "Ostlänken nytt dubbelspår Järna-Linköping, alt 2 (7)",
+  "trafikslag": "Järnväg"
+ },
+ "JO2203": {
+  "fas": "Planering",
+  "kostnad_mnkr": 513,
+  "lan": "Örebro",
+  "namn": "Värmlandsbanans anslutning till Västra stambanan, högre kapacitet",
+  "trafikslag": "Järnväg"
+ },
+ "JO2601": {
+  "fas": "Planering",
+  "kostnad_mnkr": null,
+  "lan": "Västmanland",
+  "namn": "Västerås, Finnslätten, tågstation och resandeutbyte (3)",
+  "trafikslag": "Järnväg"
+ },
+ "JSM208": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 1066,
+  "lan": "Gävleborg Örebro Dalarna Västmanland",
+  "namn": "Godsstråket Storvik-Frövi, kapacitetspaket 1+2 samt Sandviken-Kungsgården mötesstation",
+  "trafikslag": "Järnväg"
+ },
+ "JSM215": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 877,
+  "lan": "Västernorrland",
+  "namn": "Sundsvall C–Dingersjö, dubbelspårsutbyggnad, etappen Sundsvall C – Kubikenborg (5)",
+  "trafikslag": "Järnväg"
+ },
+ "JSM215b": {
+  "fas": "Planering",
+  "kostnad_mnkr": 4065,
+  "lan": "Västernorrland",
+  "namn": "Sundsvall C–Dingersjö, dubbelspårsutbyggnad, etappen Kubikenborg - Dingersjö",
+  "trafikslag": "Järnväg"
+ },
+ "JSO201": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 526,
+  "lan": "Uppsala",
+  "namn": "Uppsala, Plankorsningar",
+  "trafikslag": "Järnväg"
+ },
+ "JSOR2606": {
+  "fas": "Planering",
+  "kostnad_mnkr": 302,
+  "lan": "Skåne",
+  "namn": "Lommabanan Söderåsbanan, bulleråtgärder",
+  "trafikslag": "Järnväg"
+ },
+ "JSOR2612": {
+  "fas": "Planering",
+  "kostnad_mnkr": 190,
+  "lan": "Skåne",
+  "namn": "Maria - Helsingborg, utredning",
+  "trafikslag": "Järnväg"
+ },
+ "JST1802": {
+  "fas": "Öppet för trafik",
+  "kostnad_mnkr": 621,
+  "lan": "Stockholm",
+  "namn": "Barkarby bytespunkt med anslutning till tunnelbana",
+  "trafikslag": "Järnväg"
+ },
+ "JST1803": {
+  "fas": "Planering",
+  "kostnad_mnkr": 1421,
+  "lan": "Stockholm",
+  "namn": "Märsta station och bangårdsombyggnad",
+  "trafikslag": "Järnväg"
+ },
+ "JST1805": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 1727,
+  "lan": "Stockholm",
+  "namn": "Stockholm Central och Karlberg, funktionsanpassningar efter Citybanan",
+  "trafikslag": "Järnväg"
+ },
+ "JST1810": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 240,
+  "lan": "Stockholm",
+  "namn": "Västra stambanan, Flemingsberg-Järna, upprustning tunnlar",
+  "trafikslag": "Järnväg"
+ },
+ "JST1811": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 194,
+  "lan": "Stockholm",
+  "namn": "Årstaberg-Flemingsberg, signalåtgärder optimering",
+  "trafikslag": "Järnväg"
+ },
+ "JST201": {
+  "fas": "Förberedelse för byggstart",
+  "kostnad_mnkr": 408,
+  "lan": "Stockholm",
+  "namn": "Hagalund, bangårdsombyggnad",
+  "trafikslag": "Järnväg"
+ },
+ "JST204": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 41018,
+  "lan": "Stockholm",
+  "namn": "Kollektivtrafik Stockholm, tunnelbaneutbyggnad (statlig medfinansiering)",
+  "trafikslag": "Järnväg"
+ },
+ "JST2205": {
+  "fas": "Planering",
+  "kostnad_mnkr": 608,
+  "lan": "Stockholm",
+  "namn": "Ostkustbanan Solna-Skavstaby, Signaloptimering",
+  "trafikslag": "Järnväg"
+ },
+ "JSY1801": {
+  "fas": "Byggstart",
+  "kostnad_mnkr": 143,
+  "lan": "Blekinge",
+  "namn": "Blekinge kustbana, mötesspår och hastighetshöjning",
+  "trafikslag": "Järnväg"
+ },
+ "JSY1802": {
+  "fas": "Förberedelse för byggstart",
+  "kostnad_mnkr": 1522,
+  "lan": "Jönköping",
+  "namn": "Värnamo – Jönköping/Nässjö, elektrifiering o höjd hast",
+  "trafikslag": "Järnväg"
+ },
+ "JSY1810": {
+  "fas": "Förberedelse för byggstart",
+  "kostnad_mnkr": 898,
+  "lan": "Skåne",
+  "namn": "Hässleholm-Helsingborg, förlängt mötesspår och höjd hastighet",
+  "trafikslag": "Järnväg"
+ },
+ "JSY1812": {
+  "fas": "Byggstart",
+  "kostnad_mnkr": 258,
+  "lan": "Skåne",
+  "namn": "Malmö godsbangård, utbyggnad av spår 58",
+  "trafikslag": "Järnväg"
+ },
+ "JSY1820": {
+  "fas": "Planering",
+  "kostnad_mnkr": 360,
+  "lan": "Kronoberg",
+  "namn": "Alvesta, triangelspår",
+  "trafikslag": "Järnväg"
+ },
+ "JSY1825a": {
+  "fas": "Planering",
+  "kostnad_mnkr": 32308,
+  "lan": "Skåne",
+  "namn": "Hässleholm-Lund, två nya spår",
+  "trafikslag": "Järnväg"
+ },
+ "JSY202": {
+  "fas": "Förberedelse för byggstart",
+  "kostnad_mnkr": 7890,
+  "lan": "Blekinge Kronoberg Skåne",
+  "namn": "Sydostlänken (Älmhult-Olofström-Karlshamn), elektrifiering och ny bana",
+  "trafikslag": "Järnväg"
+ },
+ "JSY2206": {
+  "fas": "Planering",
+  "kostnad_mnkr": 264,
+  "lan": "Skåne",
+  "namn": "Hässleholm, kapacitet, förbigångsspår på upp- och nedspår",
+  "trafikslag": "Järnväg"
+ },
+ "JSY2207": {
+  "fas": "Planering",
+  "kostnad_mnkr": 85,
+  "lan": "Skåne",
+  "namn": "Teckomatorp-Kävlinge, mötesspår",
+  "trafikslag": "Järnväg"
+ },
+ "JSY2208": {
+  "fas": "Planering",
+  "kostnad_mnkr": 959,
+  "lan": "Skåne",
+  "namn": "Malmö bangård, planskild spårkorsning",
+  "trafikslag": "Järnväg"
+ },
+ "JSY2209": {
+  "fas": "Byggstart",
+  "kostnad_mnkr": 201,
+  "lan": "Skåne",
+  "namn": "Malmö C, fler plattformsspår",
+  "trafikslag": "Järnväg"
+ },
+ "JSY2214": {
+  "fas": "Planering",
+  "kostnad_mnkr": 797,
+  "lan": "Skåne",
+  "namn": "Helsingborg C-Helsingborgs gbg/Ramlösa station, kapacitetsåtgärder",
+  "trafikslag": "Järnväg"
+ },
+ "JSY2216": {
+  "fas": "Planering",
+  "kostnad_mnkr": 671,
+  "lan": "Skåne",
+  "namn": "Ystadbanan, Skurup-Rydsgård, dubbelspår",
+  "trafikslag": "Järnväg"
+ },
+ "JSY2217": {
+  "fas": "Planering",
+  "kostnad_mnkr": 176,
+  "lan": "Skåne Kronoberg",
+  "namn": "Slätthult (Älmhult), kapacitet, förbigångsspår på upp- och nedspår",
+  "trafikslag": "Järnväg"
+ },
+ "JSY2220": {
+  "fas": "Planering",
+  "kostnad_mnkr": 222,
+  "lan": "Skåne",
+  "namn": "Malmö C - Östervärn, dubbelspår",
+  "trafikslag": "Järnväg"
+ },
+ "JSYR2601": {
+  "fas": "Planering",
+  "kostnad_mnkr": 263,
+  "lan": "Kalmar",
+  "namn": "Kalmar C, spår och plattformar",
+  "trafikslag": "Järnväg"
+ },
+ "JSYR2605": {
+  "fas": "Planering",
+  "kostnad_mnkr": 361,
+  "lan": "Östergötland",
+  "namn": "Ostlänken, Uppställningsspår Norrköping, följdinv",
+  "trafikslag": "Järnväg"
+ },
+ "JTR1803": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 906,
+  "lan": "Hela Landet",
+  "namn": "LTS; Hallsberg-Malmö/Göteborg, åtgärder för långa godståg",
+  "trafikslag": "Järnväg"
+ },
+ "JTR1804d": {
+  "fas": "Planering",
+  "kostnad_mnkr": 407,
+  "lan": "Halland",
+  "namn": "LTS; Västkustbanan, framkomlighet för 750 m långa godståg",
+  "trafikslag": "Järnväg"
+ },
+ "JTR1804e": {
+  "fas": "Planering",
+  "kostnad_mnkr": 200,
+  "lan": "Västra Götaland Örebro",
+  "namn": "LTS; Västra stambanan (Laxå–Alingsås), framkomlighet för 750 m långa godståg",
+  "trafikslag": "Järnväg"
+ },
+ "JTR1804f": {
+  "fas": "Planering",
+  "kostnad_mnkr": 313,
+  "lan": "Stockholm",
+  "namn": "LTS; Västra stambanan (Södertälje–Katrineholm), framkomlighet för 750 m långa godståg",
+  "trafikslag": "Järnväg"
+ },
+ "JTR1804g": {
+  "fas": "Planering",
+  "kostnad_mnkr": 117,
+  "lan": "Värmland",
+  "namn": "LTS; Värmlandsbanan, framkomlighet för 750 m långa godståg",
+  "trafikslag": "Järnväg"
+ },
+ "JTR1804h": {
+  "fas": "Planering",
+  "kostnad_mnkr": 131,
+  "lan": "Värmland",
+  "namn": "LTS; Godsstråket genom Bergslagen, framkomlighet för 750 m långa godståg",
+  "trafikslag": "Järnväg"
+ },
+ "JTR1804i": {
+  "fas": "Planering",
+  "kostnad_mnkr": 173,
+  "lan": "Gävleborg",
+  "namn": "LTS; Norra stambanan, framkomlighet för 750 m långa godståg",
+  "trafikslag": "Järnväg"
+ },
+ "JTR1804j": {
+  "fas": "Planering",
+  "kostnad_mnkr": 201,
+  "lan": "Västernorrland",
+  "namn": "LTS; Ådalsbanan, framkomlighet för 750 m långa godståg",
+  "trafikslag": "Järnväg"
+ },
+ "JTR1809": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 4481,
+  "lan": "Hela Landet",
+  "namn": "Teletransmissionsanläggning",
+  "trafikslag": "Järnväg"
+ },
+ "JTR200": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 1516,
+  "lan": "Hela Landet",
+  "namn": "Fjärrstyrning av järnväg",
+  "trafikslag": "Järnväg"
+ },
+ "JTR201": {
+  "fas": "Byggstart",
+  "kostnad_mnkr": 7421,
+  "lan": "Hela Landet",
+  "namn": "ERTMS, TC Göteborg",
+  "trafikslag": "Järnväg"
+ },
+ "JTR202": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 1841,
+  "lan": "Hela Landet",
+  "namn": "Nationellt tågledningssystem",
+  "trafikslag": "Järnväg"
+ },
+ "JTR203": {
+  "fas": "Öppet för trafik",
+  "kostnad_mnkr": 23,
+  "lan": "Hela Landet",
+  "namn": "Avslutade namngivna järnvägsobjekt med restarbete eller utbetalningar under planperiod",
+  "trafikslag": "Järnväg"
+ },
+ "JTR204a": {
+  "fas": null,
+  "kostnad_mnkr": 5490,
+  "lan": "Hela Landet",
+  "namn": "Ersättning till Öresundsbro Konsortiet",
+  "trafikslag": "Järnväg"
+ },
+ "JTR204b": {
+  "fas": null,
+  "kostnad_mnkr": 2273,
+  "lan": "Hela Landet",
+  "namn": "Bidrag till Inlandsbanan",
+  "trafikslag": "Järnväg"
+ },
+ "JTR2201c": {
+  "fas": "Planering",
+  "kostnad_mnkr": 1094,
+  "lan": "Hela Landet",
+  "namn": "Befintliga banor, hastighetsh. 250 km/h Öxnered - Lund",
+  "trafikslag": "Järnväg"
+ },
+ "JTR2209": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 8238,
+  "lan": "Hela Landet",
+  "namn": "ERTMS vidareutveckling",
+  "trafikslag": "Järnväg"
+ },
+ "JTR2212": {
+  "fas": "Förberedelse för byggstart",
+  "kostnad_mnkr": 2611,
+  "lan": "Norrbotten",
+  "namn": "ERTMS, TC Boden Ånge",
+  "trafikslag": "Järnväg"
+ },
+ "JTR2213": {
+  "fas": "Byggstart",
+  "kostnad_mnkr": 12981,
+  "lan": "Hela Landet",
+  "namn": "ERTMS, TC Stockholm Gävle",
+  "trafikslag": "Järnväg"
+ },
+ "JTR2214": {
+  "fas": "Övrigt",
+  "kostnad_mnkr": null,
+  "lan": "Hela Landet",
+  "namn": "ERTMS, Ramjustering enligt beslut",
+  "trafikslag": "Järnväg"
+ },
+ "JTR2603": {
+  "fas": "Övrigt",
+  "kostnad_mnkr": 4713,
+  "lan": "Hela Landet",
+  "namn": "Signalkostnadernas särredovisning",
+  "trafikslag": "Järnväg"
+ },
+ "JTR2605": {
+  "fas": null,
+  "kostnad_mnkr": 3500,
+  "lan": "Hela Landet",
+  "namn": "ERTMS, ombordsutrustning",
+  "trafikslag": "Alla"
+ },
+ "JTR2620": {
+  "fas": "Utredning",
+  "kostnad_mnkr": null,
+  "lan": "Hela Landet",
+  "namn": "Utredningar för namngivna järnvägsobjekt i beslutad plan (tidigt skede)",
+  "trafikslag": "Järnväg"
+ },
+ "JVA1801": {
+  "fas": "Förberedelse för byggstart",
+  "kostnad_mnkr": 1023,
+  "lan": "Halland",
+  "namn": "Halmstad C/bangård",
+  "trafikslag": "Järnväg"
+ },
+ "JVA1805": {
+  "fas": "Planering",
+  "kostnad_mnkr": 193,
+  "lan": "Västra Götaland",
+  "namn": "Norge-Vänerbanan, vändspår i Älvängen",
+  "trafikslag": "Järnväg"
+ },
+ "JVA1808": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 864,
+  "lan": "Västra Götaland",
+  "namn": "Göteborg och Västsverige Omloppsnära uppställningsspår, delen Lärje",
+  "trafikslag": "Järnväg"
+ },
+ "JVA1808b": {
+  "fas": "Byggstart",
+  "kostnad_mnkr": 868,
+  "lan": "Västra Götaland",
+  "namn": "Göteborg och Västsverige Omloppsnära uppställningsspår, delen Pilekrogen",
+  "trafikslag": "Järnväg"
+ },
+ "JVA1810": {
+  "fas": "Planering",
+  "kostnad_mnkr": 587,
+  "lan": "Västra Götaland",
+  "namn": "Västra stambanan Laxå-Alingsås högre kapacitet",
+  "trafikslag": "Järnväg"
+ },
+ "JVA200d": {
+  "fas": "Förberedelse för byggstart",
+  "kostnad_mnkr": 59161,
+  "lan": "Västra Götaland",
+  "namn": "Göteborg-Borås, Ny järnväg och Bibana Mölnlycke",
+  "trafikslag": "Järnväg"
+ },
+ "JVA204": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 1193,
+  "lan": "Värmland",
+  "namn": "Laxå – Arvika, ökad kapacitet",
+  "trafikslag": "Järnväg"
+ },
+ "JVA2201": {
+  "fas": "Planering",
+  "kostnad_mnkr": 26447,
+  "lan": "Västra Götaland",
+  "namn": "Göteborg-Alingsås, högre kap., hela sträckan",
+  "trafikslag": "Järnväg"
+ },
+ "JVA2206": {
+  "fas": "Planering",
+  "kostnad_mnkr": 150,
+  "lan": "Halland",
+  "namn": "Väröbacka station (3)",
+  "trafikslag": "Järnväg"
+ },
+ "JVA2207": {
+  "fas": "Planering",
+  "kostnad_mnkr": 247,
+  "lan": "Halland",
+  "namn": "Västkustbanan, Halmstad C, kapacitet (del 2), uppställningsspår",
+  "trafikslag": "Järnväg"
+ },
+ "JVA2217": {
+  "fas": "Planering",
+  "kostnad_mnkr": 827,
+  "lan": "Värmland",
+  "namn": "Värmlandsbanan, Kil-Charlottenberg, mötesspår",
+  "trafikslag": "Järnväg"
+ },
+ "JVA2219": {
+  "fas": "Planering",
+  "kostnad_mnkr": 2100,
+  "lan": "Värmland",
+  "namn": "Värmlandsbanan, Karlstad - Kil, dubbelspår",
+  "trafikslag": "Järnväg"
+ },
+ "JVA2222": {
+  "fas": "Byggstart",
+  "kostnad_mnkr": 123,
+  "lan": "Halland",
+  "namn": "Markarydsbanan/Knäred mötesspår",
+  "trafikslag": "Järnväg"
+ },
+ "JVA2227": {
+  "fas": "Planering",
+  "kostnad_mnkr": 102,
+  "lan": "Värmland Västra Götaland",
+  "namn": "Norge-Vänerbanan, Kil-Skälebol, mötesspår",
+  "trafikslag": "Järnväg"
+ },
+ "JVR2601": {
+  "fas": "Planering",
+  "kostnad_mnkr": 146,
+  "lan": "Halland",
+  "namn": "Västkustbanan, Tyllered, förbigångsspår",
+  "trafikslag": "Järnväg"
+ },
+ "LUFT001": {
+  "fas": null,
+  "kostnad_mnkr": 1236,
+  "lan": "Hela Landet",
+  "namn": "Driftbidrag Icke statlig flygplatser (1)",
+  "trafikslag": "Luftfart"
+ },
+ "R-999x": {
+  "fas": null,
+  "kostnad_mnkr": 64144,
+  "lan": "Hela Landet",
+  "namn": "Regionala planer övriga",
+  "trafikslag": "Alla"
+ },
+ "SC012": {
+  "fas": null,
+  "kostnad_mnkr": 2513,
+  "lan": "Hela Landet",
+  "namn": "Räntor och amortering för investering, väg",
+  "trafikslag": "Väg"
+ },
+ "SJOV004": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 5443,
+  "lan": "Södermanland Västmanland Stockholm",
+  "namn": "Södertälje Sluss, Mälaren",
+  "trafikslag": "Sjöfart"
+ },
+ "STR2201": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 8300,
+  "lan": "Hela Landet",
+  "namn": "Sjöfartsverkets isbryttarflotta",
+  "trafikslag": "Sjöfart"
+ },
+ "STR2620": {
+  "fas": "Utredning",
+  "kostnad_mnkr": null,
+  "lan": "Hela Landet",
+  "namn": "Utredningar för namngivna sjöfartsobjekt i beslutad plan (tidigt skede)",
+  "trafikslag": "Sjöfart"
+ },
+ "SVA1801": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 4176,
+  "lan": "Västra Götaland",
+  "namn": "Farleden i Göteborgs hamn, Kapacitetsåtgärd farled (5)",
+  "trafikslag": "Sjöfart"
+ },
+ "SVF1801": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 16337,
+  "lan": "Stockholm",
+  "namn": "Älvsjö-Fridhemsplan, tunnelbana och nya stationer",
+  "trafikslag": "Järnväg"
+ },
+ "SVF1801a": {
+  "fas": null,
+  "kostnad_mnkr": 1107,
+  "lan": "Stockholm",
+  "namn": "Älvsjö-Fridhemsplan, tunnelbana och nya stationer, samfinans",
+  "trafikslag": "Järnväg"
+ },
+ "SVF1802": {
+  "fas": "Planering",
+  "kostnad_mnkr": 7245,
+  "lan": "Stockholm",
+  "namn": "Stockholm, Spårväg syd, kapacitetsutökning för kollektivtrafik",
+  "trafikslag": "Järnväg"
+ },
+ "SVF1802a": {
+  "fas": null,
+  "kostnad_mnkr": 1866,
+  "lan": "Stockholm",
+  "namn": "Stockholm, Spårväg syd, kapacitetsutökning för kollektivtrafik, samfinans",
+  "trafikslag": "Järnväg"
+ },
+ "SVF1803": {
+  "fas": "Planering",
+  "kostnad_mnkr": 9426,
+  "lan": "Stockholm",
+  "namn": "Roslagsbanan till City, förlängning och nya stationer",
+  "trafikslag": "Järnväg"
+ },
+ "SVF1803a": {
+  "fas": null,
+  "kostnad_mnkr": 321,
+  "lan": "Stockholm",
+  "namn": "Roslagsbanan till City, förlängning och nya stationer, samfinans",
+  "trafikslag": "Järnväg"
+ },
+ "SVF1804": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 1546,
+  "lan": "Stockholm",
+  "namn": "Hagalund, tunnelbanestation",
+  "trafikslag": "Järnväg"
+ },
+ "SVF1805": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 585,
+  "lan": "Stockholm",
+  "namn": "Stockholm, cykelobjekt",
+  "trafikslag": "Väg"
+ },
+ "SVF1806": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 7233,
+  "lan": "Västra Götaland",
+  "namn": "Göteborg, Spårväg Brunnsbo-Linné (Norra Älvstranden, centrala delen)",
+  "trafikslag": "Järnväg"
+ },
+ "SVF1806a": {
+  "fas": null,
+  "kostnad_mnkr": 308,
+  "lan": "Västra Götaland",
+  "namn": "Göteborg, Spårväg Brunnsbo-Linné (Älvstranden, centrala delen), samf.",
+  "trafikslag": "Järnväg"
+ },
+ "SVF1808": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 457,
+  "lan": "Västra Götaland",
+  "namn": "Göteborg, Citybuss Backastråket",
+  "trafikslag": "Väg"
+ },
+ "SVF1808a": {
+  "fas": null,
+  "kostnad_mnkr": 14,
+  "lan": "Västra Götaland",
+  "namn": "Göteborg, Citybuss Backastråket, samfinans",
+  "trafikslag": "Väg"
+ },
+ "SVF1809": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 912,
+  "lan": "Västra Götaland",
+  "namn": "Göteborg, Spårväg och citybuss Norra Älvstranden (västra delen)",
+  "trafikslag": "Järnväg"
+ },
+ "SVF1809a": {
+  "fas": null,
+  "kostnad_mnkr": 66,
+  "lan": "Västra Götaland",
+  "namn": "Göteborg, Spårväg och citybuss Norra Älvstranden (västra delen), samfinans",
+  "trafikslag": "Järnväg"
+ },
+ "SVF1810": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 296,
+  "lan": "Västra Götaland",
+  "namn": "Göteborg cykelobjekt",
+  "trafikslag": "Väg"
+ },
+ "SVF1811": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 3933,
+  "lan": "Skåne",
+  "namn": "Malmö, Stadsbusslinje (EL-MEX-och EL-bussar)",
+  "trafikslag": "Väg"
+ },
+ "SVF1811a": {
+  "fas": null,
+  "kostnad_mnkr": 242,
+  "lan": "Skåne",
+  "namn": "Malmö, Stadsbusslinje (EL-MEX-och EL-bussar), samfinans",
+  "trafikslag": "Väg"
+ },
+ "SVF1812": {
+  "fas": "Planering",
+  "kostnad_mnkr": 378,
+  "lan": "Skåne",
+  "namn": "Malmöpendeln Lommabanan - etapp 2",
+  "trafikslag": "Järnväg"
+ },
+ "SVF1812a": {
+  "fas": null,
+  "kostnad_mnkr": 94,
+  "lan": "Skåne",
+  "namn": "Malmöpendeln Lommabanan - etapp 2, samfinans",
+  "trafikslag": "Järnväg"
+ },
+ "SVF1813": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 720,
+  "lan": "Skåne",
+  "namn": "Malmö cykelobjekt",
+  "trafikslag": "Väg"
+ },
+ "SVF1814": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 389,
+  "lan": "Skåne",
+  "namn": "Helsingborg, Kollektivtrafik",
+  "trafikslag": "Väg"
+ },
+ "SVF1815": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 145,
+  "lan": "Skåne",
+  "namn": "Helsingborg cykelobjekt",
+  "trafikslag": "Väg"
+ },
+ "SVF1816": {
+  "fas": "Öppet för trafik",
+  "kostnad_mnkr": 1066,
+  "lan": "Skåne",
+  "namn": "Spårväg Lund C - ESS",
+  "trafikslag": "Järnväg"
+ },
+ "SVF1817": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 213,
+  "lan": "Skåne",
+  "namn": "Lund cykelobjekt (cykelbanor och cykelgarage)",
+  "trafikslag": "Väg"
+ },
+ "TRV011": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 8165,
+  "lan": "Hela Landet",
+  "namn": "Kraftförsörjning",
+  "trafikslag": "Järnväg"
+ },
+ "TTR1820": {
+  "fas": null,
+  "kostnad_mnkr": null,
+  "lan": "Hela Landet",
+  "namn": "Trimning / tillgänglighetsåtgärder",
+  "trafikslag": "Alla"
+ },
+ "TTR1820x": {
+  "fas": null,
+  "kostnad_mnkr": 63260,
+  "lan": "Hela Landet",
+  "namn": "Trimning, miljö, säkerhet",
+  "trafikslag": "Alla"
+ },
+ "TTR1821": {
+  "fas": null,
+  "kostnad_mnkr": null,
+  "lan": "Hela Landet",
+  "namn": "Säkerhetsåtgärder",
+  "trafikslag": "Alla"
+ },
+ "TTR1822": {
+  "fas": null,
+  "kostnad_mnkr": null,
+  "lan": "Hela Landet",
+  "namn": "Miljöåtgärder",
+  "trafikslag": "Alla"
+ },
+ "TTR1823": {
+  "fas": null,
+  "kostnad_mnkr": 3547,
+  "lan": "Hela Landet",
+  "namn": "Kollektivtrafiksatsning (Stadsmiljöavtal) (2)",
+  "trafikslag": "Alla"
+ },
+ "TTR1823a": {
+  "fas": null,
+  "kostnad_mnkr": 2515,
+  "lan": "Hela Landet",
+  "namn": "Ultunalänken, kollektivtrafiksatsning (stadsmiljöavtal)",
+  "trafikslag": "Alla"
+ },
+ "TTR203": {
+  "fas": null,
+  "kostnad_mnkr": 4040,
+  "lan": "Hela Landet",
+  "namn": "Forskning och innovation utveckling",
+  "trafikslag": "Alla"
+ },
+ "TTR2601": {
+  "fas": "Övrigt",
+  "kostnad_mnkr": 37759,
+  "lan": "Hela landet",
+  "namn": "Riskreserv 9% på namngivna inv",
+  "trafikslag": "Alla"
+ },
+ "UHJ001": {
+  "fas": null,
+  "kostnad_mnkr": 177227,
+  "lan": "Hela Landet",
+  "namn": "Vidmakthållande järnväg",
+  "trafikslag": "Järnväg"
+ },
+ "UHJ004a": {
+  "fas": null,
+  "kostnad_mnkr": 45000,
+  "lan": "Hela Landet",
+  "namn": "Vidmakthållande större reinvestering järnväg (>300 mnkr)",
+  "trafikslag": "Järnväg"
+ },
+ "UHJ005": {
+  "fas": null,
+  "kostnad_mnkr": 20000,
+  "lan": "Hela Landet",
+  "namn": "Vidmakthållande, signalåtgärder",
+  "trafikslag": "Järnväg"
+ },
+ "UHV001": {
+  "fas": null,
+  "kostnad_mnkr": 243000,
+  "lan": "Hela Landet",
+  "namn": "Vidmakthållande väg",
+  "trafikslag": "Väg"
+ },
+ "UHV001a": {
+  "fas": null,
+  "kostnad_mnkr": 40000,
+  "lan": "Hela Landet",
+  "namn": "Vidmakthållande större reinvestering väg (>300 mnkr)",
+  "trafikslag": "Väg"
+ },
+ "UHV003": {
+  "fas": null,
+  "kostnad_mnkr": 11500,
+  "lan": "Hela Landet",
+  "namn": "Vidmakthållande bärighet (övriga)",
+  "trafikslag": "Väg"
+ },
+ "UHV003b": {
+  "fas": null,
+  "kostnad_mnkr": 29500,
+  "lan": "Hela Landet",
+  "namn": "Vidmakthållande bärighet (investeringskaraktär)",
+  "trafikslag": "Väg"
+ },
+ "UHV004": {
+  "fas": null,
+  "kostnad_mnkr": 30000,
+  "lan": "Hela Landet",
+  "namn": "Statlig medfinansiering av enskilda vägar",
+  "trafikslag": "Väg"
+ },
+ "VM001": {
+  "fas": "Förberedelse för byggstart",
+  "kostnad_mnkr": 621,
+  "lan": "Dalarna",
+  "namn": "E45 Vattnäs-Trunna",
+  "trafikslag": "Väg"
+ },
+ "VM034": {
+  "fas": "Byggstart",
+  "kostnad_mnkr": 2741,
+  "lan": "Gävleborg",
+  "namn": "E4 Kongberget-Gnarp",
+  "trafikslag": "Väg"
+ },
+ "VM051": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 343,
+  "lan": "Jämtland",
+  "namn": "E45 Rengsjön-Älvros",
+  "trafikslag": "Väg"
+ },
+ "VM066": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 1029,
+  "lan": "Dalarna",
+  "namn": "E16 Borlänge-Djurås",
+  "trafikslag": "Väg"
+ },
+ "VMN096": {
+  "fas": "Förberedelse för byggstart",
+  "kostnad_mnkr": 1215,
+  "lan": "Örebro Östergötland",
+  "namn": "Rv 50 Medevi-Brattebro (inkl Nykyrka)",
+  "trafikslag": "Väg"
+ },
+ "VMN142": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 581,
+  "lan": "Södermanland",
+  "namn": "Väg 56 Bie- St Sundby (Alberga), Räta linjen",
+  "trafikslag": "Väg"
+ },
+ "VN1801": {
+  "fas": "Planering",
+  "kostnad_mnkr": 2439,
+  "lan": "Västerbotten",
+  "namn": "E4 förbifart Skellefteå",
+  "trafikslag": "Väg"
+ },
+ "VN1803": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 760,
+  "lan": "Västerbotten",
+  "namn": "E4 Gumboda-Grimsmark mötesseparering (5)",
+  "trafikslag": "Väg"
+ },
+ "VN1804": {
+  "fas": "Byggstart",
+  "kostnad_mnkr": 466,
+  "lan": "Västerbotten",
+  "namn": "E4 Broänge-Daglösten mötesseparering",
+  "trafikslag": "Väg"
+ },
+ "VN1805": {
+  "fas": "Förberedelse för byggstart",
+  "kostnad_mnkr": 490,
+  "lan": "Västerbotten",
+  "namn": "E4 Daglösten-Ljusvattnet mötesseparering",
+  "trafikslag": "Väg"
+ },
+ "VO1802": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 326,
+  "lan": "Uppsala Västmanland",
+  "namn": "Rv 56 Sala - Heby 2+1 (5)",
+  "trafikslag": "Väg"
+ },
+ "VO2271": {
+  "fas": "Planering",
+  "kostnad_mnkr": 318,
+  "lan": "Uppsala",
+  "namn": "E4 Trafikplats Bergsbrunna/Knivsta (3)",
+  "trafikslag": "Väg"
+ },
+ "VOR2602": {
+  "fas": "Planering",
+  "kostnad_mnkr": 454,
+  "lan": "Stockholm",
+  "namn": "Väg 75, Brandbekämpningssystem i Södra länken",
+  "trafikslag": "Väg"
+ },
+ "VOR2605": {
+  "fas": "Planering",
+  "kostnad_mnkr": 500,
+  "lan": "Stockholm",
+  "namn": "E4/E20 Vägpassage Södertälje kanal, utredning",
+  "trafikslag": "Väg"
+ },
+ "VOR2606": {
+  "fas": "Planering",
+  "kostnad_mnkr": 1000,
+  "lan": "Stockholm",
+  "namn": "Östlig förbindelse, utredning",
+  "trafikslag": "Väg"
+ },
+ "VSK038": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 593,
+  "lan": "Skåne",
+  "namn": "E22 Trafikplats Lund S",
+  "trafikslag": "Väg"
+ },
+ "VSK042": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 485,
+  "lan": "Skåne",
+  "namn": "E22 Trafikplats Ideon (5)",
+  "trafikslag": "Väg"
+ },
+ "VSK046": {
+  "fas": "Öppet för trafik",
+  "kostnad_mnkr": 1275,
+  "lan": "Skåne",
+  "namn": "E22 Hurva-Vä etapp Linderöd - Vä;  Sätaröd-Vä och förbi Linderöd",
+  "trafikslag": "Väg"
+ },
+ "VSK050": {
+  "fas": "Byggstart",
+  "kostnad_mnkr": 701,
+  "lan": "Skåne",
+  "namn": "E65 Svedala-Börringe",
+  "trafikslag": "Väg"
+ },
+ "VSN206": {
+  "fas": "Byggstart",
+  "kostnad_mnkr": 963,
+  "lan": "Norrbotten",
+  "namn": "E10, Morjärv - Svartbyn (etapp 1)",
+  "trafikslag": "Väg"
+ },
+ "VSN209": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 694,
+  "lan": "Norrbotten",
+  "namn": "E10, Avvakko–Lappeasuando",
+  "trafikslag": "Väg"
+ },
+ "VSO004": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 2239,
+  "lan": "Östergötland",
+  "namn": "E22 Förbi Söderköping (5)",
+  "trafikslag": "Väg"
+ },
+ "VSO008a": {
+  "fas": "Byggstart",
+  "kostnad_mnkr": 1473,
+  "lan": "Blekinge",
+  "namn": "E22 Björketorp (Ronneby Ö)-Nättraby",
+  "trafikslag": "Väg"
+ },
+ "VSO020": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 536,
+  "lan": "Kronoberg",
+  "namn": "Rv 25 Österleden i Växjö",
+  "trafikslag": "Väg"
+ },
+ "VSO033": {
+  "fas": "Förberedelse för byggstart",
+  "kostnad_mnkr": 486,
+  "lan": "Jönköping",
+  "namn": "Rv 40 förbi Eksjö",
+  "trafikslag": "Väg"
+ },
+ "VSOR2605": {
+  "fas": "Planering",
+  "kostnad_mnkr": 219,
+  "lan": "Skåne",
+  "namn": "E4 Trafikplats  Ättekulla",
+  "trafikslag": "Väg"
+ },
+ "VST001": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 58076,
+  "lan": "Stockholm",
+  "namn": "E4 Förbifart Stockholm",
+  "trafikslag": "Väg"
+ },
+ "VST001ba": {
+  "fas": "Byggstart",
+  "kostnad_mnkr": 1332,
+  "lan": "Stockholm",
+  "namn": "E4/E20 Hallunda-Vårby, delen Fittja–Vårby, Kapacitetsförstärkning",
+  "trafikslag": "Väg"
+ },
+ "VST001bb": {
+  "fas": "Förberedelse för byggstart",
+  "kostnad_mnkr": 1004,
+  "lan": "Stockholm",
+  "namn": "E4/E20 Hallunda-Vårby, delen Hallunda–Fittja, Kap. till följd av Förbifart Stockholm",
+  "trafikslag": "Väg"
+ },
+ "VST001c": {
+  "fas": "Planering",
+  "kostnad_mnkr": 1338,
+  "lan": "Stockholm",
+  "namn": "E4/E20 Södertäljebron, Kapacitetsförstärkning till följd av Förbifart Stockholm",
+  "trafikslag": "Väg"
+ },
+ "VST001d": {
+  "fas": "Planering",
+  "kostnad_mnkr": 1281,
+  "lan": "Stockholm",
+  "namn": "E4/E18 Hjulsta-Jakobsberg, Kapacitetsförstärkning till följd av Förbifart Stockholm",
+  "trafikslag": "Väg"
+ },
+ "VST001e": {
+  "fas": "Planering",
+  "kostnad_mnkr": 1082,
+  "lan": "Stockholm",
+  "namn": "E4 trafikplats Glädjen- trafikplats Arlanda, Kapacitetsförstärkning till följd av Förbifart Stockholm",
+  "trafikslag": "Väg"
+ },
+ "VST003": {
+  "fas": "Öppet för trafik",
+  "kostnad_mnkr": 8914,
+  "lan": "Stockholm",
+  "namn": "E20 Norra Länken",
+  "trafikslag": "Väg"
+ },
+ "VST005": {
+  "fas": "Byggstart",
+  "kostnad_mnkr": 23582,
+  "lan": "Stockholm",
+  "namn": "E4/Lv 259 Tvärförbindelse Södertörn",
+  "trafikslag": "Väg"
+ },
+ "VST2204": {
+  "fas": "Planering",
+  "kostnad_mnkr": 623,
+  "lan": "Stockholm",
+  "namn": "E4 trafikplats Häggvik- trafikplats Rotebro, kapacitetsförstärkning till följd av Förbifart Stockholm",
+  "trafikslag": "Väg"
+ },
+ "VST2207": {
+  "fas": "Planering",
+  "kostnad_mnkr": 290,
+  "lan": "Stockholm",
+  "namn": "E20 trafikplats Hovsjö",
+  "trafikslag": "Väg"
+ },
+ "VSY1802": {
+  "fas": "Planering",
+  "kostnad_mnkr": 689,
+  "lan": "Jönköping",
+  "namn": "E4 Trafikplats Ekhagen",
+  "trafikslag": "Väg"
+ },
+ "VSY1803": {
+  "fas": "Förberedelse för byggstart",
+  "kostnad_mnkr": 969,
+  "lan": "Jönköping",
+  "namn": "E4 Trafikplats Ljungarum, genomgående körfält",
+  "trafikslag": "Väg"
+ },
+ "VSY1807": {
+  "fas": "Förberedelse för byggstart",
+  "kostnad_mnkr": 444,
+  "lan": "Jönköping",
+  "namn": "Rv 26 Hedenstorp - Månseryd",
+  "trafikslag": "Väg"
+ },
+ "VSY201": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 217,
+  "lan": "Skåne",
+  "namn": "Superbussar i Skåne, åtgärder i statlig infrastruktur",
+  "trafikslag": "Väg"
+ },
+ "VSY202": {
+  "fas": "Öppet för trafik",
+  "kostnad_mnkr": 667,
+  "lan": "Skåne",
+  "namn": "E22 Fjälkinge–Gualöv",
+  "trafikslag": "Väg"
+ },
+ "VSY2202": {
+  "fas": "Planering",
+  "kostnad_mnkr": 482,
+  "lan": "Skåne",
+  "namn": "E6 Trafikplats Alnarp - Trafikplats Lomma, additionskörfält",
+  "trafikslag": "Väg"
+ },
+ "VSY2203": {
+  "fas": "Planering",
+  "kostnad_mnkr": 158,
+  "lan": "Kalmar",
+  "namn": "Rv 25 Nybro, trafikplats Glasporten",
+  "trafikslag": "Väg"
+ },
+ "VSYR2602": {
+  "fas": "Planering",
+  "kostnad_mnkr": 428,
+  "lan": "Jönköping",
+  "namn": "Rv 26,40 Trafikplats Hedenstorp",
+  "trafikslag": "Väg"
+ },
+ "VTR1801": {
+  "fas": "Förberedelse för byggstart",
+  "kostnad_mnkr": 5186,
+  "lan": "Hela Landet",
+  "namn": "Införande av FRMCS (Järnvägskommunikationssystem)",
+  "trafikslag": "Järnväg"
+ },
+ "VTR1801a": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 142,
+  "lan": "Hela Landet",
+  "namn": "Förtätning av GSM-R (Järnvägskommunikationssystem)",
+  "trafikslag": "Järnväg"
+ },
+ "VTR1801b": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 536,
+  "lan": "Hela Landet",
+  "namn": "FRMCS (Järnvägskommunikationssystem) tunnel",
+  "trafikslag": "Järnväg"
+ },
+ "VTR1802": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 12342,
+  "lan": "Hela Landet",
+  "namn": "Ny optoanläggning för ökad kapacitet i kommunikationsnät inkl. vägklassifisering",
+  "trafikslag": "Järnväg"
+ },
+ "VTR200": {
+  "fas": "Öppet för trafik",
+  "kostnad_mnkr": 25,
+  "lan": "Hela Landet",
+  "namn": "Avslutade namngivna vägobjekt med restarbete eller utbetalningar under planperiod",
+  "trafikslag": "Väg"
+ },
+ "VTR2620": {
+  "fas": "Utredning",
+  "kostnad_mnkr": null,
+  "lan": "Hela Landet",
+  "namn": "Utredningar för namngivna vägobjekt i beslutad plan (tidigt skede)",
+  "trafikslag": "Väg"
+ },
+ "VVA012A": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 3795,
+  "lan": "Västra Götaland",
+  "namn": "E6.21 Göteborgs hamn/Lundbyleden",
+  "trafikslag": "Väg"
+ },
+ "VVA015": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 1607,
+  "lan": "Västra Götaland",
+  "namn": "E20 Götene - Mariestad",
+  "trafikslag": "Väg"
+ },
+ "VVA119": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 53105,
+  "lan": "Västra Götaland",
+  "namn": "Västsvenska paketet järnväg (6)",
+  "trafikslag": "Järnväg"
+ },
+ "VVA119b": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 17762,
+  "lan": "Västra Götaland",
+  "namn": "Västsvenska paketet väg (6)",
+  "trafikslag": "Väg"
+ },
+ "VVA1806a": {
+  "fas": "Planering",
+  "kostnad_mnkr": 1158,
+  "lan": "Västra Götaland",
+  "namn": "E45 Vänersborg - Mellerud, deletapp Liden – Frändefors, ombyggnad 2+1",
+  "trafikslag": "Väg"
+ },
+ "VVA1816": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 362,
+  "lan": "Västra Götaland",
+  "namn": "E45 Tösse-Åmål",
+  "trafikslag": "Väg"
+ },
+ "VVA1889": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 326,
+  "lan": "Västra Götaland",
+  "namn": "Järnvågen med överdäckning av E45 (3)",
+  "trafikslag": "Väg"
+ },
+ "VVA204": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 2252,
+  "lan": "Västra Götaland",
+  "namn": "E20 Förbi Mariestad",
+  "trafikslag": "Väg"
+ },
+ "VVA2208": {
+  "fas": "Planering",
+  "kostnad_mnkr": 334,
+  "lan": "Västra Götaland",
+  "namn": "Väg E6/väg 40 Kallebäcksmotet, kapacitet och tillgänglighet",
+  "trafikslag": "Väg"
+ },
+ "VVR2604": {
+  "fas": "Planering",
+  "kostnad_mnkr": 3800,
+  "lan": "Västra Götaland",
+  "namn": "Rv 40 Jönköping-Ulricehamn, 2+2 väg inkl trafikplats",
+  "trafikslag": "Väg"
+ },
+ "XSM300c": {
+  "fas": "Förberedelse för byggstart",
+  "kostnad_mnkr": 11275,
+  "lan": "Gävleborg",
+  "namn": "Ostkustbanan, etapp Gävle-Kringlan, nytt dubbelspår, ny trafikplats",
+  "trafikslag": "Järnväg"
+ },
+ "XSN300": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 8372,
+  "lan": "Norrbotten",
+  "namn": "Luleå hamn kapacitetsåtgärd farled",
+  "trafikslag": "Sjöfart"
+ },
+ "XSN301c": {
+  "fas": "Byggstart",
+  "kostnad_mnkr": 285,
+  "lan": "Norrbotten",
+  "namn": "Malmbanan Nattavaara bangårdsförlängning",
+  "trafikslag": "Järnväg"
+ },
+ "XSN301d": {
+  "fas": "Förberedelse för byggstart",
+  "kostnad_mnkr": 235,
+  "lan": "Norrbotten",
+  "namn": "Malmbanan Murjek förlängning av mötesstation",
+  "trafikslag": "Järnväg"
+ },
+ "XSN301e": {
+  "fas": "Planering",
+  "kostnad_mnkr": 165,
+  "lan": "Norrbotten",
+  "namn": "Malmbanan Kalixfors bangårdsförlängning",
+  "trafikslag": "Järnväg"
+ },
+ "XSN301f": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 137,
+  "lan": "Norrbotten",
+  "namn": "Malmbanan Sikträsk bangårdsförlängning (5)",
+  "trafikslag": "Järnväg"
+ },
+ "XSO302": {
+  "fas": "Öppet för trafik",
+  "kostnad_mnkr": 1353,
+  "lan": "Västmanland",
+  "namn": "E18 Köping-Västjädra, kapacitetsbrister",
+  "trafikslag": "Väg"
+ },
+ "XST301": {
+  "fas": "Förberedelse för byggstart",
+  "kostnad_mnkr": 429,
+  "lan": "Stockholm",
+  "namn": "Farled Södertälje-Landsort",
+  "trafikslag": "Sjöfart"
+ },
+ "XVA300": {
+  "fas": "Förberedelse för byggstart",
+  "kostnad_mnkr": 8184,
+  "lan": "Västra Götaland",
+  "namn": "Vänersjöfarten, Trollhätte kanal/Göta älv",
+  "trafikslag": "Sjöfart"
+ },
+ "YSN001a": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 21008,
+  "lan": "Västerbotten",
+  "namn": "Norrbotniabanan (Umeå) Dåva-Skellefteå ny järnväg (5)",
+  "trafikslag": "Järnväg"
+ },
+ "YSN001b": {
+  "fas": "Pågående",
+  "kostnad_mnkr": 2679,
+  "lan": "Västerbotten",
+  "namn": "Norrbotniabanan Umeå-Dåva ny järnväg",
+  "trafikslag": "Järnväg"
+ },
+ "YSY004": {
+  "fas": "Planering",
+  "kostnad_mnkr": 674,
+  "lan": "Kalmar",
+  "namn": "E22 Förbi Bergkvara",
+  "trafikslag": "Väg"
+ },
+ "YSY007": {
+  "fas": "Byggstart",
+  "kostnad_mnkr": 585,
+  "lan": "Jönköping",
+  "namn": "Rv 26 Mullsjö - Slättäng",
+  "trafikslag": "Väg"
+ },
+ "YVA002": {
+  "fas": "Planering",
+  "kostnad_mnkr": 600,
+  "lan": "Västra Götaland",
+  "namn": "Kinnekullebanan, partiell elektrifiering och standardhöjning",
+  "trafikslag": "Järnväg"
+ },
+ "YVA003b": {
+  "fas": "Byggstart",
+  "kostnad_mnkr": 283,
+  "lan": "Värmland",
+  "namn": "E45 Säffle-Valnäs, delen Hammar-Valnäs",
+  "trafikslag": "Väg"
+ }
+}

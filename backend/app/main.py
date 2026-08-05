@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.gzip import GZipMiddleware
 
 from app.api import api_router
 from app.config import get_settings
@@ -43,6 +44,10 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    # GeoJSON komprimerar ~4:1 och projektsvaren är megabytestora —
+    # komprimeringen ska följa backenden i alla körlägen, inte bero på
+    # att nginx-profilen råkar stå framför.
+    app.add_middleware(GZipMiddleware, minimum_size=1000)
 
     app.include_router(api_router, prefix="/api/v1")
 

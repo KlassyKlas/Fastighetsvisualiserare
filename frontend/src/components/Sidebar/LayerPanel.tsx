@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import clsx from 'clsx';
 import {
   Box,
@@ -11,7 +11,7 @@ import {
   TrainFront,
 } from 'lucide-react';
 import { useState } from 'react';
-import { syncTrafikverket } from '@/api/queries';
+import { FALLBACK_SOURCES, sourcesQuery, syncSource } from '@/api/queries';
 import type { LayerVisibility } from '@/domain';
 import { useUiStore } from '@/store/uiStore';
 import Toggle from '../UI/Toggle';
@@ -37,16 +37,22 @@ export default function LayerPanel() {
 
   const queryClient = useQueryClient();
   const [syncMessage, setSyncMessage] = useState<string | null>(null);
+  const { data: sources } = useQuery(sourcesQuery());
 
   const syncMutation = useMutation({
-    mutationFn: syncTrafikverket,
-    onSuccess: (result) => {
+    mutationFn: syncSource,
+    onSuccess: (result, sourceName) => {
       const truncatedNote = result.truncated ? ' — ofullständig hämtning, kör igen' : '';
+      const label = sources?.[sourceName] ?? sourceName;
       setSyncMessage(
-        `${result.upserted} objekt synkroniserade (${result.fetched} hämtade, ${result.skipped} överhoppade)${truncatedNote}`,
+        `${label}: ${result.upserted} objekt synkroniserade (${result.fetched} hämtade, ${result.skipped} överhoppade)${truncatedNote}`,
       );
+      // Synkade projekt påverkar även närhetspoäng och närliggande
+      // projekt — inte bara kartlagren.
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       queryClient.invalidateQueries({ queryKey: ['impact-zones'] });
+      queryClient.invalidateQueries({ queryKey: ['proximity-scores'] });
+      queryClient.invalidateQueries({ queryKey: ['nearby-projects'] });
     },
     onError: (error) => {
       const detail =
@@ -115,22 +121,33 @@ export default function LayerPanel() {
         <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
           Synkronisering
         </h3>
-        <button
-          onClick={() => {
-            setSyncMessage(null);
-            syncMutation.mutate();
-          }}
-          disabled={syncMutation.isPending || demoMode}
-          className={clsx(
-            'w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors',
-            syncMutation.isPending || demoMode
-              ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
-              : 'bg-blue-600 hover:bg-blue-500 text-white',
-          )}
-        >
-          <RefreshCw className={clsx('w-4 h-4', syncMutation.isPending && 'animate-spin')} />
-          {syncMutation.isPending ? 'Synkroniserar…' : 'Hämta från Trafikverket'}
-        </button>
+        <div className="space-y-2">
+          {/* Fallbacken gör att knapparna aldrig försvinner tyst under
+              laddning eller vid query-fel — ett synkförsök mot en död
+              backend ger då sitt eget felmeddelande nedanför. */}
+          {Object.entries(sources ?? FALLBACK_SOURCES).map(([sourceName, label]) => {
+            const isSyncing = syncMutation.isPending && syncMutation.variables === sourceName;
+            return (
+              <button
+                key={sourceName}
+                onClick={() => {
+                  setSyncMessage(null);
+                  syncMutation.mutate(sourceName);
+                }}
+                disabled={syncMutation.isPending || demoMode}
+                className={clsx(
+                  'w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                  syncMutation.isPending || demoMode
+                    ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                    : 'bg-blue-600 hover:bg-blue-500 text-white',
+                )}
+              >
+                <RefreshCw className={clsx('w-4 h-4', isSyncing && 'animate-spin')} />
+                {isSyncing ? 'Synkroniserar…' : label}
+              </button>
+            );
+          })}
+        </div>
         {demoMode && (
           <p className="text-xs text-amber-400/80 mt-2 text-center">
             Synkronisering kräver att backend körs (demo-läge).
