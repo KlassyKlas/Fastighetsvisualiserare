@@ -12,6 +12,7 @@ Backend (från `backend/`, kräver `uv`):
 
 Frontend (från `frontend/`):
 - `npm test` / `npm run lint` / `npx tsc -b` / `npm run build`
+- `npx prettier --check .` — CI kör denna utöver eslint; glöm inte lokalt
 - `npm run typegen` — regenerera `src/api/schema.d.ts` från `../backend/openapi.json`
 
 ## Järnregler
