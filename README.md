@@ -97,3 +97,6 @@ annars säger CI ifrån.
 4. Isokroner (restid) via Mapbox Isochrone API
 5. Detaljplaner via Lantmäteriets NGP · SCB-demografi per DeSO-område
 6. Bevakade områden med notiser · exporterbara objektsrapporter
+7. "Nytt sedan senast": panel över projekt som tillkommit/ändrats sedan förra synken (created_at/updated_at finns redan)
+8. Delbara länkar: filter, år, poängläge och vald fastighet i URL:en
+9. Ägarvy: gruppera fastigheter per ägare ("visa allt Vasakronan äger")
