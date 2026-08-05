@@ -1,3 +1,5 @@
+import { useQuery } from '@tanstack/react-query';
+import { proximityScoresQuery } from '@/api/queries';
 import {
   PROPERTY_TYPE_COLORS,
   PROPERTY_TYPE_LABELS,
@@ -12,6 +14,14 @@ const propertyEntries = Object.entries(PROPERTY_TYPE_COLORS);
 
 export default function Legend() {
   const scoreColoring = useUiStore((s) => s.scoreColoring);
+  const filters = useUiStore((s) => s.filters);
+  // Gradienten visas först när poängdatat faktiskt renderas på kartan —
+  // samma villkor som MapContainer, via samma cachade query.
+  const { data: scoreData } = useQuery({
+    ...proximityScoresQuery(filters),
+    enabled: scoreColoring,
+  });
+  const showScoreGradient = scoreColoring && scoreData != null;
 
   return (
     <div className="absolute bottom-6 right-4 z-10 bg-slate-800/90 backdrop-blur-sm border border-slate-700 rounded-lg p-3 shadow-lg min-w-[160px]">
@@ -36,7 +46,7 @@ export default function Legend() {
 
       <div className="border-t border-slate-700 my-2" />
 
-      {scoreColoring ? (
+      {showScoreGradient ? (
         <div>
           <h4 className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
             Närhetspoäng

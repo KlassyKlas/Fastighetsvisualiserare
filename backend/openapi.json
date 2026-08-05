@@ -1840,6 +1840,26 @@
             }
           },
           {
+            "description": "Räkna bara projekt aktiva under detta år",
+            "in": "query",
+            "name": "year",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 1900,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Räkna bara projekt aktiva under detta år",
+              "title": "Year"
+            }
+          },
+          {
             "description": "Sökradie i meter",
             "in": "query",
             "name": "max_distance_m",

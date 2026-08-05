@@ -8,7 +8,7 @@ och den besvaras i databasen med ST_DWithin/ST_Distance över geography
 from datetime import date
 
 from geoalchemy2 import Geography
-from sqlalchemy import cast, func, select
+from sqlalchemy import cast, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain import ProjectStatus, ProjectType
@@ -159,6 +159,7 @@ async def proximity_scores(
     *,
     statuses: list[ProjectStatus] | None = None,
     project_types: list[ProjectType] | None = None,
+    year: int | None = None,
     max_distance_m: float = scoring.DEFAULT_MAX_DISTANCE_M,
     limit: int = 500,
     today: date | None = None,
@@ -181,6 +182,21 @@ async def proximity_scores(
         conditions.append(InfrastructureProject.status.in_(statuses))
     if project_types:
         conditions.append(InfrastructureProject.project_type.in_(project_types))
+    if year is not None:
+        # Samma semantik som projektlistans year-filter — tidsreglaget
+        # ska påverka poängen och lagren likadant
+        conditions.append(
+            or_(
+                InfrastructureProject.start_date.is_(None),
+                InfrastructureProject.start_date <= date(year, 12, 31),
+            )
+        )
+        conditions.append(
+            or_(
+                InfrastructureProject.end_date.is_(None),
+                InfrastructureProject.end_date >= date(year, 1, 1),
+            )
+        )
 
     rows = await session.execute(
         select(

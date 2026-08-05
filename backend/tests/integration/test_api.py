@@ -206,6 +206,15 @@ async def test_proximity_scores(client):
     assert points == sorted(points, reverse=True)
 
 
+async def test_proximity_scores_respects_year(client):
+    response = await client.get("/api/v1/analysis/proximity-scores", params={"year": 2010})
+    assert response.status_code == 200
+    for feature in response.json()["features"]:
+        names = {c["name"] for c in feature["properties"]["contributions"]}
+        # Tvärförbindelse Södertörn (2025–2032) var inte aktiv 2010
+        assert "Tvärförbindelse Södertörn" not in names
+
+
 async def test_year_filter_on_projects(client):
     response = await client.get("/api/v1/infrastructure/projects", params={"year": 2012})
     names = {f["properties"]["name"] for f in response.json()["features"]}

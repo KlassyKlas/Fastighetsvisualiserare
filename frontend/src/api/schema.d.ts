@@ -871,6 +871,8 @@ export interface operations {
                 status?: components["schemas"]["ProjectStatus"][] | null;
                 /** @description Räkna bara projekt av dessa typer */
                 project_type?: components["schemas"]["ProjectType"][] | null;
+                /** @description Räkna bara projekt aktiva under detta år */
+                year?: number | null;
                 /** @description Sökradie i meter */
                 max_distance_m?: number;
                 limit?: number;

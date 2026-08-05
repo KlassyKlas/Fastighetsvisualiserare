@@ -63,10 +63,10 @@ class ScoredProject:
 
 
 def distance_factor(distance_m: float, max_distance_m: float) -> float:
-    """Linjärt avtagande 1.0 → 0.0 över sökradien."""
+    """Linjärt avtagande 1.0 → 0.0 över sökradien (clampat åt båda håll)."""
     if max_distance_m <= 0:
         return 0.0
-    return max(0.0, 1.0 - distance_m / max_distance_m)
+    return min(1.0, max(0.0, 1.0 - distance_m / max_distance_m))
 
 
 def budget_factor(budget_sek: int | None) -> float:

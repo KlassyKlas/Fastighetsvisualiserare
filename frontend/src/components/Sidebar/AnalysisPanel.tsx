@@ -63,6 +63,15 @@ export default function AnalysisPanel() {
       {isPending && <p className="text-xs text-slate-500">Beräknar närhetspoäng…</p>}
       {isError && <p className="text-xs text-slate-500">Kunde inte hämta poängen från backend.</p>}
 
+      {data != null &&
+        data.numberReturned != null &&
+        data.numberMatched != null &&
+        data.numberReturned < data.numberMatched && (
+          <p className="text-xs text-slate-500">
+            Visar de {data.numberReturned} högst rankade av {data.numberMatched}.
+          </p>
+        )}
+
       {features.length > 0 && (
         <div className="space-y-1">
           {features.map((feature) => {

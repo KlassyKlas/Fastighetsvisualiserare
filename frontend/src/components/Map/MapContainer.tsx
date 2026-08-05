@@ -74,6 +74,27 @@ export default function MapContainer() {
     [scoreData],
   );
 
+  // Poängläget berikar fastighetslagret med score i stället för att byta
+  // datakälla — annars försvinner fastigheter utan närliggande projekt
+  // helt från kartan (poängendpointen inner-joinar mot projekten).
+  const enrichedPropertyData = useMemo(() => {
+    if (!useScores || !propertyData || !scoreData) return propertyData;
+    // OBS: react-map-gl:s Map-komponent skuggar inbyggda Map här —
+    // därför ett vanligt uppslagsobjekt.
+    const scoreById: Record<number, number> = {};
+    for (const feature of scoreData.features) {
+      scoreById[feature.properties.id] = feature.properties.score;
+    }
+    return {
+      ...propertyData,
+      features: propertyData.features.map((feature) => {
+        const score = scoreById[feature.properties.id];
+        if (score == null) return feature;
+        return { ...feature, properties: { ...feature.properties, score } };
+      }),
+    } as typeof propertyData;
+  }, [useScores, propertyData, scoreData]);
+
   const interactiveLayerIds = useMemo(() => {
     const ids: string[] = [];
     if (layers.infrastructure) {
@@ -172,9 +193,9 @@ export default function MapContainer() {
       {layers.buildings3d && <Layer {...buildings3dLayer} />}
 
       {zoneData && <ImpactZoneLayer data={zoneData} visible={layers.impactZones} />}
-      {(useScores ? scoreData : propertyData) && (
+      {enrichedPropertyData && (
         <PropertyLayer
-          data={useScores ? scoreData! : propertyData!}
+          data={enrichedPropertyData}
           visible={layers.properties}
           colorByScore={useScores}
           maxScore={maxScore}

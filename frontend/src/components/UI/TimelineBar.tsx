@@ -13,6 +13,15 @@ export default function TimelineBar() {
   const year = useUiStore((s) => s.filters.year);
   const setFilters = useUiStore((s) => s.setFilters);
 
+  // I "Alla år"-läget står reglaget redan på standardåret — webbläsaren
+  // avfyrar då ingen change-händelse om interaktionen landar på samma
+  // värde, så själva beröringen måste aktivera filtret.
+  const activate = () => {
+    if (year == null) {
+      setFilters({ year: DEFAULT_YEAR });
+    }
+  };
+
   return (
     <div className="absolute top-16 left-1/2 -translate-x-1/2 z-10 flex items-center gap-3 bg-slate-800/90 backdrop-blur-sm border border-slate-700 rounded-xl px-4 py-1.5 shadow-lg">
       <CalendarClock className="w-4 h-4 text-slate-400 flex-shrink-0" />
@@ -22,8 +31,11 @@ export default function TimelineBar() {
         max={YEAR_MAX}
         value={year ?? DEFAULT_YEAR}
         onChange={(e) => setFilters({ year: Number(e.target.value) })}
+        onPointerDown={activate}
+        onKeyDown={activate}
         className="w-44 accent-blue-500"
         aria-label="Visa projekt aktiva under år"
+        aria-valuetext={year != null ? `År ${year}` : 'Alla år'}
       />
       <span
         className={

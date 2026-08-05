@@ -27,16 +27,23 @@ function scoreFillLayer(maxScore: number): LayerProps {
     id: 'property-fills',
     type: 'fill',
     paint: {
+      // Fastigheter utan poäng (inget projekt inom sökradien) får en
+      // neutral färg i stället för att försvinna från kartan
       'fill-color': [
-        'interpolate',
-        ['linear'],
-        ['get', 'score'],
-        0,
-        SCORE_GRADIENT.low,
-        safeMax / 2,
-        SCORE_GRADIENT.mid,
-        safeMax,
-        SCORE_GRADIENT.high,
+        'case',
+        ['has', 'score'],
+        [
+          'interpolate',
+          ['linear'],
+          ['get', 'score'],
+          0,
+          SCORE_GRADIENT.low,
+          safeMax / 2,
+          SCORE_GRADIENT.mid,
+          safeMax,
+          SCORE_GRADIENT.high,
+        ],
+        SCORE_GRADIENT.none,
       ],
       'fill-opacity': 0.65,
     },

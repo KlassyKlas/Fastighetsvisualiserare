@@ -9,7 +9,7 @@
  * när backend är nere — fetch lyckas då och kastar ingenting).
  * Övriga HTTP-fel kastas vidare och visas i ErrorBanner.
  */
-import { queryOptions } from '@tanstack/react-query';
+import { keepPreviousData, queryOptions } from '@tanstack/react-query';
 import { client } from '@/api/client';
 import {
   sampleImpactZones,
@@ -71,9 +71,18 @@ function retryWhileDemo(): number | false {
   return useUiStore.getState().demoMode ? 15_000 : false;
 }
 
+/**
+ * Querynycklarna innehåller BARA de filterfält som respektive endpoint
+ * faktiskt använder — att nyckla på hela FilterState skulle ge en ny
+ * cachepost (och en onödig identisk request) varje gång ett irrelevant
+ * fält ändras, t.ex. varje steg på tidsreglaget.
+ */
 export function projectsQuery(filters: FilterState) {
   return queryOptions({
-    queryKey: ['projects', filters],
+    queryKey: [
+      'projects',
+      { statuses: filters.statuses, projectTypes: filters.projectTypes, year: filters.year },
+    ],
     queryFn: async ({ signal }): Promise<ProjectCollection> => {
       try {
         const { data, error, response } = await client.GET('/api/v1/infrastructure/projects', {
@@ -105,7 +114,14 @@ export function projectsQuery(filters: FilterState) {
 
 export function propertiesQuery(filters: FilterState) {
   return queryOptions({
-    queryKey: ['properties', filters],
+    queryKey: [
+      'properties',
+      {
+        municipalities: filters.municipalities,
+        minValue: filters.minValue,
+        maxValue: filters.maxValue,
+      },
+    ],
     queryFn: async ({ signal }): Promise<PropertyCollection> => {
       try {
         const { data, error, response } = await client.GET('/api/v1/properties', {
@@ -137,7 +153,10 @@ export function propertiesQuery(filters: FilterState) {
 
 export function impactZonesQuery(filters: FilterState) {
   return queryOptions({
-    queryKey: ['impact-zones', filters],
+    queryKey: [
+      'impact-zones',
+      { statuses: filters.statuses, projectTypes: filters.projectTypes, year: filters.year },
+    ],
     queryFn: async ({ signal }): Promise<ImpactZoneCollection> => {
       try {
         const { data, error, response } = await client.GET('/api/v1/infrastructure/impact-zones', {
@@ -167,7 +186,10 @@ export function impactZonesQuery(filters: FilterState) {
 
 export function proximityScoresQuery(filters: FilterState) {
   return queryOptions({
-    queryKey: ['proximity-scores', filters],
+    queryKey: [
+      'proximity-scores',
+      { statuses: filters.statuses, projectTypes: filters.projectTypes, year: filters.year },
+    ],
     queryFn: async ({ signal }): Promise<ProximityScoresCollection> => {
       try {
         const { data, error, response } = await client.GET('/api/v1/analysis/proximity-scores', {
@@ -175,6 +197,8 @@ export function proximityScoresQuery(filters: FilterState) {
             query: {
               status: nonEmpty(filters.statuses),
               project_type: nonEmpty(filters.projectTypes),
+              year: filters.year ?? undefined,
+              limit: LIST_LIMIT,
             },
           },
           signal,
@@ -194,6 +218,9 @@ export function proximityScoresQuery(filters: FilterState) {
     },
     staleTime: 60_000,
     refetchInterval: retryWhileDemo,
+    // Behåll förra svaret medan nytt hämtas — annars flimrar kartan
+    // mellan typ- och poängfärger vid varje filterändring.
+    placeholderData: keepPreviousData,
   });
 }
 

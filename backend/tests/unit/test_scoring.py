@@ -28,6 +28,9 @@ class TestDistanceFactor:
     def test_beyond_radius_clamped_to_zero(self):
         assert distance_factor(9000, 5000) == 0.0
 
+    def test_negative_distance_clamped_to_one(self):
+        assert distance_factor(-2500, 5000) == 1.0
+
 
 class TestBudgetFactor:
     def test_unknown_budget_is_neutral(self):
