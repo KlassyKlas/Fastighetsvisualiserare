@@ -287,9 +287,16 @@ async def sync_source(
             ),
         ) from exc
 
+    # Importeras här för att undvika cirkulär import — planning/demographics
+    # importerar GEOJSON_DECIMALER från denna modul.
+    from app.services import demographics as demographics_service
+    from app.services import planning as planning_service
+
     try:
         projects = await datasource.fetch_infrastructure_projects(bbox)
         properties = await datasource.fetch_properties(bbox)
+        detail_plans = await datasource.fetch_detail_plans(bbox)
+        deso_areas = await datasource.fetch_deso_areas(bbox)
     except DataSourceError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
     except NotImplementedError as exc:
@@ -299,12 +306,16 @@ async def sync_source(
     properties_upserted, properties_skipped = await property_service.upsert_properties(
         session, properties
     )
+    plans_upserted, plans_skipped = await planning_service.upsert_detail_plans(
+        session, detail_plans
+    )
+    deso_upserted, deso_skipped = await demographics_service.upsert_deso_areas(session, deso_areas)
     await session.commit()
 
     return SyncResult(
         source=source_name,
-        fetched=len(projects) + len(properties),
-        upserted=projects_upserted + properties_upserted,
-        skipped=projects_skipped + properties_skipped,
+        fetched=len(projects) + len(properties) + len(detail_plans) + len(deso_areas),
+        upserted=projects_upserted + properties_upserted + plans_upserted + deso_upserted,
+        skipped=projects_skipped + properties_skipped + plans_skipped + deso_skipped,
         truncated=datasource.truncated,
     )

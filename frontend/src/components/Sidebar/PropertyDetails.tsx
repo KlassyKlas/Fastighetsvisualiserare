@@ -9,9 +9,10 @@ import {
   Ruler,
   Timer,
   User,
+  Users,
   X,
 } from 'lucide-react';
-import { nearbyProjectsQuery } from '@/api/queries';
+import { desoLookupQuery, nearbyProjectsQuery } from '@/api/queries';
 import {
   FALLBACK_COLOR,
   PROPERTY_TYPE_COLORS,
@@ -19,9 +20,79 @@ import {
   STATUS_COLORS,
   STATUS_LABELS,
 } from '@/config/map';
-import { formatArea, formatCurrency, formatDistance } from '@/lib/format';
+import { formatArea, formatCurrency, formatDistance, formatPercent } from '@/lib/format';
 import { geometryAnchor } from '@/lib/isochrone';
 import { useUiStore } from '@/store/uiStore';
+
+const numberFormat = new Intl.NumberFormat('sv-SE');
+
+function DesoStats({ longitude, latitude }: { longitude: number; latitude: number }) {
+  const demoMode = useUiStore((s) => s.demoMode);
+  const { data, isPending, isError } = useQuery({
+    ...desoLookupQuery(longitude, latitude),
+    enabled: !demoMode,
+  });
+
+  if (demoMode) {
+    return (
+      <p className="text-xs text-slate-500">
+        Områdesuppslaget körs i PostGIS och kräver att backend är igång (demo-läge).
+      </p>
+    );
+  }
+  if (isPending) {
+    return <p className="text-xs text-slate-500">Slår upp DeSO-området…</p>;
+  }
+  if (isError || !data) {
+    return (
+      <p className="text-xs text-slate-500">
+        Ingen områdesstatistik — synkronisera SCB-källan under Lager.
+      </p>
+    );
+  }
+
+  const props = data.properties;
+  const rows: { label: string; value: string }[] = [];
+  if (props.population != null) {
+    rows.push({
+      label: `Befolkning${props.population_year ? ` (${props.population_year})` : ''}`,
+      value: numberFormat.format(props.population),
+    });
+  }
+  if (props.population_density != null) {
+    rows.push({
+      label: 'Befolkningstäthet',
+      value: `${numberFormat.format(Math.round(props.population_density))} inv/km²`,
+    });
+  }
+  if (props.mean_income_sek != null) {
+    rows.push({ label: 'Medelinkomst (netto)', value: formatCurrency(props.mean_income_sek) });
+  }
+  if (props.higher_education_share != null) {
+    rows.push({
+      label: 'Eftergymnasial utbildning',
+      value: formatPercent(props.higher_education_share),
+    });
+  }
+
+  return (
+    <div className="bg-slate-900/50 rounded-lg p-3 space-y-2">
+      {rows.map((row) => (
+        <div key={row.label} className="flex items-center justify-between gap-2">
+          <span className="text-xs text-slate-500">{row.label}</span>
+          <span className="text-sm text-slate-200 whitespace-nowrap">{row.value}</span>
+        </div>
+      ))}
+      {rows.length === 0 && (
+        <p className="text-xs text-slate-500">Området saknar statistikvärden.</p>
+      )}
+      <p className="text-[11px] text-slate-600 pt-1">
+        DeSO {props.deso_code}
+        {props.municipality ? ` · ${props.municipality}` : ''} · Källa: SCB
+      </p>
+    </div>
+  );
+}
 
 /** Närliggande projekt inom denna radie visas i detaljpanelen. */
 const NEARBY_MAX_DISTANCE_M = 5000;
@@ -234,6 +305,18 @@ export default function PropertyDetails() {
               </div>
             </div>
           </div>
+        </div>
+
+        <div>
+          <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <Users className="w-3.5 h-3.5" />
+            Områdesstatistik (DeSO)
+          </h3>
+          {isochroneAnchor ? (
+            <DesoStats longitude={isochroneAnchor.longitude} latitude={isochroneAnchor.latitude} />
+          ) : (
+            <p className="text-xs text-slate-500">Fastigheten saknar geometri.</p>
+          )}
         </div>
 
         <div>

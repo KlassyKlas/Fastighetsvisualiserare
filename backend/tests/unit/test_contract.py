@@ -20,6 +20,9 @@ EXPECTED_PATHS = {
     "/api/v1/infrastructure/sync/{source_name}",
     "/api/v1/analysis/affected-properties",
     "/api/v1/analysis/proximity-scores",
+    "/api/v1/planning/detail-plans",
+    "/api/v1/demographics/deso-areas",
+    "/api/v1/demographics/deso-areas/lookup",
 }
 
 
@@ -40,6 +43,11 @@ def test_domain_enums_in_openapi_schema():
 def test_collections_carry_pagination_metadata():
     spec = app.openapi()
     schemas = spec["components"]["schemas"]
-    for name in ("PropertyCollection", "InfrastructureProjectCollection"):
+    for name in (
+        "PropertyCollection",
+        "InfrastructureProjectCollection",
+        "DetailPlanCollection",
+        "DesoAreaCollection",
+    ):
         assert "numberMatched" in schemas[name]["properties"]
         assert "numberReturned" in schemas[name]["properties"]

@@ -1,5 +1,11 @@
 import type { ExpressionSpecification } from 'mapbox-gl';
-import type { IsochroneProfile, ProjectStatus, ProjectType, PropertyType } from '@/domain';
+import type {
+  DemographicsMetric,
+  IsochroneProfile,
+  ProjectStatus,
+  ProjectType,
+  PropertyType,
+} from '@/domain';
 
 export const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN ?? '';
 
@@ -79,6 +85,39 @@ export const PROPERTY_TYPE_LABELS: Record<PropertyType, string> = {
 };
 
 /**
+ * Boverkets planstatusvärden är fria strängar i kontraktet — kända
+ * värden färgsätts, okända får reservfärgen. Ordningen speglar
+ * planprocessen och styr legenden.
+ */
+export const PLAN_STATUS_COLORS: Record<string, string> = {
+  påbörjad: '#94a3b8',
+  samråd: '#38bdf8',
+  granskning: '#f59e0b',
+  antagen: '#a3e635',
+  'laga kraft': '#22c55e',
+  överklagad: '#f87171',
+  upphävd: '#64748b',
+  avslutad: '#64748b',
+};
+
+/** Sekventiell färgskala för demografilagret (DeSO-choropleth). */
+export const DEMOGRAPHICS_GRADIENT = {
+  low: '#1e3a8a',
+  mid: '#7c3aed',
+  high: '#ec4899',
+} as const;
+
+export const DEMOGRAPHICS_METRICS: Record<
+  DemographicsMetric,
+  { label: string; property: string }
+> = {
+  population: { label: 'Befolkning', property: 'population' },
+  density: { label: 'Täthet (inv/km²)', property: 'population_density' },
+  income: { label: 'Medelinkomst', property: 'mean_income_sek' },
+  education: { label: 'Eftergymnasial utb.', property: 'higher_education_share' },
+};
+
+/**
  * Svenska etiketter för datakällor. `source` är en fri sträng i
  * kontraktet (inte enum) — okända källnamn visas som de är.
  * Etiketterna speglar backendens display_name i datasource-registret.
@@ -87,6 +126,8 @@ export const SOURCE_LABELS: Record<string, string> = {
   manual: 'Manuellt inlagd',
   trafikverket: 'Trafikverket (trafikinformation)',
   nationell_plan: 'Trafikverket (nationell plan)',
+  detaljplaner: 'Lantmäteriet (detaljplaner)',
+  scb_deso: 'SCB (demografi per DeSO)',
 };
 
 export const PROJECT_STATUSES = Object.keys(STATUS_LABELS) as ProjectStatus[];

@@ -1,7 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { proximityScoresQuery } from '@/api/queries';
 import {
+  DEMOGRAPHICS_GRADIENT,
+  DEMOGRAPHICS_METRICS,
   ISOCHRONE_PROFILE_LABELS,
+  PLAN_STATUS_COLORS,
   PROPERTY_TYPE_COLORS,
   PROPERTY_TYPE_LABELS,
   SCORE_GRADIENT,
@@ -13,6 +16,8 @@ import { useUiStore } from '@/store/uiStore';
 
 const statusEntries = Object.entries(STATUS_COLORS);
 const propertyEntries = Object.entries(PROPERTY_TYPE_COLORS);
+// Kompakt urval för legenden — hela statuslistan är för lång att visa.
+const PLAN_LEGEND_STATUSES = ['samråd', 'granskning', 'antagen', 'laga kraft'];
 
 export default function Legend() {
   const scoreColoring = useUiStore((s) => s.scoreColoring);
@@ -20,6 +25,8 @@ export default function Legend() {
   const isochroneOrigin = useUiStore((s) => s.isochroneOrigin);
   const isochroneProfile = useUiStore((s) => s.isochroneProfile);
   const isochroneMinutes = useUiStore((s) => s.isochroneMinutes);
+  const layers = useUiStore((s) => s.layers);
+  const demographicsMetric = useUiStore((s) => s.demographicsMetric);
   // Gradienten visas först när poängdatat faktiskt renderas på kartan —
   // samma villkor som MapContainer, via samma cachade query.
   const { data: scoreData } = useQuery({
@@ -90,6 +97,51 @@ export default function Legend() {
             ))}
           </div>
         </div>
+      )}
+
+      {layers.detailPlans && (
+        <>
+          <div className="border-t border-slate-700 my-2" />
+          <div>
+            <h4 className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
+              Detaljplaner
+            </h4>
+            <div className="space-y-1">
+              {PLAN_LEGEND_STATUSES.map((status) => (
+                <div key={status} className="flex items-center gap-2">
+                  <span
+                    className="w-2.5 h-2.5 rounded flex-shrink-0"
+                    style={{ backgroundColor: PLAN_STATUS_COLORS[status] }}
+                  />
+                  <span className="text-[11px] text-slate-300">
+                    {status.charAt(0).toUpperCase() + status.slice(1)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+
+      {layers.demographics && (
+        <>
+          <div className="border-t border-slate-700 my-2" />
+          <div>
+            <h4 className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
+              {DEMOGRAPHICS_METRICS[demographicsMetric].label}
+            </h4>
+            <div
+              className="h-2 rounded-full"
+              style={{
+                background: `linear-gradient(to right, ${DEMOGRAPHICS_GRADIENT.low}, ${DEMOGRAPHICS_GRADIENT.mid}, ${DEMOGRAPHICS_GRADIENT.high})`,
+              }}
+            />
+            <div className="flex justify-between mt-1">
+              <span className="text-[10px] text-slate-500">Låg</span>
+              <span className="text-[10px] text-slate-500">Hög</span>
+            </div>
+          </div>
+        </>
       )}
 
       {isochroneEntries.length > 0 && (

@@ -18,6 +18,8 @@ export type NearbyProjectsResponse = components['schemas']['NearbyProjectsRespon
 export type SyncResult = components['schemas']['SyncResult'];
 export type ProximityScoreProps = components['schemas']['ProximityScoreProps'];
 export type ScoreContribution = components['schemas']['ScoreContribution'];
+export type DetailPlanProps = components['schemas']['DetailPlanProps'];
+export type DesoAreaProps = components['schemas']['DesoAreaProps'];
 
 /**
  * API:t serialiserar geometrier som generisk GeoJSON. För kartlagren
@@ -27,6 +29,8 @@ export type ProjectFeature = Feature<Geometry, ProjectProps>;
 export type PropertyFeature = Feature<Geometry, PropertyProps>;
 export type ImpactZoneFeature = Feature<Geometry, ImpactZoneProps>;
 export type ProximityScoreFeature = Feature<Geometry, ProximityScoreProps>;
+export type DetailPlanFeature = Feature<Geometry, DetailPlanProps>;
+export type DesoAreaFeature = Feature<Geometry, DesoAreaProps>;
 
 export interface PaginatedCollection {
   numberMatched?: number;
@@ -38,6 +42,12 @@ export type PropertyCollection = FeatureCollection<Geometry, PropertyProps> & Pa
 export type ImpactZoneCollection = FeatureCollection<Geometry, ImpactZoneProps>;
 export type ProximityScoresCollection = FeatureCollection<Geometry, ProximityScoreProps> &
   PaginatedCollection & { max_distance_m?: number };
+export type DetailPlanCollection = FeatureCollection<Geometry, DetailPlanProps> &
+  PaginatedCollection;
+export type DesoAreaCollection = FeatureCollection<Geometry, DesoAreaProps> & PaginatedCollection;
+
+/** Metrik som färgsätter demografilagret (DeSO-choropleth). */
+export type DemographicsMetric = 'population' | 'density' | 'income' | 'education';
 
 /**
  * Restidsanalys (isokroner). Datat kommer från Mapbox Isochrone API,
@@ -63,6 +73,8 @@ export interface LayerVisibility {
   infrastructure: boolean;
   properties: boolean;
   impactZones: boolean;
+  detailPlans: boolean;
+  demographics: boolean;
   buildings3d: boolean;
   terrain: boolean;
 }

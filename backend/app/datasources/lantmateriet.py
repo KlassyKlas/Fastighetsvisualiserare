@@ -1,12 +1,12 @@
-"""Datakälla: Lantmäteriet (ej implementerad ännu).
+"""Datakälla: Lantmäteriets fastighetsdata (ej implementerad ännu).
 
 Klassen är avsiktligt INTE registrerad i källregistret — den blir
 synlig för synkronisering först när den faktiskt kan leverera data.
+Detaljplanerna ur NGP är numera implementerade separat i
+``app/datasources/detaljplaner.py``.
 
 Relevanta API:er när åtkomst finns:
     - Direktåtkomst Fastighet (fastighetsindelning och taxeringsuppgifter)
-    - Nationella geodataplattformen (NGP): detaljplaner — öppen datamängd,
-      kräver konto och API-nyckel via Lantmäteriets API-portal
     - Höjddata och ortofoto (öppna data)
 
 Observera koordinatsystem: Lantmäteriet levererar i regel SWEREF99 TM

@@ -104,7 +104,12 @@ annars säger CI ifrån.
 4. ~~Isokroner (restid) via Mapbox Isochrone API~~ — byggt: restidsanalys i Analys-fliken
    (gång/cykel/bil, upp till fyra restider à ≤60 min; startpunkt via kartklick eller
    "Restider härifrån" i detaljpanelerna; fungerar även i demo-läge)
-5. Detaljplaner via Lantmäteriets NGP · SCB-demografi per DeSO-område
+5. ~~Detaljplaner via Lantmäteriets NGP · SCB-demografi per DeSO-område~~ — byggt: två nya
+   datakällor med egna kartlager (hämtas per kartvy). Detaljplaner färgas efter Boverkets
+   planstatus och är klickbara; DeSO-choroplethen växlar mellan befolkning/täthet/inkomst/
+   utbildning och fastighetspanelen visar områdesstatistik via PostGIS-uppslag. Utan
+   Lantmäteriet-nycklar används den publika sökproxyn (sätt LANTMATERIET_CONSUMER_KEY/SECRET
+   för riktiga API:t); SCB-källan är helt öppen
 6. Bevakade områden med notiser · exporterbara objektsrapporter
 7. "Nytt sedan senast": panel över projekt som tillkommit/ändrats sedan förra synken (created_at/updated_at finns redan)
 8. Delbara länkar: filter, år, poängläge och vald fastighet i URL:en

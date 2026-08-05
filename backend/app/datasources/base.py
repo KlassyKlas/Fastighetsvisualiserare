@@ -60,6 +60,35 @@ class InfrastructureProjectIngest(BaseModel):
 PropertyIngest = PropertyCreate
 
 
+class DetailPlanIngest(BaseModel):
+    """Typat kontrakt för detaljplaner från externa källor (Lantmäteriet NGP)."""
+
+    external_id: str = Field(min_length=1)
+    source: str
+    name: str = Field(min_length=1)
+    plan_number: str | None = None
+    status: str | None = None
+    municipality: str | None = None
+    purpose: str | None = None
+    adopted_date: date | None = None
+    geometry: GeoJSONGeometry | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class DesoAreaIngest(BaseModel):
+    """Typat kontrakt för DeSO-områden med demografi (SCB)."""
+
+    deso_code: str = Field(min_length=1)
+    municipality_code: str | None = None
+    municipality: str | None = None
+    population: int | None = Field(default=None, ge=0)
+    population_year: int | None = None
+    mean_income_sek: int | None = Field(default=None, ge=0)
+    higher_education_share: float | None = Field(default=None, ge=0, le=1)
+    geometry: GeoJSONGeometry | None = None
+    stats_json: dict[str, Any] = Field(default_factory=dict)
+
+
 class DataSource(ABC):
     """Bas för externa datakällor.
 
@@ -82,6 +111,12 @@ class DataSource(ABC):
         return []
 
     async def fetch_properties(self, bbox: Bbox | None = None) -> list[PropertyIngest]:
+        return []
+
+    async def fetch_detail_plans(self, bbox: Bbox | None = None) -> list[DetailPlanIngest]:
+        return []
+
+    async def fetch_deso_areas(self, bbox: Bbox | None = None) -> list[DesoAreaIngest]:
         return []
 
 

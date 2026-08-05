@@ -4,15 +4,18 @@ import {
   Box,
   Building2,
   CircleDot,
+  FileText,
   Map,
   Mountain,
   RefreshCw,
   Satellite,
   TrainFront,
+  Users,
 } from 'lucide-react';
 import { useState } from 'react';
 import { FALLBACK_SOURCES, sourcesQuery, syncSource } from '@/api/queries';
-import type { LayerVisibility } from '@/domain';
+import { DEMOGRAPHICS_METRICS } from '@/config/map';
+import type { DemographicsMetric, LayerVisibility } from '@/domain';
 import { useUiStore } from '@/store/uiStore';
 import Toggle from '../UI/Toggle';
 
@@ -24,9 +27,13 @@ const layerItems: {
   { key: 'infrastructure', label: 'Infrastrukturprojekt', icon: TrainFront },
   { key: 'properties', label: 'Fastigheter', icon: Building2 },
   { key: 'impactZones', label: 'Påverkansområden', icon: CircleDot },
+  { key: 'detailPlans', label: 'Detaljplaner', icon: FileText },
+  { key: 'demographics', label: 'Demografi (DeSO)', icon: Users },
   { key: 'buildings3d', label: '3D-byggnader', icon: Box },
   { key: 'terrain', label: 'Terräng', icon: Mountain },
 ];
+
+const METRIC_KEYS = Object.keys(DEMOGRAPHICS_METRICS) as DemographicsMetric[];
 
 export default function LayerPanel() {
   const layers = useUiStore((s) => s.layers);
@@ -34,6 +41,8 @@ export default function LayerPanel() {
   const mapStyle = useUiStore((s) => s.mapStyle);
   const setMapStyle = useUiStore((s) => s.setMapStyle);
   const demoMode = useUiStore((s) => s.demoMode);
+  const demographicsMetric = useUiStore((s) => s.demographicsMetric);
+  const setDemographicsMetric = useUiStore((s) => s.setDemographicsMetric);
 
   const queryClient = useQueryClient();
   const [syncMessage, setSyncMessage] = useState<string | null>(null);
@@ -53,6 +62,9 @@ export default function LayerPanel() {
       queryClient.invalidateQueries({ queryKey: ['impact-zones'] });
       queryClient.invalidateQueries({ queryKey: ['proximity-scores'] });
       queryClient.invalidateQueries({ queryKey: ['nearby-projects'] });
+      queryClient.invalidateQueries({ queryKey: ['detail-plans'] });
+      queryClient.invalidateQueries({ queryKey: ['deso-areas'] });
+      queryClient.invalidateQueries({ queryKey: ['deso-lookup'] });
     },
     onError: (error) => {
       const detail =
@@ -71,15 +83,32 @@ export default function LayerPanel() {
         </h3>
         <div className="space-y-2">
           {layerItems.map((item) => (
-            <div
-              key={item.key}
-              className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-slate-700/30 transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <item.icon className="w-4 h-4 text-slate-400" />
-                <span className="text-sm text-slate-200">{item.label}</span>
+            <div key={item.key}>
+              <div className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-slate-700/30 transition-colors">
+                <div className="flex items-center gap-3">
+                  <item.icon className="w-4 h-4 text-slate-400" />
+                  <span className="text-sm text-slate-200">{item.label}</span>
+                </div>
+                <Toggle checked={layers[item.key]} onChange={() => toggleLayer(item.key)} />
               </div>
-              <Toggle checked={layers[item.key]} onChange={() => toggleLayer(item.key)} />
+              {item.key === 'demographics' && layers.demographics && (
+                <div className="flex flex-wrap gap-1.5 px-3 pb-2">
+                  {METRIC_KEYS.map((key) => (
+                    <button
+                      key={key}
+                      onClick={() => setDemographicsMetric(key)}
+                      className={clsx(
+                        'px-2 py-0.5 rounded-full text-[11px] font-medium transition-colors',
+                        demographicsMetric === key
+                          ? 'bg-blue-500/20 text-blue-300 border border-blue-500'
+                          : 'bg-slate-800 text-slate-400 border border-slate-700 hover:border-slate-500',
+                      )}
+                    >
+                      {DEMOGRAPHICS_METRICS[key].label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
         </div>

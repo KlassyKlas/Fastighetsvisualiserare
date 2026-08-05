@@ -13,6 +13,8 @@ import { keepPreviousData, queryOptions } from '@tanstack/react-query';
 import { client } from '@/api/client';
 import { SOURCE_LABELS } from '@/config/map';
 import {
+  sampleDesoAreas,
+  sampleDetailPlans,
   sampleImpactZones,
   sampleProjects,
   sampleProperties,
@@ -21,6 +23,9 @@ import {
 import { applyImpactZoneFilters, applyProjectFilters, applyPropertyFilters } from '@/lib/filters';
 import { useUiStore } from '@/store/uiStore';
 import type {
+  DesoAreaCollection,
+  DesoAreaFeature,
+  DetailPlanCollection,
   FilterState,
   ImpactZoneCollection,
   NearbyProjectsResponse,
@@ -223,6 +228,85 @@ export function proximityScoresQuery(filters: FilterState) {
     // Behåll förra svaret medan nytt hämtas — annars flimrar kartan
     // mellan typ- och poängfärger vid varje filterändring.
     placeholderData: keepPreviousData,
+  });
+}
+
+/**
+ * Detaljplaner och DeSO-områden hämtas per kartvy (bbox "väst,syd,öst,norr")
+ * — nationella datamängder är för stora att hämta i sin helhet.
+ * Demodatat är litet och returneras ofiltrerat.
+ */
+export function detailPlansQuery(bbox: string | null) {
+  return queryOptions({
+    queryKey: ['detail-plans', bbox],
+    queryFn: async ({ signal }): Promise<DetailPlanCollection> => {
+      try {
+        const { data, error, response } = await client.GET('/api/v1/planning/detail-plans', {
+          params: { query: { bbox: bbox ?? undefined, limit: LIST_LIMIT } },
+          signal,
+        });
+        ensureOk(error, response);
+        markDemoMode(false);
+        return data as unknown as DetailPlanCollection;
+      } catch (error) {
+        if (isBackendUnreachable(error) && !signal.aborted) {
+          markDemoMode(true);
+          return sampleDetailPlans;
+        }
+        throw error;
+      }
+    },
+    staleTime: 60_000,
+    refetchInterval: retryWhileDemo,
+    // Behåll förra svaret medan nästa kartvy hämtas — annars blinkar lagret.
+    placeholderData: keepPreviousData,
+  });
+}
+
+export function desoAreasQuery(bbox: string | null) {
+  return queryOptions({
+    queryKey: ['deso-areas', bbox],
+    queryFn: async ({ signal }): Promise<DesoAreaCollection> => {
+      try {
+        const { data, error, response } = await client.GET('/api/v1/demographics/deso-areas', {
+          params: { query: { bbox: bbox ?? undefined, limit: LIST_LIMIT } },
+          signal,
+        });
+        ensureOk(error, response);
+        markDemoMode(false);
+        return data as unknown as DesoAreaCollection;
+      } catch (error) {
+        if (isBackendUnreachable(error) && !signal.aborted) {
+          markDemoMode(true);
+          return sampleDesoAreas;
+        }
+        throw error;
+      }
+    },
+    staleTime: 60_000,
+    refetchInterval: retryWhileDemo,
+    placeholderData: keepPreviousData,
+  });
+}
+
+/** DeSO-området som innehåller punkten — kräver backend (PostGIS-uppslag). */
+export function desoLookupQuery(longitude: number, latitude: number) {
+  return queryOptions({
+    queryKey: ['deso-lookup', { longitude, latitude }],
+    queryFn: async ({ signal }): Promise<DesoAreaFeature> => {
+      const { data, error, response } = await client.GET(
+        '/api/v1/demographics/deso-areas/lookup',
+        {
+          params: { query: { lng: longitude, lat: latitude } },
+          signal,
+        },
+      );
+      ensureOk(error, response);
+      return data as unknown as DesoAreaFeature;
+    },
+    staleTime: 5 * 60_000,
+    // 404 = ingen DeSO-yta synkad för punkten — omförsök hjälper inte.
+    retry: false,
   });
 }
 

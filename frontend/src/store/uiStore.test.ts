@@ -56,6 +56,31 @@ describe('uiStore', () => {
     expect(useUiStore.getState().demoMode).toBe(true);
   });
 
+  it('val av detaljplan rensar övriga val och öppnar detaljfliken', () => {
+    const feature = {
+      type: 'Feature',
+      geometry: null,
+      properties: { id: 1, external_id: 'x', name: 'Plan', source: 'manual' },
+    } as never;
+
+    useUiStore.getState().setSelectedProperty(feature);
+    useUiStore.getState().setSelectedDetailPlan(feature);
+
+    const state = useUiStore.getState();
+    expect(state.selectedDetailPlan).not.toBeNull();
+    expect(state.selectedProperty).toBeNull();
+    expect(state.sidebarTab).toBe('details');
+
+    useUiStore.getState().clearSelection();
+    expect(useUiStore.getState().selectedDetailPlan).toBeNull();
+  });
+
+  it('demografimetriken kan bytas', () => {
+    expect(useUiStore.getState().demographicsMetric).toBe('population');
+    useUiStore.getState().setDemographicsMetric('income');
+    expect(useUiStore.getState().demographicsMetric).toBe('income');
+  });
+
   it('toggleIsochroneMinute stannar vid fyra konturer', () => {
     useUiStore.setState({ isochroneMinutes: [5, 10, 15, 20] });
     useUiStore.getState().toggleIsochroneMinute(30);

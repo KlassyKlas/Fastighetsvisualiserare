@@ -14,6 +14,11 @@ class Settings(BaseSettings):
         "postgresql+asyncpg://postgres:postgres@localhost:5432/fastighetsvisualiserare"
     )
     trafikverket_api_key: str = ""
+    # OAuth2 client credentials från Lantmäteriets API-portal
+    # (apimanager.lantmateriet.se). Utan dessa används den publika
+    # sökproxyn — se app/datasources/detaljplaner.py.
+    lantmateriet_consumer_key: str = ""
+    lantmateriet_consumer_secret: str = ""
     cors_origins: list[str] = ["http://localhost:5173"]
 
     # Om satt krävs headern X-API-Key med detta värde för alla skrivande anrop

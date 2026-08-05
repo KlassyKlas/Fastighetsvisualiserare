@@ -6,8 +6,12 @@ ingen shapely-rundresa per rad.
 
 from datetime import date
 
-from app.models import InfrastructureProject, Property
+from app.models import DesoArea, DetailPlan, InfrastructureProject, Property
 from app.schemas import (
+    DesoAreaFeature,
+    DesoAreaProps,
+    DetailPlanFeature,
+    DetailPlanProps,
     ImpactZoneFeature,
     ImpactZoneProps,
     InfrastructureProjectFeature,
@@ -32,6 +36,25 @@ def project_feature(
         geometry=parse_geojson_column(geojson),
         properties=InfrastructureProjectProps.model_validate(project),
     )
+
+
+def detail_plan_feature(plan: DetailPlan, geojson: str | None) -> DetailPlanFeature:
+    return DetailPlanFeature(
+        geometry=parse_geojson_column(geojson),
+        properties=DetailPlanProps.model_validate(plan),
+    )
+
+
+def deso_area_feature(
+    area: DesoArea, geojson: str | None, area_m2: float | None
+) -> DesoAreaFeature:
+    """DeSO-feature med yta och befolkningstäthet härledda ur PostGIS-arean."""
+    props = DesoAreaProps.model_validate(area)
+    if area_m2 and area_m2 > 0:
+        props.area_km2 = round(area_m2 / 1_000_000, 3)
+        if area.population is not None:
+            props.population_density = round(area.population / props.area_km2, 1)
+    return DesoAreaFeature(geometry=parse_geojson_column(geojson), properties=props)
 
 
 def impact_zone_feature(

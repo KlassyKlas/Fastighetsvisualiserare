@@ -4536,5 +4536,656 @@
     "numberMatched": 9,
     "numberReturned": 9,
     "max_distance_m": 5000.0
+  },
+  "detailPlans": {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [
+              [
+                [
+                  18.039,
+                  59.346000000000004
+                ],
+                [
+                  18.051000000000002,
+                  59.346000000000004
+                ],
+                [
+                  18.051000000000002,
+                  59.354
+                ],
+                [
+                  18.039,
+                  59.354
+                ],
+                [
+                  18.039,
+                  59.346000000000004
+                ]
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "id": 1,
+          "external_id": "seed-dp-hagastaden",
+          "source": "manual",
+          "name": "Detaljplan för Hagastaden etapp 3",
+          "plan_number": "Dp 2018-00404",
+          "status": "laga kraft",
+          "municipality": "Stockholm",
+          "purpose": "Blandad stadsbebyggelse med bostäder, kontor och lokaler i gatuplan.",
+          "adopted_date": "2021-06-15",
+          "metadata_json": {
+            "plantyp": "detaljplan",
+            "kommunkod": "0180"
+          },
+          "created_at": null,
+          "updated_at": null
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [
+              [
+                [
+                  18.07,
+                  59.2865
+                ],
+                [
+                  18.08,
+                  59.2865
+                ],
+                [
+                  18.08,
+                  59.2935
+                ],
+                [
+                  18.07,
+                  59.2935
+                ],
+                [
+                  18.07,
+                  59.2865
+                ]
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "id": 2,
+          "external_id": "seed-dp-slakthusomradet",
+          "source": "manual",
+          "name": "Detaljplan för Slakthusområdet etapp 1",
+          "plan_number": "Dp 2017-13580",
+          "status": "antagen",
+          "municipality": "Stockholm",
+          "purpose": "Omvandling av industriområde till bostäder, handel och park.",
+          "adopted_date": "2023-11-20",
+          "metadata_json": {
+            "plantyp": "detaljplan",
+            "kommunkod": "0180"
+          },
+          "created_at": null,
+          "updated_at": null
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [
+              [
+                [
+                  18.055999999999997,
+                  59.442
+                ],
+                [
+                  18.064,
+                  59.442
+                ],
+                [
+                  18.064,
+                  59.448
+                ],
+                [
+                  18.055999999999997,
+                  59.448
+                ],
+                [
+                  18.055999999999997,
+                  59.442
+                ]
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "id": 3,
+          "external_id": "seed-dp-taby-park",
+          "source": "manual",
+          "name": "Detaljplan för Täby park, kvarter 5",
+          "plan_number": "Dp 2020-112",
+          "status": "granskning",
+          "municipality": "Täby",
+          "purpose": "Bostadskvarter med förskola på före detta galoppfältet.",
+          "adopted_date": null,
+          "metadata_json": {
+            "plantyp": "detaljplan",
+            "kommunkod": "0160"
+          },
+          "created_at": null,
+          "updated_at": null
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [
+              [
+                [
+                  18.1405,
+                  59.309
+                ],
+                [
+                  18.1495,
+                  59.309
+                ],
+                [
+                  18.1495,
+                  59.315
+                ],
+                [
+                  18.1405,
+                  59.315
+                ],
+                [
+                  18.1405,
+                  59.309
+                ]
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "id": 4,
+          "external_id": "seed-dp-centrala-nacka",
+          "source": "manual",
+          "name": "Detaljplan för Centrala Nacka, Nya gatan",
+          "plan_number": "DP 611",
+          "status": "samråd",
+          "municipality": "Nacka",
+          "purpose": "Tät kvartersstad kring nya tunnelbaneuppgången.",
+          "adopted_date": null,
+          "metadata_json": {
+            "plantyp": "detaljplan",
+            "kommunkod": "0182"
+          },
+          "created_at": null,
+          "updated_at": null
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [
+              [
+                [
+                  17.942,
+                  59.4
+                ],
+                [
+                  17.948,
+                  59.4
+                ],
+                [
+                  17.948,
+                  59.404
+                ],
+                [
+                  17.942,
+                  59.404
+                ],
+                [
+                  17.942,
+                  59.4
+                ]
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "id": 5,
+          "external_id": "seed-dp-kista-torn",
+          "source": "manual",
+          "name": "Detaljplan för Kista torn II",
+          "plan_number": "Dp 2022-04511",
+          "status": "påbörjad",
+          "municipality": "Stockholm",
+          "purpose": "Kontor och bostäder i höghus vid Kistagången.",
+          "adopted_date": null,
+          "metadata_json": {
+            "plantyp": "detaljplan",
+            "kommunkod": "0180"
+          },
+          "created_at": null,
+          "updated_at": null
+        }
+      }
+    ],
+    "numberMatched": 5,
+    "numberReturned": 5
+  },
+  "desoAreas": {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [
+              [
+                [
+                  18.053,
+                  59.327
+                ],
+                [
+                  18.077,
+                  59.327
+                ],
+                [
+                  18.077,
+                  59.343
+                ],
+                [
+                  18.053,
+                  59.343
+                ],
+                [
+                  18.053,
+                  59.327
+                ]
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "id": 1,
+          "deso_code": "0180C1010",
+          "municipality_code": "0180",
+          "municipality": "Stockholm",
+          "population": 2100,
+          "population_year": 2025,
+          "mean_income_sek": 462000,
+          "higher_education_share": 0.71,
+          "area_km2": 2.427,
+          "population_density": 865.3,
+          "stats_json": {
+            "indelning": "DeSO 2025",
+            "inkomstar": 2024,
+            "utbildningsar": 2025
+          }
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [
+              [
+                [
+                  18.058,
+                  59.306999999999995
+                ],
+                [
+                  18.082,
+                  59.306999999999995
+                ],
+                [
+                  18.082,
+                  59.323
+                ],
+                [
+                  18.058,
+                  59.323
+                ],
+                [
+                  18.058,
+                  59.306999999999995
+                ]
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "id": 2,
+          "deso_code": "0180C2020",
+          "municipality_code": "0180",
+          "municipality": "Stockholm",
+          "population": 1850,
+          "population_year": 2025,
+          "mean_income_sek": 438000,
+          "higher_education_share": 0.68,
+          "area_km2": 2.428,
+          "population_density": 761.9,
+          "stats_json": {
+            "indelning": "DeSO 2025",
+            "inkomstar": 2024,
+            "utbildningsar": 2025
+          }
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [
+              [
+                [
+                  17.988,
+                  59.352
+                ],
+                [
+                  18.012,
+                  59.352
+                ],
+                [
+                  18.012,
+                  59.368
+                ],
+                [
+                  17.988,
+                  59.368
+                ],
+                [
+                  17.988,
+                  59.352
+                ]
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "id": 3,
+          "deso_code": "0184C1010",
+          "municipality_code": "0184",
+          "municipality": "Solna",
+          "population": 2400,
+          "population_year": 2025,
+          "mean_income_sek": 401000,
+          "higher_education_share": 0.62,
+          "area_km2": 2.425,
+          "population_density": 989.7,
+          "stats_json": {
+            "indelning": "DeSO 2025",
+            "inkomstar": 2024,
+            "utbildningsar": 2025
+          }
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [
+              [
+                [
+                  18.128,
+                  59.302
+                ],
+                [
+                  18.152,
+                  59.302
+                ],
+                [
+                  18.152,
+                  59.318000000000005
+                ],
+                [
+                  18.128,
+                  59.318000000000005
+                ],
+                [
+                  18.128,
+                  59.302
+                ]
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "id": 4,
+          "deso_code": "0182C1010",
+          "municipality_code": "0182",
+          "municipality": "Nacka",
+          "population": 1650,
+          "population_year": 2025,
+          "mean_income_sek": 512000,
+          "higher_education_share": 0.66,
+          "area_km2": 2.429,
+          "population_density": 679.3,
+          "stats_json": {
+            "indelning": "DeSO 2025",
+            "inkomstar": 2024,
+            "utbildningsar": 2025
+          }
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [
+              [
+                [
+                  17.938,
+                  59.391999999999996
+                ],
+                [
+                  17.962,
+                  59.391999999999996
+                ],
+                [
+                  17.962,
+                  59.408
+                ],
+                [
+                  17.938,
+                  59.408
+                ],
+                [
+                  17.938,
+                  59.391999999999996
+                ]
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "id": 5,
+          "deso_code": "0180C3030",
+          "municipality_code": "0180",
+          "municipality": "Stockholm",
+          "population": 2900,
+          "population_year": 2025,
+          "mean_income_sek": 318000,
+          "higher_education_share": 0.55,
+          "area_km2": 2.422,
+          "population_density": 1197.4,
+          "stats_json": {
+            "indelning": "DeSO 2025",
+            "inkomstar": 2024,
+            "utbildningsar": 2025
+          }
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [
+              [
+                [
+                  17.938,
+                  59.211999999999996
+                ],
+                [
+                  17.962,
+                  59.211999999999996
+                ],
+                [
+                  17.962,
+                  59.228
+                ],
+                [
+                  17.938,
+                  59.228
+                ],
+                [
+                  17.938,
+                  59.211999999999996
+                ]
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "id": 6,
+          "deso_code": "0126C1010",
+          "municipality_code": "0126",
+          "municipality": "Huddinge",
+          "population": 2300,
+          "population_year": 2025,
+          "mean_income_sek": 296000,
+          "higher_education_share": 0.48,
+          "area_km2": 2.435,
+          "population_density": 944.6,
+          "stats_json": {
+            "indelning": "DeSO 2025",
+            "inkomstar": 2024,
+            "utbildningsar": 2025
+          }
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [
+              [
+                [
+                  18.058,
+                  59.431999999999995
+                ],
+                [
+                  18.082,
+                  59.431999999999995
+                ],
+                [
+                  18.082,
+                  59.448
+                ],
+                [
+                  18.058,
+                  59.448
+                ],
+                [
+                  18.058,
+                  59.431999999999995
+                ]
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "id": 7,
+          "deso_code": "0160C1010",
+          "municipality_code": "0160",
+          "municipality": "Täby",
+          "population": 1500,
+          "population_year": 2025,
+          "mean_income_sek": 468000,
+          "higher_education_share": 0.58,
+          "area_km2": 2.419,
+          "population_density": 620.1,
+          "stats_json": {
+            "indelning": "DeSO 2025",
+            "inkomstar": 2024,
+            "utbildningsar": 2025
+          }
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [
+              [
+                [
+                  17.958,
+                  59.352
+                ],
+                [
+                  17.982,
+                  59.352
+                ],
+                [
+                  17.982,
+                  59.368
+                ],
+                [
+                  17.958,
+                  59.368
+                ],
+                [
+                  17.958,
+                  59.352
+                ]
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "id": 8,
+          "deso_code": "0183C1010",
+          "municipality_code": "0183",
+          "municipality": "Sundbyberg",
+          "population": 2050,
+          "population_year": 2025,
+          "mean_income_sek": 372000,
+          "higher_education_share": 0.57,
+          "area_km2": 2.425,
+          "population_density": 845.4,
+          "stats_json": {
+            "indelning": "DeSO 2025",
+            "inkomstar": 2024,
+            "utbildningsar": 2025
+          }
+        }
+      }
+    ],
+    "numberMatched": 8,
+    "numberReturned": 8
   }
 }

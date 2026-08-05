@@ -302,6 +302,360 @@
         "title": "AffectingProject",
         "type": "object"
       },
+      "DesoAreaCollection": {
+        "properties": {
+          "features": {
+            "items": {
+              "$ref": "#/components/schemas/DesoAreaFeature"
+            },
+            "title": "Features",
+            "type": "array"
+          },
+          "numberMatched": {
+            "description": "Totalt antal träffar för frågan",
+            "title": "Numbermatched",
+            "type": "integer"
+          },
+          "numberReturned": {
+            "description": "Antal features i detta svar",
+            "title": "Numberreturned",
+            "type": "integer"
+          },
+          "type": {
+            "const": "FeatureCollection",
+            "default": "FeatureCollection",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "numberMatched",
+          "numberReturned"
+        ],
+        "title": "DesoAreaCollection",
+        "type": "object"
+      },
+      "DesoAreaFeature": {
+        "properties": {
+          "geometry": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Geometry"
+          },
+          "properties": {
+            "$ref": "#/components/schemas/DesoAreaProps"
+          },
+          "type": {
+            "const": "Feature",
+            "default": "Feature",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "properties"
+        ],
+        "title": "DesoAreaFeature",
+        "type": "object"
+      },
+      "DesoAreaProps": {
+        "properties": {
+          "area_km2": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Landyta beräknad ur geometrin (PostGIS geography)",
+            "title": "Area Km2"
+          },
+          "deso_code": {
+            "title": "Deso Code",
+            "type": "string"
+          },
+          "higher_education_share": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Andel 25–64 år med eftergymnasial utbildning (0–1)",
+            "title": "Higher Education Share"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "mean_income_sek": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Medelvärde av nettoinkomst, kr/år (SCB har ingen DeSO-median)",
+            "title": "Mean Income Sek"
+          },
+          "municipality": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Municipality"
+          },
+          "municipality_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Municipality Code"
+          },
+          "population": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Population"
+          },
+          "population_density": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Invånare per km², beräknad ur population och area_km2",
+            "title": "Population Density"
+          },
+          "population_year": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Population Year"
+          },
+          "stats_json": {
+            "additionalProperties": true,
+            "title": "Stats Json",
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "deso_code"
+        ],
+        "title": "DesoAreaProps",
+        "type": "object"
+      },
+      "DetailPlanCollection": {
+        "properties": {
+          "features": {
+            "items": {
+              "$ref": "#/components/schemas/DetailPlanFeature"
+            },
+            "title": "Features",
+            "type": "array"
+          },
+          "numberMatched": {
+            "description": "Totalt antal träffar för frågan",
+            "title": "Numbermatched",
+            "type": "integer"
+          },
+          "numberReturned": {
+            "description": "Antal features i detta svar",
+            "title": "Numberreturned",
+            "type": "integer"
+          },
+          "type": {
+            "const": "FeatureCollection",
+            "default": "FeatureCollection",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "numberMatched",
+          "numberReturned"
+        ],
+        "title": "DetailPlanCollection",
+        "type": "object"
+      },
+      "DetailPlanFeature": {
+        "properties": {
+          "geometry": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Geometry"
+          },
+          "properties": {
+            "$ref": "#/components/schemas/DetailPlanProps"
+          },
+          "type": {
+            "const": "Feature",
+            "default": "Feature",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "properties"
+        ],
+        "title": "DetailPlanFeature",
+        "type": "object"
+      },
+      "DetailPlanProps": {
+        "properties": {
+          "adopted_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Adopted Date"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "external_id": {
+            "title": "External Id",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "metadata_json": {
+            "additionalProperties": true,
+            "title": "Metadata Json",
+            "type": "object"
+          },
+          "municipality": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Municipality"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "plan_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plan Number"
+          },
+          "purpose": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Purpose"
+          },
+          "source": {
+            "default": "detaljplaner",
+            "title": "Source",
+            "type": "string"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "required": [
+          "id",
+          "external_id",
+          "name"
+        ],
+        "title": "DetailPlanProps",
+        "type": "object"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -1914,6 +2268,162 @@
         ]
       }
     },
+    "/api/v1/demographics/deso-areas": {
+      "get": {
+        "description": "DeSO-områden med demografi som GeoJSON FeatureCollection.\n\nGeometrierna förenklas för kartbruk. Sverige har ~6000 DeSO —\nanvänd bbox (kartvyn) eller kommunkod för att begränsa svaret.",
+        "operationId": "list_deso_areas_api_v1_demographics_deso_areas_get",
+        "parameters": [
+          {
+            "description": "Filtrera på kommunkod, t.ex. '0180' (kan upprepas)",
+            "in": "query",
+            "name": "municipality_code",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filtrera på kommunkod, t.ex. '0180' (kan upprepas)",
+              "title": "Municipality Code"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 2000,
+              "maximum": 6000,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Avgränsningsruta i WGS84: väst,syd,öst,norr",
+            "in": "query",
+            "name": "bbox",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Avgränsningsruta i WGS84: väst,syd,öst,norr",
+              "title": "Bbox"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DesoAreaCollection"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Deso Areas",
+        "tags": [
+          "demographics"
+        ]
+      }
+    },
+    "/api/v1/demographics/deso-areas/lookup": {
+      "get": {
+        "description": "DeSO-området som innehåller punkten — områdesstatistik för en fastighet.\n\nSvarets geometry är null: uppslaget driver statistikvisning, inte kartritning.",
+        "operationId": "lookup_deso_area_api_v1_demographics_deso_areas_lookup_get",
+        "parameters": [
+          {
+            "description": "Longitud (WGS84)",
+            "in": "query",
+            "name": "lng",
+            "required": true,
+            "schema": {
+              "description": "Longitud (WGS84)",
+              "maximum": 180,
+              "minimum": -180,
+              "title": "Lng",
+              "type": "number"
+            }
+          },
+          {
+            "description": "Latitud (WGS84)",
+            "in": "query",
+            "name": "lat",
+            "required": true,
+            "schema": {
+              "description": "Latitud (WGS84)",
+              "maximum": 90,
+              "minimum": -90,
+              "title": "Lat",
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DesoAreaFeature"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Lookup Deso Area",
+        "tags": [
+          "demographics"
+        ]
+      }
+    },
     "/api/v1/health": {
       "get": {
         "description": "Hälsokontroll som även verifierar databasanslutningen.",
@@ -2382,6 +2892,123 @@
         "summary": "Sync Source",
         "tags": [
           "infrastructure"
+        ]
+      }
+    },
+    "/api/v1/planning/detail-plans": {
+      "get": {
+        "description": "Detaljplaner som GeoJSON FeatureCollection, med filter och paginering.\n\nDetaljplaner är många — använd bbox (kartvyn) för att begränsa svaret.",
+        "operationId": "list_detail_plans_api_v1_planning_detail_plans_get",
+        "parameters": [
+          {
+            "description": "Filtrera på planstatus, t.ex. 'gällande' (kan upprepas)",
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filtrera på planstatus, t.ex. 'gällande' (kan upprepas)",
+              "title": "Status"
+            }
+          },
+          {
+            "description": "Filtrera på kommun (kan upprepas)",
+            "in": "query",
+            "name": "municipality",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filtrera på kommun (kan upprepas)",
+              "title": "Municipality"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 500,
+              "maximum": 2000,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Avgränsningsruta i WGS84: väst,syd,öst,norr",
+            "in": "query",
+            "name": "bbox",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Avgränsningsruta i WGS84: väst,syd,öst,norr",
+              "title": "Bbox"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetailPlanCollection"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Detail Plans",
+        "tags": [
+          "planning"
         ]
       }
     },

@@ -50,6 +50,51 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/demographics/deso-areas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Deso Areas
+         * @description DeSO-områden med demografi som GeoJSON FeatureCollection.
+         *
+         *     Geometrierna förenklas för kartbruk. Sverige har ~6000 DeSO —
+         *     använd bbox (kartvyn) eller kommunkod för att begränsa svaret.
+         */
+        get: operations["list_deso_areas_api_v1_demographics_deso_areas_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/demographics/deso-areas/lookup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Lookup Deso Area
+         * @description DeSO-området som innehåller punkten — områdesstatistik för en fastighet.
+         *
+         *     Svarets geometry är null: uppslaget driver statistikvisning, inte kartritning.
+         */
+        get: operations["lookup_deso_area_api_v1_demographics_deso_areas_lookup_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/health": {
         parameters: {
             query?: never;
@@ -165,6 +210,28 @@ export interface paths {
          * @description Synkronisera en registrerad datakälla till databasen (upsert).
          */
         post: operations["sync_source_api_v1_infrastructure_sync__source_name__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/planning/detail-plans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Detail Plans
+         * @description Detaljplaner som GeoJSON FeatureCollection, med filter och paginering.
+         *
+         *     Detaljplaner är många — använd bbox (kartvyn) för att begränsa svaret.
+         */
+        get: operations["list_detail_plans_api_v1_planning_detail_plans_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -337,6 +404,147 @@ export interface components {
             project_id: number;
             project_type?: components["schemas"]["ProjectType"] | null;
             status?: components["schemas"]["ProjectStatus"] | null;
+        };
+        /** DesoAreaCollection */
+        DesoAreaCollection: {
+            /** Features */
+            features?: components["schemas"]["DesoAreaFeature"][];
+            /**
+             * Numbermatched
+             * @description Totalt antal träffar för frågan
+             */
+            numberMatched: number;
+            /**
+             * Numberreturned
+             * @description Antal features i detta svar
+             */
+            numberReturned: number;
+            /**
+             * Type
+             * @default FeatureCollection
+             * @constant
+             */
+            type: "FeatureCollection";
+        };
+        /** DesoAreaFeature */
+        DesoAreaFeature: {
+            /** Geometry */
+            geometry?: {
+                [key: string]: unknown;
+            } | null;
+            properties: components["schemas"]["DesoAreaProps"];
+            /**
+             * Type
+             * @default Feature
+             * @constant
+             */
+            type: "Feature";
+        };
+        /** DesoAreaProps */
+        DesoAreaProps: {
+            /**
+             * Area Km2
+             * @description Landyta beräknad ur geometrin (PostGIS geography)
+             */
+            area_km2?: number | null;
+            /** Deso Code */
+            deso_code: string;
+            /**
+             * Higher Education Share
+             * @description Andel 25–64 år med eftergymnasial utbildning (0–1)
+             */
+            higher_education_share?: number | null;
+            /** Id */
+            id: number;
+            /**
+             * Mean Income Sek
+             * @description Medelvärde av nettoinkomst, kr/år (SCB har ingen DeSO-median)
+             */
+            mean_income_sek?: number | null;
+            /** Municipality */
+            municipality?: string | null;
+            /** Municipality Code */
+            municipality_code?: string | null;
+            /** Population */
+            population?: number | null;
+            /**
+             * Population Density
+             * @description Invånare per km², beräknad ur population och area_km2
+             */
+            population_density?: number | null;
+            /** Population Year */
+            population_year?: number | null;
+            /** Stats Json */
+            stats_json?: {
+                [key: string]: unknown;
+            };
+        };
+        /** DetailPlanCollection */
+        DetailPlanCollection: {
+            /** Features */
+            features?: components["schemas"]["DetailPlanFeature"][];
+            /**
+             * Numbermatched
+             * @description Totalt antal träffar för frågan
+             */
+            numberMatched: number;
+            /**
+             * Numberreturned
+             * @description Antal features i detta svar
+             */
+            numberReturned: number;
+            /**
+             * Type
+             * @default FeatureCollection
+             * @constant
+             */
+            type: "FeatureCollection";
+        };
+        /** DetailPlanFeature */
+        DetailPlanFeature: {
+            /** Geometry */
+            geometry?: {
+                [key: string]: unknown;
+            } | null;
+            properties: components["schemas"]["DetailPlanProps"];
+            /**
+             * Type
+             * @default Feature
+             * @constant
+             */
+            type: "Feature";
+        };
+        /** DetailPlanProps */
+        DetailPlanProps: {
+            /** Adopted Date */
+            adopted_date?: string | null;
+            /** Created At */
+            created_at?: string | null;
+            /** External Id */
+            external_id: string;
+            /** Id */
+            id: number;
+            /** Metadata Json */
+            metadata_json?: {
+                [key: string]: unknown;
+            };
+            /** Municipality */
+            municipality?: string | null;
+            /** Name */
+            name: string;
+            /** Plan Number */
+            plan_number?: string | null;
+            /** Purpose */
+            purpose?: string | null;
+            /**
+             * Source
+             * @default detaljplaner
+             */
+            source: string;
+            /** Status */
+            status?: string | null;
+            /** Updated At */
+            updated_at?: string | null;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -903,6 +1111,76 @@ export interface operations {
             };
         };
     };
+    list_deso_areas_api_v1_demographics_deso_areas_get: {
+        parameters: {
+            query?: {
+                /** @description Filtrera på kommunkod, t.ex. '0180' (kan upprepas) */
+                municipality_code?: string[] | null;
+                limit?: number;
+                offset?: number;
+                /** @description Avgränsningsruta i WGS84: väst,syd,öst,norr */
+                bbox?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DesoAreaCollection"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    lookup_deso_area_api_v1_demographics_deso_areas_lookup_get: {
+        parameters: {
+            query: {
+                /** @description Longitud (WGS84) */
+                lng: number;
+                /** @description Latitud (WGS84) */
+                lat: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DesoAreaFeature"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     health_check_api_v1_health_get: {
         parameters: {
             query?: never;
@@ -1110,6 +1388,44 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SyncResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_detail_plans_api_v1_planning_detail_plans_get: {
+        parameters: {
+            query?: {
+                /** @description Filtrera på planstatus, t.ex. 'gällande' (kan upprepas) */
+                status?: string[] | null;
+                /** @description Filtrera på kommun (kan upprepas) */
+                municipality?: string[] | null;
+                limit?: number;
+                offset?: number;
+                /** @description Avgränsningsruta i WGS84: väst,syd,öst,norr */
+                bbox?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DetailPlanCollection"];
                 };
             };
             /** @description Validation Error */

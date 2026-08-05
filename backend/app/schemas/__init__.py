@@ -11,6 +11,7 @@ from app.schemas.analysis import (
     ScoreContribution,
 )
 from app.schemas.common import GeoJSONGeometry, HealthStatus, SyncResult
+from app.schemas.demographics import DesoAreaCollection, DesoAreaFeature, DesoAreaProps
 from app.schemas.infrastructure import (
     ImpactZoneCollection,
     ImpactZoneFeature,
@@ -20,6 +21,7 @@ from app.schemas.infrastructure import (
     InfrastructureProjectFeature,
     InfrastructureProjectProps,
 )
+from app.schemas.planning import DetailPlanCollection, DetailPlanFeature, DetailPlanProps
 from app.schemas.property import (
     PropertyCollection,
     PropertyCreate,
@@ -32,6 +34,12 @@ __all__ = [
     "AffectedPropertyFeature",
     "AffectedPropertyProps",
     "AffectingProject",
+    "DesoAreaCollection",
+    "DesoAreaFeature",
+    "DesoAreaProps",
+    "DetailPlanCollection",
+    "DetailPlanFeature",
+    "DetailPlanProps",
     "GeoJSONGeometry",
     "HealthStatus",
     "ImpactZoneCollection",

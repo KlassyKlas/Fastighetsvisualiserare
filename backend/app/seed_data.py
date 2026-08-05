@@ -10,7 +10,12 @@ ifrån API:ts form.
 from datetime import date
 from typing import Any
 
-from app.datasources import InfrastructureProjectIngest, PropertyIngest
+from app.datasources import (
+    DesoAreaIngest,
+    DetailPlanIngest,
+    InfrastructureProjectIngest,
+    PropertyIngest,
+)
 from app.domain import ProjectStatus, ProjectType, PropertyType
 
 
@@ -24,7 +29,11 @@ def _line(*coords: tuple[float, float]) -> dict[str, Any]:
 
 def _rect(center_lng: float, center_lat: float) -> dict[str, Any]:
     """Liten rektangulär tomt (ca 300 × 220 m) kring en mittpunkt."""
-    half_lng, half_lat = 0.0015, 0.001
+    return _zone(center_lng, center_lat, 0.0015, 0.001)
+
+
+def _zone(center_lng: float, center_lat: float, half_lng: float, half_lat: float) -> dict[str, Any]:
+    """Rektangulär yta med valfri halvbredd — för planområden och DeSO."""
     w, e = center_lng - half_lng, center_lng + half_lng
     s, n = center_lat - half_lat, center_lat + half_lat
     return {
@@ -380,5 +389,164 @@ PROPERTIES: list[PropertyIngest] = [
         geometry=_rect(17.95, 59.22),
         building_year=2012,
         zoning="S",
+    ),
+]
+
+
+DETAIL_PLANS: list[DetailPlanIngest] = [
+    DetailPlanIngest(
+        external_id="seed-dp-hagastaden",
+        source="manual",
+        name="Detaljplan för Hagastaden etapp 3",
+        plan_number="Dp 2018-00404",
+        status="laga kraft",
+        municipality="Stockholm",
+        purpose="Blandad stadsbebyggelse med bostäder, kontor och lokaler i gatuplan.",
+        adopted_date=date(2021, 6, 15),
+        geometry=_zone(18.045, 59.35, 0.006, 0.004),
+        metadata_json={"plantyp": "detaljplan", "kommunkod": "0180"},
+    ),
+    DetailPlanIngest(
+        external_id="seed-dp-slakthusomradet",
+        source="manual",
+        name="Detaljplan för Slakthusområdet etapp 1",
+        plan_number="Dp 2017-13580",
+        status="antagen",
+        municipality="Stockholm",
+        purpose="Omvandling av industriområde till bostäder, handel och park.",
+        adopted_date=date(2023, 11, 20),
+        geometry=_zone(18.075, 59.29, 0.005, 0.0035),
+        metadata_json={"plantyp": "detaljplan", "kommunkod": "0180"},
+    ),
+    DetailPlanIngest(
+        external_id="seed-dp-taby-park",
+        source="manual",
+        name="Detaljplan för Täby park, kvarter 5",
+        plan_number="Dp 2020-112",
+        status="granskning",
+        municipality="Täby",
+        purpose="Bostadskvarter med förskola på före detta galoppfältet.",
+        adopted_date=None,
+        geometry=_zone(18.06, 59.445, 0.004, 0.003),
+        metadata_json={"plantyp": "detaljplan", "kommunkod": "0160"},
+    ),
+    DetailPlanIngest(
+        external_id="seed-dp-centrala-nacka",
+        source="manual",
+        name="Detaljplan för Centrala Nacka, Nya gatan",
+        plan_number="DP 611",
+        status="samråd",
+        municipality="Nacka",
+        purpose="Tät kvartersstad kring nya tunnelbaneuppgången.",
+        adopted_date=None,
+        geometry=_zone(18.145, 59.312, 0.0045, 0.003),
+        metadata_json={"plantyp": "detaljplan", "kommunkod": "0182"},
+    ),
+    DetailPlanIngest(
+        external_id="seed-dp-kista-torn",
+        source="manual",
+        name="Detaljplan för Kista torn II",
+        plan_number="Dp 2022-04511",
+        status="påbörjad",
+        municipality="Stockholm",
+        purpose="Kontor och bostäder i höghus vid Kistagången.",
+        adopted_date=None,
+        geometry=_zone(17.945, 59.402, 0.003, 0.002),
+        metadata_json={"plantyp": "detaljplan", "kommunkod": "0180"},
+    ),
+]
+
+
+# Fiktiva men realistiska DeSO-ytor kring exempel­fastigheterna.
+# Koder på riktigt format (kommunkod + tätortsklass + löpnummer);
+# statistiknivåerna är typiska för respektive områdestyp.
+DESO_AREAS: list[DesoAreaIngest] = [
+    DesoAreaIngest(
+        deso_code="0180C1010",
+        municipality_code="0180",
+        municipality="Stockholm",
+        population=2100,
+        population_year=2025,
+        mean_income_sek=462_000,
+        higher_education_share=0.71,
+        geometry=_zone(18.065, 59.335, 0.012, 0.008),
+        stats_json={"indelning": "DeSO 2025", "inkomstar": 2024, "utbildningsar": 2025},
+    ),
+    DesoAreaIngest(
+        deso_code="0180C2020",
+        municipality_code="0180",
+        municipality="Stockholm",
+        population=1850,
+        population_year=2025,
+        mean_income_sek=438_000,
+        higher_education_share=0.68,
+        geometry=_zone(18.07, 59.315, 0.012, 0.008),
+        stats_json={"indelning": "DeSO 2025", "inkomstar": 2024, "utbildningsar": 2025},
+    ),
+    DesoAreaIngest(
+        deso_code="0184C1010",
+        municipality_code="0184",
+        municipality="Solna",
+        population=2400,
+        population_year=2025,
+        mean_income_sek=401_000,
+        higher_education_share=0.62,
+        geometry=_zone(18.00, 59.36, 0.012, 0.008),
+        stats_json={"indelning": "DeSO 2025", "inkomstar": 2024, "utbildningsar": 2025},
+    ),
+    DesoAreaIngest(
+        deso_code="0182C1010",
+        municipality_code="0182",
+        municipality="Nacka",
+        population=1650,
+        population_year=2025,
+        mean_income_sek=512_000,
+        higher_education_share=0.66,
+        geometry=_zone(18.14, 59.31, 0.012, 0.008),
+        stats_json={"indelning": "DeSO 2025", "inkomstar": 2024, "utbildningsar": 2025},
+    ),
+    DesoAreaIngest(
+        deso_code="0180C3030",
+        municipality_code="0180",
+        municipality="Stockholm",
+        population=2900,
+        population_year=2025,
+        mean_income_sek=318_000,
+        higher_education_share=0.55,
+        geometry=_zone(17.95, 59.40, 0.012, 0.008),
+        stats_json={"indelning": "DeSO 2025", "inkomstar": 2024, "utbildningsar": 2025},
+    ),
+    DesoAreaIngest(
+        deso_code="0126C1010",
+        municipality_code="0126",
+        municipality="Huddinge",
+        population=2300,
+        population_year=2025,
+        mean_income_sek=296_000,
+        higher_education_share=0.48,
+        geometry=_zone(17.95, 59.22, 0.012, 0.008),
+        stats_json={"indelning": "DeSO 2025", "inkomstar": 2024, "utbildningsar": 2025},
+    ),
+    DesoAreaIngest(
+        deso_code="0160C1010",
+        municipality_code="0160",
+        municipality="Täby",
+        population=1500,
+        population_year=2025,
+        mean_income_sek=468_000,
+        higher_education_share=0.58,
+        geometry=_zone(18.07, 59.44, 0.012, 0.008),
+        stats_json={"indelning": "DeSO 2025", "inkomstar": 2024, "utbildningsar": 2025},
+    ),
+    DesoAreaIngest(
+        deso_code="0183C1010",
+        municipality_code="0183",
+        municipality="Sundbyberg",
+        population=2050,
+        population_year=2025,
+        mean_income_sek=372_000,
+        higher_education_share=0.57,
+        geometry=_zone(17.97, 59.36, 0.012, 0.008),
+        stats_json={"indelning": "DeSO 2025", "inkomstar": 2024, "utbildningsar": 2025},
     ),
 ]

@@ -17,6 +17,12 @@ from shapely.geometry import MultiPolygon, Polygon, mapping, shape
 from shapely.ops import transform as shapely_transform
 
 from app.schemas import (
+    DesoAreaCollection,
+    DesoAreaFeature,
+    DesoAreaProps,
+    DetailPlanCollection,
+    DetailPlanFeature,
+    DetailPlanProps,
     ImpactZoneCollection,
     ImpactZoneFeature,
     ImpactZoneProps,
@@ -31,7 +37,7 @@ from app.schemas import (
     ProximityScoresCollection,
     ScoreContribution,
 )
-from app.seed_data import INFRASTRUCTURE_PROJECTS, PROPERTIES
+from app.seed_data import DESO_AREAS, DETAIL_PLANS, INFRASTRUCTURE_PROJECTS, PROPERTIES
 from app.services import scoring
 
 OUTPUT_PATH = Path(__file__).parents[2] / "frontend" / "src" / "data" / "sampleData.json"
@@ -145,6 +151,58 @@ def _build_proximity_scores() -> ProximityScoresCollection:
     )
 
 
+def _area_km2(geometry: dict[str, Any]) -> float:
+    """Approximativ yta i km² via lokal ekvirektangulär skalning.
+
+    Riktiga ytor beräknas av PostGIS (geography) — det här räcker för
+    demodata och speglar samma fält i API-svaret.
+    """
+    geom = shape(geometry)
+    lat = geom.centroid.y
+    m_per_deg_lng = M_PER_DEG_LAT * math.cos(math.radians(lat))
+    to_meters = shapely_transform(lambda x, y: (x * m_per_deg_lng, y * M_PER_DEG_LAT), geom)
+    return round(to_meters.area / 1_000_000, 3)
+
+
+def _build_detail_plans() -> DetailPlanCollection:
+    features = [
+        DetailPlanFeature(
+            geometry=_to_multipolygon(item.geometry) if item.geometry else None,
+            properties=DetailPlanProps(
+                id=index,
+                **item.model_dump(exclude={"geometry"}),
+            ),
+        )
+        for index, item in enumerate(DETAIL_PLANS, start=1)
+    ]
+    return DetailPlanCollection(
+        features=features, numberMatched=len(features), numberReturned=len(features)
+    )
+
+
+def _build_deso_areas() -> DesoAreaCollection:
+    features = []
+    for index, item in enumerate(DESO_AREAS, start=1):
+        area_km2 = _area_km2(item.geometry) if item.geometry else None
+        density = None
+        if area_km2 and item.population is not None:
+            density = round(item.population / area_km2, 1)
+        features.append(
+            DesoAreaFeature(
+                geometry=_to_multipolygon(item.geometry) if item.geometry else None,
+                properties=DesoAreaProps(
+                    id=index,
+                    **item.model_dump(exclude={"geometry"}),
+                    area_km2=area_km2,
+                    population_density=density,
+                ),
+            )
+        )
+    return DesoAreaCollection(
+        features=features, numberMatched=len(features), numberReturned=len(features)
+    )
+
+
 def build_sample_data() -> dict[str, Any]:
     property_features = [
         PropertyFeature(
@@ -198,6 +256,8 @@ def build_sample_data() -> dict[str, Any]:
         ).model_dump(mode="json"),
         "impactZones": ImpactZoneCollection(features=zone_features).model_dump(mode="json"),
         "proximityScores": _build_proximity_scores().model_dump(mode="json"),
+        "detailPlans": _build_detail_plans().model_dump(mode="json"),
+        "desoAreas": _build_deso_areas().model_dump(mode="json"),
     }
 
 

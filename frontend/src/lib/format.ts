@@ -29,6 +29,11 @@ export function formatDistance(meters: number): string {
   return numberFormat.format(Math.round(meters)) + ' m';
 }
 
+/** Andel 0–1 → "68 %". */
+export function formatPercent(share: number): string {
+  return Math.round(share * 100) + ' %';
+}
+
 export function formatDate(dateStr?: string | null): string {
   if (!dateStr) return 'Ej angivet';
   try {

@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import type {
+  DemographicsMetric,
+  DetailPlanFeature,
   FilterState,
   IsochroneOrigin,
   IsochroneProfile,
@@ -19,6 +21,9 @@ interface UiState {
   layers: LayerVisibility;
   selectedProject: ProjectFeature | null;
   selectedProperty: PropertyFeature | null;
+  selectedDetailPlan: DetailPlanFeature | null;
+  /** Metrik som färgsätter demografilagret */
+  demographicsMetric: DemographicsMetric;
   filters: FilterState;
   sidebarOpen: boolean;
   sidebarTab: SidebarTab;
@@ -39,6 +44,8 @@ interface UiState {
   toggleLayer: (layer: keyof LayerVisibility) => void;
   setSelectedProject: (feature: ProjectFeature | null) => void;
   setSelectedProperty: (feature: PropertyFeature | null) => void;
+  setSelectedDetailPlan: (feature: DetailPlanFeature | null) => void;
+  setDemographicsMetric: (metric: DemographicsMetric) => void;
   setFilters: (filters: Partial<FilterState>) => void;
   toggleStatus: (status: ProjectStatus) => void;
   toggleProjectType: (projectType: ProjectType) => void;
@@ -61,12 +68,18 @@ export const useUiStore = create<UiState>((set) => ({
     infrastructure: true,
     properties: true,
     impactZones: true,
+    // Nya nationella lager är avstängda tills användaren slår på dem —
+    // de hämtas per kartvy och ska inte belasta förstaladdningen.
+    detailPlans: false,
+    demographics: false,
     buildings3d: true,
     terrain: true,
   },
 
   selectedProject: null,
   selectedProperty: null,
+  selectedDetailPlan: null,
+  demographicsMetric: 'population',
   filters: EMPTY_FILTERS,
   sidebarOpen: true,
   sidebarTab: 'search',
@@ -88,6 +101,7 @@ export const useUiStore = create<UiState>((set) => ({
     set({
       selectedProject: feature,
       selectedProperty: null,
+      selectedDetailPlan: null,
       sidebarTab: feature ? 'details' : 'search',
     }),
 
@@ -95,8 +109,19 @@ export const useUiStore = create<UiState>((set) => ({
     set({
       selectedProperty: feature,
       selectedProject: null,
+      selectedDetailPlan: null,
       sidebarTab: feature ? 'details' : 'search',
     }),
+
+  setSelectedDetailPlan: (feature) =>
+    set({
+      selectedDetailPlan: feature,
+      selectedProject: null,
+      selectedProperty: null,
+      sidebarTab: feature ? 'details' : 'search',
+    }),
+
+  setDemographicsMetric: (metric) => set({ demographicsMetric: metric }),
 
   setFilters: (filters) =>
     set((state) => ({
@@ -143,6 +168,7 @@ export const useUiStore = create<UiState>((set) => ({
     set({
       selectedProject: null,
       selectedProperty: null,
+      selectedDetailPlan: null,
       sidebarTab: 'search',
     }),
 }));

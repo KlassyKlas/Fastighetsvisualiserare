@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import { ChevronLeft, ChevronRight, Info, Layers, Search, TrendingUp } from 'lucide-react';
 import { useUiStore, type SidebarTab } from '@/store/uiStore';
 import AnalysisPanel from './AnalysisPanel';
+import DetailPlanDetails from './DetailPlanDetails';
 import LayerPanel from './LayerPanel';
 import ProjectDetails from './ProjectDetails';
 import PropertyDetails from './PropertyDetails';
@@ -19,6 +20,7 @@ export default function Sidebar() {
   const sidebarTab = useUiStore((s) => s.sidebarTab);
   const selectedProject = useUiStore((s) => s.selectedProject);
   const selectedProperty = useUiStore((s) => s.selectedProperty);
+  const selectedDetailPlan = useUiStore((s) => s.selectedDetailPlan);
   const setSidebarOpen = useUiStore((s) => s.setSidebarOpen);
   const setSidebarTab = useUiStore((s) => s.setSidebarTab);
 
@@ -33,9 +35,11 @@ export default function Sidebar() {
       case 'details':
         if (selectedProject) return <ProjectDetails />;
         if (selectedProperty) return <PropertyDetails />;
+        if (selectedDetailPlan) return <DetailPlanDetails />;
         return (
           <div className="p-4 text-slate-500 text-sm">
-            Klicka på ett projekt eller en fastighet på kartan för att se detaljer.
+            Klicka på ett projekt, en fastighet eller en detaljplan på kartan för att se
+            detaljer.
           </div>
         );
     }

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import type { MapLayerMouseEvent } from 'mapbox-gl';
+import type { Map as MapboxMap, MapLayerMouseEvent } from 'mapbox-gl';
 import { useCallback, useMemo, useState } from 'react';
 import Map, {
   GeolocateControl,
@@ -12,14 +12,18 @@ import type { LayerProps } from 'react-map-gl/mapbox';
 
 import { isochroneQuery } from '@/api/isochrone';
 import {
+  desoAreasQuery,
+  detailPlansQuery,
   impactZonesQuery,
   projectsQuery,
   propertiesQuery,
   proximityScoresQuery,
 } from '@/api/queries';
 import { INITIAL_VIEW_STATE, MAP_STYLES, MAPBOX_TOKEN } from '@/config/map';
-import type { ProjectFeature, PropertyFeature } from '@/domain';
+import type { DetailPlanFeature, ProjectFeature, PropertyFeature } from '@/domain';
 import { useUiStore } from '@/store/uiStore';
+import DesoLayer from './layers/DesoLayer';
+import DetailPlanLayer from './layers/DetailPlanLayer';
 import ImpactZoneLayer from './layers/ImpactZoneLayer';
 import InfrastructureLayer from './layers/InfrastructureLayer';
 import IsochroneLayer from './layers/IsochroneLayer';
@@ -53,6 +57,8 @@ export default function MapContainer() {
   const mapStyle = useUiStore((s) => s.mapStyle);
   const setSelectedProject = useUiStore((s) => s.setSelectedProject);
   const setSelectedProperty = useUiStore((s) => s.setSelectedProperty);
+  const setSelectedDetailPlan = useUiStore((s) => s.setSelectedDetailPlan);
+  const demographicsMetric = useUiStore((s) => s.demographicsMetric);
   const setSidebarOpen = useUiStore((s) => s.setSidebarOpen);
 
   const scoreColoring = useUiStore((s) => s.scoreColoring);
@@ -73,6 +79,35 @@ export default function MapContainer() {
   const { data: isochroneData } = useQuery(
     isochroneQuery(isochroneOrigin, isochroneProfile, isochroneMinutes),
   );
+
+  // Detaljplaner och DeSO är nationella datamängder — de hämtas per
+  // kartvy (bbox sätts vid load/moveend) och bara när lagret är på.
+  const [viewportBbox, setViewportBbox] = useState<string | null>(null);
+  const updateViewportBbox = useCallback((map: MapboxMap) => {
+    const bounds = map.getBounds();
+    if (!bounds) return;
+    const clamp = (value: number, limit: number) => Math.max(-limit, Math.min(limit, value));
+    const bbox = [
+      clamp(bounds.getWest(), 180),
+      clamp(bounds.getSouth(), 90),
+      clamp(bounds.getEast(), 180),
+      clamp(bounds.getNorth(), 90),
+    ]
+      // 3 decimaler ≈ 100 m — grovt nog att inte skapa nya cacheposter
+      // för varje pixelflytt, fint nog för hämtning per vy.
+      .map((value) => value.toFixed(3))
+      .join(',');
+    setViewportBbox(bbox);
+  }, []);
+
+  const { data: detailPlanData } = useQuery({
+    ...detailPlansQuery(viewportBbox),
+    enabled: layers.detailPlans && viewportBbox != null,
+  });
+  const { data: desoData } = useQuery({
+    ...desoAreasQuery(viewportBbox),
+    enabled: layers.demographics && viewportBbox != null,
+  });
 
   const [cursor, setCursor] = useState('');
 
@@ -114,8 +149,11 @@ export default function MapContainer() {
     if (layers.properties) {
       ids.push('property-fills');
     }
+    if (layers.detailPlans) {
+      ids.push('detail-plan-fills');
+    }
     return ids;
-  }, [layers.infrastructure, layers.properties]);
+  }, [layers.infrastructure, layers.properties, layers.detailPlans]);
 
   const handleClick = useCallback(
     (event: MapLayerMouseEvent) => {
@@ -144,9 +182,18 @@ export default function MapContainer() {
         setSelectedProject(feature as unknown as ProjectFeature);
       } else if (layerId === 'property-fills') {
         setSelectedProperty(feature as unknown as PropertyFeature);
+      } else if (layerId === 'detail-plan-fills') {
+        setSelectedDetailPlan(feature as unknown as DetailPlanFeature);
       }
     },
-    [isochronePicking, setIsochroneOrigin, setSelectedProject, setSelectedProperty, setSidebarOpen],
+    [
+      isochronePicking,
+      setIsochroneOrigin,
+      setSelectedDetailPlan,
+      setSelectedProject,
+      setSelectedProperty,
+      setSidebarOpen,
+    ],
   );
 
   const handleMouseEnter = useCallback(() => setCursor('pointer'), []);
@@ -196,6 +243,8 @@ export default function MapContainer() {
       }}
       interactiveLayerIds={interactiveLayerIds}
       onClick={handleClick}
+      onLoad={(event) => updateViewportBbox(event.target)}
+      onMoveEnd={(event) => updateViewportBbox(event.target)}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       cursor={isochronePicking ? 'crosshair' : cursor}
@@ -214,11 +263,17 @@ export default function MapContainer() {
 
       {layers.buildings3d && <Layer {...buildings3dLayer} />}
 
+      {/* Ritordning nedifrån och upp: choropleth → zoner → isokroner →
+          detaljplaner → fastigheter → projekt. Klickprioritet följer
+          ordningen uppifrån (översta träffade lagret vinner). */}
+      {desoData && (
+        <DesoLayer data={desoData} visible={layers.demographics} metric={demographicsMetric} />
+      )}
       {zoneData && <ImpactZoneLayer data={zoneData} visible={layers.impactZones} />}
-      {/* Under fastigheterna så att de förblir klickbara ovanpå zonerna. */}
       {isochroneOrigin && (
         <IsochroneLayer origin={isochroneOrigin} data={isochroneData} minutes={isochroneMinutes} />
       )}
+      {detailPlanData && <DetailPlanLayer data={detailPlanData} visible={layers.detailPlans} />}
       {enrichedPropertyData && (
         <PropertyLayer
           data={enrichedPropertyData}
