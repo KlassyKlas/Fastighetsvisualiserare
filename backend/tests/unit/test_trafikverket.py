@@ -79,7 +79,8 @@ class TestParseTimestamp:
 class TestMapMessageType:
     def test_known_types(self):
         assert map_message_type("Vägarbete") == ProjectType.VAG
-        assert map_message_type("Järnväg") == ProjectType.JARNVAG
+        assert map_message_type("Restriktion") == ProjectType.VAG
+        assert map_message_type("Färjor") == ProjectType.OVRIGT
 
     def test_unknown_is_ovrigt(self):
         assert map_message_type("Rymduppskjutning") == ProjectType.OVRIGT
@@ -92,9 +93,15 @@ class TestBuildRequestXml:
         assert "<FILTER></FILTER>" in xml
         assert 'authenticationkey="nyckel123"' in xml
 
-    def test_with_bbox_has_within_filter(self):
+    def test_uses_2026_schema(self):
+        xml = build_request_xml("nyckel123")
+        assert 'namespace="Road.TrafficInfo"' in xml
+        assert 'schemaversion="1.6"' in xml
+        assert "Deviation.Suspended" in xml
+
+    def test_with_bbox_has_intersects_filter(self):
         xml = build_request_xml("nyckel123", bbox=(17.0, 59.0, 19.0, 60.0))
-        assert "WITHIN" in xml
+        assert "INTERSECTS" in xml
         assert "17.0 59.0, 19.0 60.0" in xml
 
 
@@ -165,6 +172,20 @@ class TestParseResponse:
         stockholm_bbox = (17.5, 59.0, 18.5, 59.7)
         results = self.source._parse_response(SAMPLE_RESPONSE, bbox=stockholm_bbox)
         assert [r.external_id for r in results] == ["TRV-1"]
+
+    def test_suspended_ongoing_becomes_planerad(self):
+        deviation = {
+            "Id": "TRV-9",
+            "Header": "Pausat vägarbete",
+            "MessageType": "Vägarbete",
+            "StartTime": "2026-05-01T00:00:00+02:00",
+            "EndTime": "2026-12-01T00:00:00+01:00",
+            "Suspended": True,
+        }
+        ingest = self.source._parse_deviation(deviation, NOW)
+        assert ingest is not None
+        assert ingest.status == ProjectStatus.PLANERAD
+        assert ingest.metadata_json["suspended"] is True
 
 
 class TestFetch:

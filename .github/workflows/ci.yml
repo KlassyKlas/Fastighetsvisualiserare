@@ -1,0 +1,98 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    name: Backend (lint, test, kontrakt)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      db:
+        image: postgis/postgis:17-3.5
+        env:
+          POSTGRES_DB: fastighetsvisualiserare_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/fastighetsvisualiserare_test
+    steps:
+      - uses: actions/checkout@v7
+
+      # setup-uv använder immutable releases — rörliga taggar (@v9) finns inte
+      - uses: astral-sh/setup-uv@v9.0.0
+
+      - name: Installera beroenden
+        run: uv sync --frozen
+
+      - name: Lint och formatkontroll
+        run: |
+          uv run ruff check .
+          uv run ruff format --check .
+
+      - name: Kör migrationerna mot PostGIS
+        run: uv run alembic upgrade head
+
+      - name: Tester (inklusive integrationssvit)
+        run: uv run pytest
+        env:
+          INTEGRATION_TESTS: '1'
+
+      - name: Kontraktsdrift — openapi.json måste vara i synk med koden
+        run: |
+          uv run python -m scripts.export_openapi
+          git diff --exit-code openapi.json
+
+      - name: Demodata måste vara i synk med seed-fixturerna
+        run: |
+          uv run python -m scripts.export_sample_data
+          git diff --exit-code ../frontend/src/data/sampleData.json
+
+  frontend:
+    name: Frontend (lint, typer, test, bygge)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Installera beroenden
+        run: npm ci
+
+      - name: Genererade typer måste vara i synk med openapi.json
+        run: |
+          npm run typegen
+          git diff --exit-code src/api/schema.d.ts
+
+      - name: Lint och formatkontroll
+        run: |
+          npm run lint
+          npx prettier --check .
+
+      - name: Typkontroll
+        run: npx tsc -b
+
+      - name: Tester
+        run: npm test
+
+      - name: Produktionsbygge
+        run: npm run build

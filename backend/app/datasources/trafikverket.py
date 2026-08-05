@@ -33,37 +33,47 @@ from app.domain import ProjectStatus, ProjectType
 logger = logging.getLogger(__name__)
 
 API_URL = "https://api.trafikinfo.trafikverket.se/v2/data.json"
-SCHEMA_VERSION = "1.5"
+# Situation 1.6 i namespace Road.TrafficInfo är enda publicerade versionen
+# sedan 2026-03-04 — äldre schemaversioner (1.5 utan namespace) är nedsläckta.
+NAMESPACE = "Road.TrafficInfo"
+SCHEMA_VERSION = "1.6"
 REQUEST_LIMIT = 500
 DEFAULT_IMPACT_RADIUS_M = 1000.0
 
-# Trafikverkets MessageType → våra projekttyper
+# Trafikverkets faktiska MessageType-värden i Situation 1.6 →
+# våra projekttyper. Allt okänt faller tillbaka på "övrigt".
 MESSAGE_TYPE_MAP: dict[str, ProjectType] = {
     "Vägarbete": ProjectType.VAG,
     "Trafikmeddelande": ProjectType.VAG,
     "Olycka": ProjectType.VAG,
     "Hinder": ProjectType.VAG,
-    "Järnväg": ProjectType.JARNVAG,
-    "Kollektivtrafik": ProjectType.KOLLEKTIVTRAFIK,
-    "Bro": ProjectType.BRO,
-    "Tunnel": ProjectType.TUNNEL,
-    "Cykelväg": ProjectType.CYKELVAG,
+    "Restriktion": ProjectType.VAG,
+    "Viktig trafikinformation": ProjectType.OVRIGT,
+    "Färjor": ProjectType.OVRIGT,
 }
 
 
 def build_request_xml(api_key: str, bbox: Bbox | None = None) -> str:
-    """Bygg API-frågan. Med bbox filtreras spatialt redan på serversidan."""
+    """Bygg API-frågan. Med bbox filtreras spatialt redan på serversidan.
+
+    INTERSECTS (inte WITHIN): WITHIN matchar bara geometrier som ligger
+    helt inom rutan och tappar t.ex. vägsträckor som korsar kanten.
+    """
     spatial_filter = ""
     if bbox is not None:
         west, south, east, north = bbox
         spatial_filter = (
-            f'<WITHIN name="Deviation.Geometry.WGS84" shape="box" '
+            f'<INTERSECTS name="Deviation.Geometry.WGS84" shape="box" '
             f'value="{west} {south}, {east} {north}" />'
         )
 
+    query_attrs = (
+        f'namespace="{NAMESPACE}" objecttype="Situation" '
+        f'schemaversion="{SCHEMA_VERSION}" limit="{REQUEST_LIMIT}"'
+    )
     return f"""<REQUEST>
     <LOGIN authenticationkey="{escape(api_key, {'"': "&quot;"})}" />
-    <QUERY objecttype="Situation" schemaversion="{SCHEMA_VERSION}" limit="{REQUEST_LIMIT}">
+    <QUERY {query_attrs}>
         <FILTER>{spatial_filter}</FILTER>
         <INCLUDE>Deviation.Id</INCLUDE>
         <INCLUDE>Deviation.Header</INCLUDE>
@@ -75,6 +85,7 @@ def build_request_xml(api_key: str, bbox: Bbox | None = None) -> str:
         <INCLUDE>Deviation.EndTime</INCLUDE>
         <INCLUDE>Deviation.SeverityCode</INCLUDE>
         <INCLUDE>Deviation.MessageType</INCLUDE>
+        <INCLUDE>Deviation.Suspended</INCLUDE>
     </QUERY>
 </REQUEST>"""
 
@@ -204,13 +215,21 @@ class TrafikverketDataSource(DataSource):
         start = parse_timestamp(deviation.get("StartTime"))
         end = parse_timestamp(deviation.get("EndTime"))
 
+        # Suspended (nytt i 1.6): tillfälligt pausade arbeten, t.ex. över
+        # semestern. Ett pausat arbete med framtida återstart är i praktiken
+        # planerat snarare än pågående.
+        suspended = bool(deviation.get("Suspended"))
+        status = derive_status(start, end, now)
+        if suspended and status == ProjectStatus.PAGAENDE:
+            status = ProjectStatus.PLANERAD
+
         return InfrastructureProjectIngest(
             external_id=external_id,
             source=self.name,
             name=deviation.get("Header") or "Okänt objekt",
             description=deviation.get("Message"),
             project_type=map_message_type(deviation.get("MessageType")),
-            status=derive_status(start, end, now),
+            status=status,
             start_date=start.date() if start else None,
             end_date=end.date() if end else None,
             geometry=geometry,
@@ -219,5 +238,6 @@ class TrafikverketDataSource(DataSource):
                 "severity_code": deviation.get("SeverityCode"),
                 "message_type": deviation.get("MessageType"),
                 "location_descriptor": deviation.get("LocationDescriptor"),
+                "suspended": suspended,
             },
         )
