@@ -92,7 +92,8 @@ annars säger CI ifrån.
 ## Färdplan (idéer i prioritetsordning)
 
 1. Riktiga investeringsprojekt från Trafikverket (nationell plan) som egen datakälla
-2. Närhetspoäng: rankning av fastigheter mot kommande infrastruktur
-3. Tidsreglage 2026–2040 för projektens färdigställande
+2. ~~Närhetspoäng~~ — byggd: Analys-fliken rankar fastigheter med transparent poängmodell
+3. ~~Tidsreglage~~ — byggt: dra i årsreglaget under filterraden
 4. Isokroner (restid) via Mapbox Isochrone API
 5. Detaljplaner via Lantmäteriets NGP · SCB-demografi per DeSO-område
+6. Bevakade områden med notiser · exporterbara objektsrapporter
