@@ -1,4 +1,9 @@
-import { STATUS_COLORS, STATUS_LABELS, PROPERTY_TYPE_COLORS, PROPERTY_TYPE_LABELS } from '@/config/map';
+import {
+  PROPERTY_TYPE_COLORS,
+  PROPERTY_TYPE_LABELS,
+  STATUS_COLORS,
+  STATUS_LABELS,
+} from '@/config/map';
 
 const statusEntries = Object.entries(STATUS_COLORS);
 const propertyEntries = Object.entries(PROPERTY_TYPE_COLORS);
@@ -6,7 +11,6 @@ const propertyEntries = Object.entries(PROPERTY_TYPE_COLORS);
 export default function Legend() {
   return (
     <div className="absolute bottom-6 right-4 z-10 bg-slate-800/90 backdrop-blur-sm border border-slate-700 rounded-lg p-3 shadow-lg min-w-[160px]">
-      {/* Infrastructure section */}
       <div className="mb-3">
         <h4 className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
           Infrastruktur
@@ -19,17 +23,15 @@ export default function Legend() {
                 style={{ backgroundColor: color }}
               />
               <span className="text-[11px] text-slate-300">
-                {STATUS_LABELS[key] ?? key}
+                {STATUS_LABELS[key as keyof typeof STATUS_LABELS] ?? key}
               </span>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Divider */}
       <div className="border-t border-slate-700 my-2" />
 
-      {/* Properties section */}
       <div>
         <h4 className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
           Fastigheter
@@ -42,7 +44,7 @@ export default function Legend() {
                 style={{ backgroundColor: color }}
               />
               <span className="text-[11px] text-slate-300">
-                {PROPERTY_TYPE_LABELS[key] ?? key}
+                {PROPERTY_TYPE_LABELS[key as keyof typeof PROPERTY_TYPE_LABELS] ?? key}
               </span>
             </div>
           ))}

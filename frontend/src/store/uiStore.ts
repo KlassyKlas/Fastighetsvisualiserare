@@ -1,31 +1,44 @@
 import { create } from 'zustand';
-import type { Feature } from 'geojson';
-import type { LayerVisibility, FilterState, ProjectStatus, ProjectType } from '@/types';
+import type {
+  FilterState,
+  LayerVisibility,
+  ProjectFeature,
+  ProjectStatus,
+  ProjectType,
+  PropertyFeature,
+} from '@/domain';
+import { EMPTY_FILTERS } from '@/domain';
 
-interface AppState {
+export type SidebarTab = 'search' | 'layers' | 'details';
+export type MapStyleId = 'dark' | 'satellite';
+
+interface UiState {
   layers: LayerVisibility;
-  selectedProject: Feature | null;
-  selectedProperty: Feature | null;
+  selectedProject: ProjectFeature | null;
+  selectedProperty: PropertyFeature | null;
   filters: FilterState;
   sidebarOpen: boolean;
-  sidebarTab: 'search' | 'layers' | 'details';
-  mapStyle: 'dark' | 'satellite';
+  sidebarTab: SidebarTab;
+  mapStyle: MapStyleId;
   searchQuery: string;
+  /** true när backend inte nås och appen visar exempeldata */
+  demoMode: boolean;
 
   toggleLayer: (layer: keyof LayerVisibility) => void;
-  setSelectedProject: (feature: Feature | null) => void;
-  setSelectedProperty: (feature: Feature | null) => void;
+  setSelectedProject: (feature: ProjectFeature | null) => void;
+  setSelectedProperty: (feature: PropertyFeature | null) => void;
   setFilters: (filters: Partial<FilterState>) => void;
   toggleStatus: (status: ProjectStatus) => void;
   toggleProjectType: (projectType: ProjectType) => void;
   setSidebarOpen: (open: boolean) => void;
-  setSidebarTab: (tab: 'search' | 'layers' | 'details') => void;
-  setMapStyle: (style: 'dark' | 'satellite') => void;
+  setSidebarTab: (tab: SidebarTab) => void;
+  setMapStyle: (style: MapStyleId) => void;
   setSearchQuery: (query: string) => void;
+  setDemoMode: (demo: boolean) => void;
   clearSelection: () => void;
 }
 
-export const useStore = create<AppState>((set) => ({
+export const useUiStore = create<UiState>((set) => ({
   layers: {
     infrastructure: true,
     properties: true,
@@ -36,19 +49,12 @@ export const useStore = create<AppState>((set) => ({
 
   selectedProject: null,
   selectedProperty: null,
-
-  filters: {
-    statuses: [],
-    projectTypes: [],
-    municipalities: [],
-    minValue: null,
-    maxValue: null,
-  },
-
+  filters: EMPTY_FILTERS,
   sidebarOpen: true,
   sidebarTab: 'search',
   mapStyle: 'dark',
   searchQuery: '',
+  demoMode: false,
 
   toggleLayer: (layer) =>
     set((state) => ({
@@ -91,12 +97,10 @@ export const useStore = create<AppState>((set) => ({
     }),
 
   setSidebarOpen: (open) => set({ sidebarOpen: open }),
-
   setSidebarTab: (tab) => set({ sidebarTab: tab }),
-
   setMapStyle: (style) => set({ mapStyle: style }),
-
   setSearchQuery: (query) => set({ searchQuery: query }),
+  setDemoMode: (demo) => set({ demoMode: demo }),
 
   clearSelection: () =>
     set({

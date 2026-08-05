@@ -1,6 +1,7 @@
-import Sidebar from './components/Sidebar/Sidebar';
-import FilterBar from './components/UI/FilterBar';
 import MapContainer from './components/Map/MapContainer';
+import Sidebar from './components/Sidebar/Sidebar';
+import DemoBanner from './components/UI/DemoBanner';
+import FilterBar from './components/UI/FilterBar';
 import Legend from './components/UI/Legend';
 
 function App() {
@@ -11,6 +12,7 @@ function App() {
         <FilterBar />
         <MapContainer />
         <Legend />
+        <DemoBanner />
       </div>
     </div>
   );

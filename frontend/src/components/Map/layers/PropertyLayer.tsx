@@ -1,9 +1,11 @@
-import { Source, Layer } from 'react-map-gl';
-import type { FeatureCollection } from 'geojson';
-import type { LayerProps } from 'react-map-gl';
+import { Layer, Source } from 'react-map-gl/mapbox';
+import type { LayerProps } from 'react-map-gl/mapbox';
+
+import { matchColorExpression, PROPERTY_TYPE_COLORS } from '@/config/map';
+import type { PropertyCollection } from '@/domain';
 
 interface Props {
-  data: FeatureCollection;
+  data: PropertyCollection;
   visible: boolean;
 }
 
@@ -11,17 +13,7 @@ const fillLayer: LayerProps = {
   id: 'property-fills',
   type: 'fill',
   paint: {
-    'fill-color': [
-      'match',
-      ['get', 'property_type'],
-      'bostad', '#14b8a6',
-      'kontor', '#a855f7',
-      'handel', '#f97316',
-      'industri', '#ef4444',
-      'utbildning', '#06b6d4',
-      'villa', '#84cc16',
-      '#6b7280',
-    ],
+    'fill-color': matchColorExpression('property_type', PROPERTY_TYPE_COLORS),
     'fill-opacity': 0.5,
   },
 };
@@ -54,7 +46,7 @@ const labelLayer: LayerProps = {
 };
 
 export default function PropertyLayer({ data, visible }: Props) {
-  if (!visible || !data || !data.features.length) return null;
+  if (!visible || data.features.length === 0) return null;
 
   return (
     <Source id="property-source" type="geojson" data={data}>

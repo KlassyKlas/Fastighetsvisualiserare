@@ -1,32 +1,76 @@
-import { Source, Layer } from 'react-map-gl';
-import type { FeatureCollection } from 'geojson';
-import type { LayerProps } from 'react-map-gl';
+import { Layer, Source } from 'react-map-gl/mapbox';
+import type { LayerProps } from 'react-map-gl/mapbox';
+
+import { matchColorExpression, STATUS_COLORS } from '@/config/map';
+import type { ProjectCollection } from '@/domain';
 
 interface Props {
-  data: FeatureCollection;
+  data: ProjectCollection;
   visible: boolean;
 }
+
+const statusColor = matchColorExpression('status', STATUS_COLORS);
+
+/**
+ * Linjeprojekt (vägar, järnvägar) renderas som linjer — den gamla appen
+ * visade allt som cirklar och gjorde linjegeometrier oklickbara.
+ */
+const lineLayer: LayerProps = {
+  id: 'infrastructure-lines',
+  type: 'line',
+  filter: ['==', ['geometry-type'], 'LineString'],
+  layout: {
+    'line-cap': 'round',
+    'line-join': 'round',
+  },
+  paint: {
+    'line-color': statusColor,
+    'line-width': ['interpolate', ['linear'], ['zoom'], 5, 2, 10, 3.5, 14, 6],
+    'line-opacity': 0.9,
+  },
+};
 
 const circleLayer: LayerProps = {
   id: 'infrastructure-circles',
   type: 'circle',
+  filter: ['==', ['geometry-type'], 'Point'],
   paint: {
     'circle-radius': [
       'interpolate',
       ['linear'],
       ['zoom'],
-      5, ['interpolate', ['linear'], ['coalesce', ['get', 'budget_sek'], 1000000000], 0, 4, 100000000000, 8],
-      12, ['interpolate', ['linear'], ['coalesce', ['get', 'budget_sek'], 1000000000], 0, 8, 100000000000, 20],
-      16, ['interpolate', ['linear'], ['coalesce', ['get', 'budget_sek'], 1000000000], 0, 14, 100000000000, 32],
+      5,
+      [
+        'interpolate',
+        ['linear'],
+        ['coalesce', ['get', 'budget_sek'], 1000000000],
+        0,
+        4,
+        100000000000,
+        8,
+      ],
+      12,
+      [
+        'interpolate',
+        ['linear'],
+        ['coalesce', ['get', 'budget_sek'], 1000000000],
+        0,
+        8,
+        100000000000,
+        20,
+      ],
+      16,
+      [
+        'interpolate',
+        ['linear'],
+        ['coalesce', ['get', 'budget_sek'], 1000000000],
+        0,
+        14,
+        100000000000,
+        32,
+      ],
     ],
-    'circle-color': [
-      'match',
-      ['get', 'status'],
-      'planerad', '#f59e0b',
-      'pågående', '#3b82f6',
-      'avslutad', '#22c55e',
-      '#6b7280',
-    ],
+    'circle-color': statusColor,
     'circle-stroke-width': 2,
     'circle-stroke-color': 'rgba(255, 255, 255, 0.5)',
     'circle-opacity': 0.85,
@@ -53,10 +97,11 @@ const labelLayer: LayerProps = {
 };
 
 export default function InfrastructureLayer({ data, visible }: Props) {
-  if (!visible || !data || !data.features.length) return null;
+  if (!visible || data.features.length === 0) return null;
 
   return (
     <Source id="infrastructure-source" type="geojson" data={data}>
+      <Layer {...lineLayer} />
       <Layer {...circleLayer} />
       <Layer {...labelLayer} />
     </Source>

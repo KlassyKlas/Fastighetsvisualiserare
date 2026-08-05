@@ -1,26 +1,24 @@
-import { Search, Layers, Info, ChevronLeft, ChevronRight } from 'lucide-react';
 import clsx from 'clsx';
-import { useStore } from '@/store/useStore';
-import SearchPanel from './SearchPanel';
+import { ChevronLeft, ChevronRight, Info, Layers, Search } from 'lucide-react';
+import { useUiStore, type SidebarTab } from '@/store/uiStore';
 import LayerPanel from './LayerPanel';
 import ProjectDetails from './ProjectDetails';
 import PropertyDetails from './PropertyDetails';
+import SearchPanel from './SearchPanel';
 
-const tabs = [
-  { id: 'search' as const, label: 'Sok', icon: Search },
-  { id: 'layers' as const, label: 'Lager', icon: Layers },
-  { id: 'details' as const, label: 'Detaljer', icon: Info },
+const tabs: { id: SidebarTab; label: string; icon: typeof Search }[] = [
+  { id: 'search', label: 'Sök', icon: Search },
+  { id: 'layers', label: 'Lager', icon: Layers },
+  { id: 'details', label: 'Detaljer', icon: Info },
 ];
 
 export default function Sidebar() {
-  const {
-    sidebarOpen,
-    sidebarTab,
-    selectedProject,
-    selectedProperty,
-    setSidebarOpen,
-    setSidebarTab,
-  } = useStore();
+  const sidebarOpen = useUiStore((s) => s.sidebarOpen);
+  const sidebarTab = useUiStore((s) => s.sidebarTab);
+  const selectedProject = useUiStore((s) => s.selectedProject);
+  const selectedProperty = useUiStore((s) => s.selectedProperty);
+  const setSidebarOpen = useUiStore((s) => s.setSidebarOpen);
+  const setSidebarTab = useUiStore((s) => s.setSidebarTab);
 
   const renderContent = () => {
     switch (sidebarTab) {
@@ -33,11 +31,9 @@ export default function Sidebar() {
         if (selectedProperty) return <PropertyDetails />;
         return (
           <div className="p-4 text-slate-500 text-sm">
-            Klicka pa ett projekt eller en fastighet pa kartan for att se detaljer.
+            Klicka på ett projekt eller en fastighet på kartan för att se detaljer.
           </div>
         );
-      default:
-        return null;
     }
   };
 
@@ -48,25 +44,16 @@ export default function Sidebar() {
         sidebarOpen ? 'w-80' : 'w-12',
       )}
     >
-      {/* Toggle button */}
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
         className="absolute top-3 -right-0 z-20 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-l p-1 transition-colors"
-        title={sidebarOpen ? 'Stang sidopanel' : 'Oppna sidopanel'}
+        title={sidebarOpen ? 'Stäng sidopanel' : 'Öppna sidopanel'}
       >
-        {sidebarOpen ? (
-          <ChevronLeft className="w-4 h-4" />
-        ) : (
-          <ChevronRight className="w-4 h-4" />
-        )}
+        {sidebarOpen ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
       </button>
 
-      {/* Tab buttons */}
       <div
-        className={clsx(
-          'flex border-b border-slate-700',
-          sidebarOpen ? 'flex-row' : 'flex-col',
-        )}
+        className={clsx('flex border-b border-slate-700', sidebarOpen ? 'flex-row' : 'flex-col')}
       >
         {tabs.map((tab) => (
           <button
@@ -77,9 +64,7 @@ export default function Sidebar() {
             }}
             className={clsx(
               'flex items-center justify-center gap-2 px-3 py-3 transition-colors relative text-sm',
-              sidebarTab === tab.id
-                ? 'text-blue-400'
-                : 'text-slate-400 hover:text-slate-200',
+              sidebarTab === tab.id ? 'text-blue-400' : 'text-slate-400 hover:text-slate-200',
               sidebarOpen ? 'flex-1' : 'w-12',
             )}
             title={tab.label}
@@ -93,10 +78,7 @@ export default function Sidebar() {
         ))}
       </div>
 
-      {/* Content */}
-      {sidebarOpen && (
-        <div className="flex-1 overflow-y-auto">{renderContent()}</div>
-      )}
+      {sidebarOpen && <div className="flex-1 overflow-y-auto">{renderContent()}</div>}
     </div>
   );
 }

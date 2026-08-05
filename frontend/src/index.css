@@ -1,8 +1,5 @@
+@import 'tailwindcss';
 @import 'mapbox-gl/dist/mapbox-gl.css';
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 html,
 body,
@@ -13,28 +10,30 @@ body,
 }
 
 body {
-  @apply bg-slate-900 text-slate-100;
+  background-color: var(--color-slate-900);
+  color: var(--color-slate-100);
 }
 
-/* Custom scrollbar */
+/* Egen rullist */
 ::-webkit-scrollbar {
   width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-slate-800;
+  background-color: var(--color-slate-800);
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-slate-600 rounded-full;
+  background-color: var(--color-slate-600);
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-slate-500;
+  background-color: var(--color-slate-500);
 }
 
-/* Firefox scrollbar */
+/* Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #475569 #1e293b;
+  scrollbar-color: var(--color-slate-600) var(--color-slate-800);
 }

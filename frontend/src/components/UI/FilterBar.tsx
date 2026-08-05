@@ -1,33 +1,26 @@
-import { useState, useRef, useEffect } from 'react';
-import { ChevronDown } from 'lucide-react';
 import clsx from 'clsx';
-import { useStore } from '@/store/useStore';
-import { STATUS_COLORS, STATUS_LABELS, PROJECT_TYPE_LABELS } from '@/config/map';
-import type { ProjectStatus, ProjectType } from '@/types';
-
-const statuses: ProjectStatus[] = ['planerad', 'pågående', 'avslutad'];
-const projectTypes: ProjectType[] = [
-  'väg',
-  'järnväg',
-  'kollektivtrafik',
-  'bro',
-  'tunnel',
-  'cykelväg',
-  'övrigt',
-];
+import { ChevronDown } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import {
+  PROJECT_STATUSES,
+  PROJECT_TYPE_LABELS,
+  PROJECT_TYPES,
+  STATUS_COLORS,
+  STATUS_LABELS,
+} from '@/config/map';
+import { useUiStore } from '@/store/uiStore';
 
 export default function FilterBar() {
-  const { filters, toggleStatus, toggleProjectType } = useStore();
+  const filters = useUiStore((s) => s.filters);
+  const toggleStatus = useUiStore((s) => s.toggleStatus);
+  const toggleProjectType = useUiStore((s) => s.toggleProjectType);
+
   const [typeDropdownOpen, setTypeDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown on outside click
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(e.target as Node)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setTypeDropdownOpen(false);
       }
     }
@@ -39,8 +32,7 @@ export default function FilterBar() {
 
   return (
     <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 bg-slate-800/90 backdrop-blur-sm border border-slate-700 rounded-xl px-4 py-2 shadow-lg">
-      {/* Status chips */}
-      {statuses.map((status) => {
+      {PROJECT_STATUSES.map((status) => {
         const active = filters.statuses.includes(status);
         const color = STATUS_COLORS[status];
         return (
@@ -56,20 +48,15 @@ export default function FilterBar() {
           >
             <span
               className="w-2 h-2 rounded-full flex-shrink-0"
-              style={{
-                backgroundColor: color,
-                opacity: active ? 1 : 0.5,
-              }}
+              style={{ backgroundColor: color, opacity: active ? 1 : 0.5 }}
             />
             {STATUS_LABELS[status]}
           </button>
         );
       })}
 
-      {/* Divider */}
       <div className="w-px h-6 bg-slate-600 mx-1" />
 
-      {/* Project type dropdown */}
       <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => setTypeDropdownOpen(!typeDropdownOpen)}
@@ -87,21 +74,18 @@ export default function FilterBar() {
             </span>
           )}
           <ChevronDown
-            className={clsx(
-              'w-3 h-3 transition-transform',
-              typeDropdownOpen && 'rotate-180',
-            )}
+            className={clsx('w-3 h-3 transition-transform', typeDropdownOpen && 'rotate-180')}
           />
         </button>
 
         {typeDropdownOpen && (
           <div className="absolute top-full mt-2 left-0 bg-slate-800 border border-slate-700 rounded-lg shadow-xl py-1 min-w-[180px] z-20">
-            {projectTypes.map((pt) => {
-              const active = filters.projectTypes.includes(pt);
+            {PROJECT_TYPES.map((projectType) => {
+              const active = filters.projectTypes.includes(projectType);
               return (
                 <button
-                  key={pt}
-                  onClick={() => toggleProjectType(pt)}
+                  key={projectType}
+                  onClick={() => toggleProjectType(projectType)}
                   className={clsx(
                     'w-full flex items-center gap-3 px-3 py-2 text-xs transition-colors text-left',
                     active
@@ -112,9 +96,7 @@ export default function FilterBar() {
                   <span
                     className={clsx(
                       'w-3.5 h-3.5 rounded border flex items-center justify-center flex-shrink-0',
-                      active
-                        ? 'bg-blue-500 border-blue-500'
-                        : 'border-slate-600',
+                      active ? 'bg-blue-500 border-blue-500' : 'border-slate-600',
                     )}
                   >
                     {active && (
@@ -125,15 +107,11 @@ export default function FilterBar() {
                         stroke="currentColor"
                         strokeWidth={3}
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M5 13l4 4L19 7"
-                        />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                       </svg>
                     )}
                   </span>
-                  {PROJECT_TYPE_LABELS[pt] ?? pt}
+                  {PROJECT_TYPE_LABELS[projectType]}
                 </button>
               );
             })}

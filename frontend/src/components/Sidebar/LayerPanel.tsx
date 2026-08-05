@@ -1,18 +1,19 @@
-import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import clsx from 'clsx';
 import {
-  Map,
-  Satellite,
-  RefreshCw,
-  TrainFront,
+  Box,
   Building2,
   CircleDot,
-  Box,
+  Map,
   Mountain,
+  RefreshCw,
+  Satellite,
+  TrainFront,
 } from 'lucide-react';
-import clsx from 'clsx';
-import { useStore } from '@/store/useStore';
-import { syncTrafikverket } from '@/services/api';
-import type { LayerVisibility } from '@/types';
+import { useState } from 'react';
+import { syncTrafikverket } from '@/api/queries';
+import type { LayerVisibility } from '@/domain';
+import { useUiStore } from '@/store/uiStore';
 
 const layerItems: {
   key: keyof LayerVisibility;
@@ -21,18 +22,12 @@ const layerItems: {
 }[] = [
   { key: 'infrastructure', label: 'Infrastrukturprojekt', icon: TrainFront },
   { key: 'properties', label: 'Fastigheter', icon: Building2 },
-  { key: 'impactZones', label: 'Paverkansomraden', icon: CircleDot },
+  { key: 'impactZones', label: 'Påverkansområden', icon: CircleDot },
   { key: 'buildings3d', label: '3D-byggnader', icon: Box },
-  { key: 'terrain', label: 'Terrang', icon: Mountain },
+  { key: 'terrain', label: 'Terräng', icon: Mountain },
 ];
 
-function Toggle({
-  checked,
-  onChange,
-}: {
-  checked: boolean;
-  onChange: () => void;
-}) {
+function Toggle({ checked, onChange }: { checked: boolean; onChange: () => void }) {
   return (
     <button
       onClick={onChange}
@@ -52,26 +47,35 @@ function Toggle({
 }
 
 export default function LayerPanel() {
-  const { layers, toggleLayer, mapStyle, setMapStyle } = useStore();
-  const [syncing, setSyncing] = useState(false);
-  const [syncResult, setSyncResult] = useState<string | null>(null);
+  const layers = useUiStore((s) => s.layers);
+  const toggleLayer = useUiStore((s) => s.toggleLayer);
+  const mapStyle = useUiStore((s) => s.mapStyle);
+  const setMapStyle = useUiStore((s) => s.setMapStyle);
+  const demoMode = useUiStore((s) => s.demoMode);
 
-  const handleSync = async () => {
-    setSyncing(true);
-    setSyncResult(null);
-    try {
-      const result = await syncTrafikverket();
-      setSyncResult(`${result.count} projekt synkroniserade`);
-    } catch {
-      setSyncResult('Kunde inte synkronisera. Kontrollera att backend kors.');
-    } finally {
-      setSyncing(false);
-    }
-  };
+  const queryClient = useQueryClient();
+  const [syncMessage, setSyncMessage] = useState<string | null>(null);
+
+  const syncMutation = useMutation({
+    mutationFn: syncTrafikverket,
+    onSuccess: (result) => {
+      setSyncMessage(
+        `${result.upserted} objekt synkroniserade (${result.fetched} hämtade, ${result.skipped} överhoppade)`,
+      );
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ['impact-zones'] });
+    },
+    onError: (error) => {
+      const detail =
+        typeof error === 'object' && error !== null && 'detail' in error
+          ? String((error as { detail: unknown }).detail)
+          : 'Kunde inte synkronisera. Kontrollera att backend körs.';
+      setSyncMessage(detail);
+    },
+  });
 
   return (
     <div className="p-4 space-y-6">
-      {/* Map layers section */}
       <div>
         <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
           Kartlager
@@ -86,16 +90,12 @@ export default function LayerPanel() {
                 <item.icon className="w-4 h-4 text-slate-400" />
                 <span className="text-sm text-slate-200">{item.label}</span>
               </div>
-              <Toggle
-                checked={layers[item.key]}
-                onChange={() => toggleLayer(item.key)}
-              />
+              <Toggle checked={layers[item.key]} onChange={() => toggleLayer(item.key)} />
             </div>
           ))}
         </div>
       </div>
 
-      {/* Map style section */}
       <div>
         <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
           Kartstil
@@ -111,7 +111,7 @@ export default function LayerPanel() {
             )}
           >
             <Map className="w-5 h-5" />
-            <span className="text-xs font-medium">Mork</span>
+            <span className="text-xs font-medium">Mörk</span>
           </button>
           <button
             onClick={() => setMapStyle('satellite')}
@@ -128,31 +128,32 @@ export default function LayerPanel() {
         </div>
       </div>
 
-      {/* Sync section */}
       <div>
         <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
           Synkronisering
         </h3>
         <button
-          onClick={handleSync}
-          disabled={syncing}
+          onClick={() => {
+            setSyncMessage(null);
+            syncMutation.mutate();
+          }}
+          disabled={syncMutation.isPending || demoMode}
           className={clsx(
             'w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors',
-            syncing
+            syncMutation.isPending || demoMode
               ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
               : 'bg-blue-600 hover:bg-blue-500 text-white',
           )}
         >
-          <RefreshCw
-            className={clsx('w-4 h-4', syncing && 'animate-spin')}
-          />
-          {syncing ? 'Synkroniserar...' : 'Hamta fran Trafikverket'}
+          <RefreshCw className={clsx('w-4 h-4', syncMutation.isPending && 'animate-spin')} />
+          {syncMutation.isPending ? 'Synkroniserar…' : 'Hämta från Trafikverket'}
         </button>
-        {syncResult && (
-          <p className="text-xs text-slate-400 mt-2 text-center">
-            {syncResult}
+        {demoMode && (
+          <p className="text-xs text-amber-400/80 mt-2 text-center">
+            Synkronisering kräver att backend körs (demo-läge).
           </p>
         )}
+        {syncMessage && <p className="text-xs text-slate-400 mt-2 text-center">{syncMessage}</p>}
       </div>
     </div>
   );
