@@ -173,6 +173,43 @@ class TestParseResponse:
         results = self.source._parse_response(SAMPLE_RESPONSE, bbox=stockholm_bbox)
         assert [r.external_id for r in results] == ["TRV-1"]
 
+    def test_null_values_in_response_are_tolerated(self):
+        # API:t serialiserar ibland tomma fält som JSON null — inget av
+        # detta får krascha parsningen
+        payload = {
+            "RESPONSE": {
+                "RESULT": [
+                    {
+                        "Situation": [
+                            None,
+                            {"Deviation": None},
+                            {"Deviation": [None]},
+                            {
+                                "Deviation": {
+                                    "Id": "TRV-NULL",
+                                    "Header": "Nullgeometri",
+                                    "Geometry": {"Line": None, "Point": None},
+                                }
+                            },
+                        ]
+                    }
+                ]
+            }
+        }
+        results = self.source._parse_response(payload, bbox=None)
+        assert [r.external_id for r in results] == ["TRV-NULL"]
+        assert results[0].geometry is None
+
+    def test_null_situation_list(self):
+        payload = {"RESPONSE": {"RESULT": [{"Situation": None}]}}
+        assert self.source._parse_response(payload, bbox=None) == []
+
+    def test_3d_wkt_is_parsed(self):
+        result = parse_wkt_geometry("POINT Z (17.6389 59.1926 12.5)")
+        assert result is not None
+        assert result["type"] == "Point"
+        # Z-koordinaten tas bort först vid skrivning (geojson_to_element)
+
     def test_suspended_ongoing_becomes_planerad(self):
         deviation = {
             "Id": "TRV-9",
@@ -207,3 +244,45 @@ class TestFetch:
         source = TrafikverketDataSource(api_key="test")
         results = await source.fetch_infrastructure_projects()
         assert len(results) == 2
+        assert source.truncated is False
+
+
+def _page(ids: list[str], last_changeid: str | None) -> dict:
+    block = {
+        "Situation": [
+            {"Deviation": [{"Id": i, "Header": i, "MessageType": "Vägarbete"}]} for i in ids
+        ]
+    }
+    if last_changeid is not None:
+        block["INFO"] = {"LASTCHANGEID": last_changeid}
+    return {"RESPONSE": {"RESULT": [block]}}
+
+
+class TestPagination:
+    @respx.mock
+    async def test_fetches_all_pages(self, monkeypatch):
+        import app.datasources.trafikverket as tv
+
+        monkeypatch.setattr(tv, "REQUEST_LIMIT", 1)
+        respx.post(API_URL).mock(
+            side_effect=[
+                httpx.Response(200, json=_page(["TRV-A"], "100")),
+                httpx.Response(200, json=_page(["TRV-B"], "200")),
+                httpx.Response(200, json=_page([], None)),
+            ]
+        )
+        source = TrafikverketDataSource(api_key="test")
+        results = await source.fetch_infrastructure_projects()
+        assert [r.external_id for r in results] == ["TRV-A", "TRV-B"]
+        assert source.truncated is False
+
+    @respx.mock
+    async def test_full_page_without_changeid_flags_truncated(self, monkeypatch):
+        import app.datasources.trafikverket as tv
+
+        monkeypatch.setattr(tv, "REQUEST_LIMIT", 1)
+        respx.post(API_URL).mock(return_value=httpx.Response(200, json=_page(["TRV-A"], None)))
+        source = TrafikverketDataSource(api_key="test")
+        results = await source.fetch_infrastructure_projects()
+        assert len(results) == 1
+        assert source.truncated is True

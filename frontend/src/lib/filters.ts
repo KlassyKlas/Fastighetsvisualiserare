@@ -72,14 +72,20 @@ export function applyPropertyFilters(
         filters.municipalities.includes(f.properties.municipality),
     );
   }
+  // Som backend: fastigheter utan taxeringsvärde exkluderas när ett
+  // värdefilter är aktivt (SQL-jämförelse mot NULL är aldrig sann)
   if (filters.minValue != null) {
     features = features.filter(
-      (f) => (f.properties.assessed_value_sek ?? 0) >= (filters.minValue ?? 0),
+      (f) =>
+        f.properties.assessed_value_sek != null &&
+        f.properties.assessed_value_sek >= (filters.minValue ?? 0),
     );
   }
   if (filters.maxValue != null) {
     features = features.filter(
-      (f) => (f.properties.assessed_value_sek ?? 0) <= (filters.maxValue ?? Infinity),
+      (f) =>
+        f.properties.assessed_value_sek != null &&
+        f.properties.assessed_value_sek <= (filters.maxValue ?? Infinity),
     );
   }
 

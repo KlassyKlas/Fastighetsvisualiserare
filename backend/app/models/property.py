@@ -14,9 +14,12 @@ class Property(Base):
     __table_args__ = (
         # Analysfrågorna (ST_DWithin/ST_Distance) castar till geography —
         # utan funktionellt index används GiST-indexet på geometry inte alls.
+        # Uttrycket måste vara EXAKT detsamma som frågorna genererar
+        # (Geography(srid=4326) → geography(GEOMETRY,4326)) för att
+        # planeraren ska kunna använda indexet.
         Index(
             "idx_properties_geometry_geog",
-            text("CAST(geometry AS geography)"),
+            text("CAST(geometry AS geography(GEOMETRY,4326))"),
             postgresql_using="gist",
         ),
     )

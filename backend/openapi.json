@@ -318,10 +318,8 @@
       "HealthStatus": {
         "properties": {
           "database": {
-            "enum": [
-              "ok",
-              "unavailable"
-            ],
+            "const": "ok",
+            "default": "ok",
             "title": "Database",
             "type": "string"
           },
@@ -337,7 +335,6 @@
           }
         },
         "required": [
-          "database",
           "version"
         ],
         "title": "HealthStatus",
@@ -1279,13 +1276,19 @@
             "type": "integer"
           },
           "skipped": {
-            "description": "Antal objekt som hoppades över (t.ex. utan externt id)",
+            "description": "Antal objekt som hoppades över (t.ex. ogiltig geometri)",
             "title": "Skipped",
             "type": "integer"
           },
           "source": {
             "title": "Source",
             "type": "string"
+          },
+          "truncated": {
+            "default": false,
+            "description": "true om källan inte kunde hämta allt (sidgräns nådd) — kör synken igen",
+            "title": "Truncated",
+            "type": "boolean"
           },
           "upserted": {
             "description": "Antal objekt som skapades eller uppdaterades",

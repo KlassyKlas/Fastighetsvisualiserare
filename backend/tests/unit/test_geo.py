@@ -27,6 +27,22 @@ class TestGeojsonToElement:
         with pytest.raises(ValueError):
             geojson_to_element({})
 
+    def test_z_coordinates_are_stripped(self):
+        # Kolumnernas typmod är 2D — PostGIS avvisar annars hela skrivningen
+        element = geojson_to_element({"type": "Point", "coordinates": [18.0, 59.0, 12.5]})
+        assert to_shape(element).has_z is False
+
+    def test_allowed_types_rejects_wrong_geometry(self):
+        with pytest.raises(ValueError, match="Geometritypen Point"):
+            geojson_to_element(
+                {"type": "Point", "coordinates": [18.0, 59.0]},
+                allowed_types=("MultiPolygon",),
+            )
+
+    def test_allowed_types_accepts_promoted_polygon(self):
+        element = geojson_to_element(POLYGON, allowed_types=("MultiPolygon",))
+        assert to_shape(element).geom_type == "MultiPolygon"
+
 
 class TestParseBbox:
     def test_valid(self):

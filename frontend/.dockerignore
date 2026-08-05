@@ -1,0 +1,11 @@
+# Håll byggcontexten ren: npm ci i imagen är enda källan till
+# node_modules, och en lokal .env får ALDRIG bakas in i imagen
+# (Vite läser VITE_* vid byggtid).
+node_modules
+dist
+.env
+.env.*
+*.tsbuildinfo
+coverage
+Dockerfile
+.dockerignore

@@ -11,28 +11,45 @@ from typing import Any
 from fastapi import HTTPException
 from geoalchemy2 import WKBElement
 from geoalchemy2.shape import from_shape
+from shapely import force_2d
 from shapely.errors import ShapelyError
 from shapely.geometry import MultiPolygon, Polygon, shape
 
 WGS84_SRID = 4326
 
 
-def geojson_to_element(geojson: dict[str, Any]) -> WKBElement:
+def geojson_to_element(
+    geojson: dict[str, Any],
+    *,
+    allowed_types: tuple[str, ...] | None = None,
+) -> WKBElement:
     """Konvertera en GeoJSON-geometri till ett PostGIS-element med SRID 4326.
 
     Polygoner promoveras till MultiPolygon så att de passar
-    Property-kolumnens deklarerade typ.
+    Property-kolumnens deklarerade typ. Z-koordinater tas bort —
+    kolumnernas typmod är 2D och PostGIS avvisar annars hela skrivningen
+    (Trafikverket levererar ibland "POINT Z (...)").
+
+    Args:
+        allowed_types: om satt måste geometritypen (efter promovering)
+            vara en av dessa — annars ValueError. Används av
+            fastighetsflödena för att ge 422 i stället för databasfel.
 
     Raises:
-        ValueError: om geometrin inte är giltig GeoJSON.
+        ValueError: om geometrin inte är giltig GeoJSON eller har fel typ.
     """
     try:
-        geom = shape(geojson)
+        geom = force_2d(shape(geojson))
     except (ShapelyError, AttributeError, KeyError, TypeError) as exc:
         raise ValueError(f"Ogiltig GeoJSON-geometri: {exc}") from exc
 
     if isinstance(geom, Polygon):
         geom = MultiPolygon([geom])
+
+    if allowed_types is not None and geom.geom_type not in allowed_types:
+        raise ValueError(
+            f"Geometritypen {geom.geom_type} stöds inte här — förväntade {', '.join(allowed_types)}"
+        )
 
     return from_shape(geom, srid=WGS84_SRID)
 

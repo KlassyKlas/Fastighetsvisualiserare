@@ -9,8 +9,10 @@ GeoJSONGeometry = dict[str, Any]
 
 
 class HealthStatus(BaseModel):
+    # Vid databasfel svarar endpointen 503 — "database" kan därför bara
+    # vara "ok" i ett lyckat svar.
     status: Literal["ok"] = "ok"
-    database: Literal["ok", "unavailable"]
+    database: Literal["ok"] = "ok"
     version: str
 
 
@@ -20,4 +22,8 @@ class SyncResult(BaseModel):
     source: str
     fetched: int = Field(description="Antal objekt som datakällan levererade")
     upserted: int = Field(description="Antal objekt som skapades eller uppdaterades")
-    skipped: int = Field(description="Antal objekt som hoppades över (t.ex. utan externt id)")
+    skipped: int = Field(description="Antal objekt som hoppades över (t.ex. ogiltig geometri)")
+    truncated: bool = Field(
+        default=False,
+        description="true om källan inte kunde hämta allt (sidgräns nådd) — kör synken igen",
+    )

@@ -323,9 +323,10 @@ export interface components {
         HealthStatus: {
             /**
              * Database
-             * @enum {string}
+             * @default ok
+             * @constant
              */
-            database: "ok" | "unavailable";
+            database: "ok";
             /**
              * Status
              * @default ok
@@ -653,11 +654,17 @@ export interface components {
             fetched: number;
             /**
              * Skipped
-             * @description Antal objekt som hoppades över (t.ex. utan externt id)
+             * @description Antal objekt som hoppades över (t.ex. ogiltig geometri)
              */
             skipped: number;
             /** Source */
             source: string;
+            /**
+             * Truncated
+             * @description true om källan inte kunde hämta allt (sidgräns nådd) — kör synken igen
+             * @default false
+             */
+            truncated: boolean;
             /**
              * Upserted
              * @description Antal objekt som skapades eller uppdaterades

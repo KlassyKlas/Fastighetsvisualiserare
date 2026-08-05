@@ -72,6 +72,10 @@ class DataSource(ABC):
     name: ClassVar[str]
     display_name: ClassVar[str] = ""
 
+    #: Sätts av en fetch-metod om källan inte kunde hämta allt (t.ex.
+    #: sidgräns nådd). Läses av sync-tjänsten och exponeras i SyncResult.
+    truncated: bool = False
+
     async def fetch_infrastructure_projects(
         self, bbox: Bbox | None = None
     ) -> list[InfrastructureProjectIngest]:

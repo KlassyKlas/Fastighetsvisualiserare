@@ -53,11 +53,15 @@ MESSAGE_TYPE_MAP: dict[str, ProjectType] = {
 }
 
 
-def build_request_xml(api_key: str, bbox: Bbox | None = None) -> str:
+def build_request_xml(api_key: str, bbox: Bbox | None = None, changeid: str = "0") -> str:
     """Bygg API-frågan. Med bbox filtreras spatialt redan på serversidan.
 
     INTERSECTS (inte WITHIN): WITHIN matchar bara geometrier som ligger
     helt inom rutan och tappar t.ex. vägsträckor som korsar kanten.
+
+    changeid ger sidvis hämtning: första frågan skickar "0", följande
+    frågor skickar LASTCHANGEID ur föregående svar tills färre än
+    REQUEST_LIMIT situationer returneras.
     """
     spatial_filter = ""
     if bbox is not None:
@@ -69,7 +73,8 @@ def build_request_xml(api_key: str, bbox: Bbox | None = None) -> str:
 
     query_attrs = (
         f'namespace="{NAMESPACE}" objecttype="Situation" '
-        f'schemaversion="{SCHEMA_VERSION}" limit="{REQUEST_LIMIT}"'
+        f'schemaversion="{SCHEMA_VERSION}" limit="{REQUEST_LIMIT}" '
+        f'changeid="{escape(changeid, {chr(34): "&quot;"})}"'
     )
     return f"""<REQUEST>
     <LOGIN authenticationkey="{escape(api_key, {'"': "&quot;"})}" />
@@ -140,6 +145,27 @@ def _geometry_in_bbox(geometry: dict[str, Any], bbox: Bbox) -> bool:
     return shapely.box(west, south, east, north).intersects(geom)
 
 
+def _extract_result_block(data: dict[str, Any]) -> tuple[list[Any], str | None]:
+    """Plocka ut situationslistan och LASTCHANGEID ur ett API-svar.
+
+    Tål null-värden på varje nivå — API:t serialiserar ibland tomma
+    fält som JSON null i stället för att utelämna dem.
+    """
+    result_blocks = (data.get("RESPONSE") or {}).get("RESULT") or []
+    if not result_blocks or not isinstance(result_blocks[0], dict):
+        return [], None
+    block = result_blocks[0]
+    situations = block.get("Situation") or []
+    if not isinstance(situations, list):
+        situations = [situations]
+    last_changeid = (block.get("INFO") or {}).get("LASTCHANGEID")
+    return situations, str(last_changeid) if last_changeid is not None else None
+
+
+# Skyddstak för pagineringsloopen: 20 sidor à 500 situationer
+MAX_PAGES = 20
+
+
 @register
 class TrafikverketDataSource(DataSource):
     name = "trafikverket"
@@ -147,6 +173,7 @@ class TrafikverketDataSource(DataSource):
 
     def __init__(self, api_key: str | None = None) -> None:
         self._api_key = api_key
+        self.truncated = False
 
     async def fetch_infrastructure_projects(
         self, bbox: Bbox | None = None
@@ -155,40 +182,77 @@ class TrafikverketDataSource(DataSource):
         if not api_key:
             raise DataSourceError(self.name, "TRAFIKVERKET_API_KEY är inte satt i backendens miljö")
 
-        xml_body = build_request_xml(api_key, bbox)
+        self.truncated = False
+        results: list[InfrastructureProjectIngest] = []
+        changeid = "0"
 
         async with httpx.AsyncClient(timeout=30.0) as client:
-            try:
-                response = await client.post(
-                    API_URL, content=xml_body, headers={"Content-Type": "text/xml"}
+            for _ in range(MAX_PAGES):
+                data = await self._request(client, api_key, bbox, changeid)
+                situations, last_changeid = _extract_result_block(data)
+                results.extend(self._parse_situations(situations, bbox))
+
+                # limit gäller antal Situation-objekt — jämför mot råantalet,
+                # inte mot antalet tolkade deviations
+                if len(situations) < REQUEST_LIMIT:
+                    break
+                if not last_changeid or last_changeid == changeid:
+                    logger.warning(
+                        "Trafikverket: full sida utan användbart LASTCHANGEID — "
+                        "hämtningen kan vara ofullständig"
+                    )
+                    self.truncated = True
+                    break
+                changeid = last_changeid
+            else:
+                logger.warning(
+                    "Trafikverket: sidgränsen (%d sidor) nådd — hämtningen trunkerad",
+                    MAX_PAGES,
                 )
-                response.raise_for_status()
-            except httpx.HTTPError as exc:
-                raise DataSourceError(self.name, f"API-anropet misslyckades: {exc}") from exc
+                self.truncated = True
+
+        logger.info("Hämtade %d objekt från Trafikverket", len(results))
+        return results
+
+    async def _request(
+        self, client: httpx.AsyncClient, api_key: str, bbox: Bbox | None, changeid: str
+    ) -> dict[str, Any]:
+        xml_body = build_request_xml(api_key, bbox, changeid)
+        try:
+            response = await client.post(
+                API_URL, content=xml_body, headers={"Content-Type": "text/xml"}
+            )
+            response.raise_for_status()
+        except httpx.HTTPError as exc:
+            raise DataSourceError(self.name, f"API-anropet misslyckades: {exc}") from exc
 
         try:
-            data = response.json()
+            return response.json()
         except ValueError as exc:
             raise DataSourceError(self.name, "Svaret kunde inte tolkas som JSON") from exc
-
-        return self._parse_response(data, bbox)
 
     def _parse_response(
         self, data: dict[str, Any], bbox: Bbox | None
     ) -> list[InfrastructureProjectIngest]:
+        """Tolka ett enskilt API-svar (används även direkt i tester)."""
+        situations, _ = _extract_result_block(data)
+        return self._parse_situations(situations, bbox)
+
+    def _parse_situations(
+        self, situations: list[Any], bbox: Bbox | None
+    ) -> list[InfrastructureProjectIngest]:
         results: list[InfrastructureProjectIngest] = []
         now = datetime.now(UTC)
 
-        result_blocks = data.get("RESPONSE", {}).get("RESULT", [])
-        situations = result_blocks[0].get("Situation", []) if result_blocks else []
-
         for situation in situations:
-            deviations = situation.get("Deviation", [])
+            if not isinstance(situation, dict):
+                continue
+            deviations = situation.get("Deviation") or []
             if not isinstance(deviations, list):
                 deviations = [deviations]
 
             for deviation in deviations:
-                if not deviation:
+                if not isinstance(deviation, dict):
                     continue
                 ingest = self._parse_deviation(deviation, now)
                 if ingest is None:
@@ -197,7 +261,6 @@ class TrafikverketDataSource(DataSource):
                     continue
                 results.append(ingest)
 
-        logger.info("Hämtade %d objekt från Trafikverket", len(results))
         return results
 
     def _parse_deviation(
@@ -207,10 +270,11 @@ class TrafikverketDataSource(DataSource):
         if not external_id:
             return None
 
+        # "or {}" på varje nivå: API:t kan serialisera Line/Point som null
         geom_data = deviation.get("Geometry") or {}
-        geometry = parse_wkt_geometry(geom_data.get("Line", {}).get("WGS84")) or parse_wkt_geometry(
-            geom_data.get("Point", {}).get("WGS84")
-        )
+        geometry = parse_wkt_geometry(
+            (geom_data.get("Line") or {}).get("WGS84")
+        ) or parse_wkt_geometry((geom_data.get("Point") or {}).get("WGS84"))
 
         start = parse_timestamp(deviation.get("StartTime"))
         end = parse_timestamp(deviation.get("EndTime"))

@@ -57,7 +57,7 @@ export default function MapContainer() {
   const interactiveLayerIds = useMemo(() => {
     const ids: string[] = [];
     if (layers.infrastructure) {
-      ids.push('infrastructure-circles', 'infrastructure-lines');
+      ids.push('infrastructure-circles', 'infrastructure-lines', 'infrastructure-polygons');
     }
     if (layers.properties) {
       ids.push('property-fills');
@@ -73,7 +73,11 @@ export default function MapContainer() {
       setSidebarOpen(true);
 
       const layerId = feature.layer?.id;
-      if (layerId === 'infrastructure-circles' || layerId === 'infrastructure-lines') {
+      if (
+        layerId === 'infrastructure-circles' ||
+        layerId === 'infrastructure-lines' ||
+        layerId === 'infrastructure-polygons'
+      ) {
         setSelectedProject(feature as unknown as ProjectFeature);
       } else if (layerId === 'property-fills') {
         setSelectedProperty(feature as unknown as PropertyFeature);

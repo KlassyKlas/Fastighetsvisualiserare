@@ -78,10 +78,11 @@ def upgrade() -> None:
         ["geometry"],
         postgresql_using="gist",
     )
-    # Funktionellt index för geography-frågor (ST_DWithin/ST_Buffer i meter)
+    # Funktionellt index för geography-frågor (ST_DWithin/ST_Buffer i meter).
+    # Typmoden geography(GEOMETRY,4326) måste matcha frågornas cast exakt.
     op.execute(
         "CREATE INDEX idx_properties_geometry_geog "
-        "ON properties USING gist (CAST(geometry AS geography))"
+        "ON properties USING gist ((CAST(geometry AS geography(GEOMETRY,4326))))"
     )
 
     op.create_table(
@@ -143,7 +144,8 @@ def upgrade() -> None:
     )
     op.execute(
         "CREATE INDEX idx_infrastructure_projects_geometry_geog "
-        "ON infrastructure_projects USING gist (CAST(geometry AS geography))"
+        "ON infrastructure_projects USING gist "
+        "((CAST(geometry AS geography(GEOMETRY,4326))))"
     )
 
 

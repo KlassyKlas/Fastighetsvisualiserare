@@ -1,6 +1,8 @@
+import logging
+
 from fastapi import HTTPException
 from sqlalchemy import ColumnElement, func, or_, select
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.datasources import PropertyIngest
@@ -9,6 +11,8 @@ from app.models import Property
 from app.schemas import PropertyCollection, PropertyCreate, PropertyFeature
 from app.services.geo import WGS84_SRID, geojson_to_element
 from app.services.serializers import property_feature
+
+logger = logging.getLogger(__name__)
 
 
 def _filter_conditions(
@@ -82,24 +86,25 @@ async def search_properties(
     session: AsyncSession, query: str, limit: int = 50
 ) -> PropertyCollection:
     pattern = f"%{query}%"
+    search_condition = or_(
+        Property.designation.ilike(pattern),
+        Property.address.ilike(pattern),
+        Property.owner_name.ilike(pattern),
+        Property.city.ilike(pattern),
+        Property.municipality.ilike(pattern),
+    )
+
+    total = await session.scalar(select(func.count()).select_from(Property).where(search_condition))
     rows = await session.execute(
         select(Property, func.ST_AsGeoJSON(Property.geometry))
-        .where(
-            or_(
-                Property.designation.ilike(pattern),
-                Property.address.ilike(pattern),
-                Property.owner_name.ilike(pattern),
-                Property.city.ilike(pattern),
-                Property.municipality.ilike(pattern),
-            )
-        )
+        .where(search_condition)
         .order_by(Property.designation)
         .limit(limit)
     )
     features = [property_feature(prop, geojson) for prop, geojson in rows.all()]
     return PropertyCollection(
         features=features,
-        numberMatched=len(features),
+        numberMatched=total or 0,
         numberReturned=len(features),
     )
 
@@ -122,7 +127,7 @@ async def create_property(session: AsyncSession, data: PropertyCreate) -> Proper
 
     if data.geometry is not None:
         try:
-            prop.geometry = geojson_to_element(data.geometry)
+            prop.geometry = geojson_to_element(data.geometry, allowed_types=("MultiPolygon",))
         except ValueError as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
 
@@ -146,7 +151,9 @@ async def create_property(session: AsyncSession, data: PropertyCreate) -> Proper
 async def upsert_properties(session: AsyncSession, items: list[PropertyIngest]) -> tuple[int, int]:
     """Skriv in fastigheter från en datakälla. Returnerar (upserted, skipped).
 
-    Konflikthantering sker på fastighetsbeteckning (designation).
+    Konflikthantering sker på fastighetsbeteckning (designation). Varje rad
+    skrivs i en savepoint så att ett enskilt trasigt objekt räknas som
+    skipped i stället för att fälla hela synkroniseringen.
     """
     from sqlalchemy.dialects.postgresql import insert as pg_insert
 
@@ -157,8 +164,11 @@ async def upsert_properties(session: AsyncSession, items: list[PropertyIngest]) 
         values = item.model_dump(exclude={"geometry"})
         if item.geometry is not None:
             try:
-                values["geometry"] = geojson_to_element(item.geometry)
+                values["geometry"] = geojson_to_element(
+                    item.geometry, allowed_types=("MultiPolygon",)
+                )
             except ValueError:
+                logger.warning("Hoppar över fastighet %s: ogiltig geometri", item.designation)
                 skipped += 1
                 continue
         else:
@@ -169,10 +179,22 @@ async def upsert_properties(session: AsyncSession, items: list[PropertyIngest]) 
             key: getattr(stmt.excluded, key) for key in values if key != "designation"
         }
         update_columns["updated_at"] = func.now()
+        # Skriv aldrig över en befintlig geometri med NULL — källor kan
+        # tillfälligt sakna geometri för ett objekt de tidigare levererat.
+        update_columns["geometry"] = func.coalesce(stmt.excluded.geometry, Property.geometry)
         stmt = stmt.on_conflict_do_update(
             index_elements=[Property.designation], set_=update_columns
         )
-        await session.execute(stmt)
-        upserted += 1
+        try:
+            async with session.begin_nested():
+                await session.execute(stmt)
+            upserted += 1
+        except SQLAlchemyError:
+            logger.warning(
+                "Hoppar över fastighet %s: databasfel vid upsert",
+                item.designation,
+                exc_info=True,
+            )
+            skipped += 1
 
     return upserted, skipped

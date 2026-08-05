@@ -27,7 +27,7 @@ class InfrastructureProject(Base):
         # (påverkanszoner, närhetsanalys) ska kunna använda index.
         Index(
             "idx_infrastructure_projects_geometry_geog",
-            text("CAST(geometry AS geography)"),
+            text("CAST(geometry AS geography(GEOMETRY,4326))"),
             postgresql_using="gist",
         ),
     )

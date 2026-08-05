@@ -24,12 +24,15 @@ from app.schemas import (
 from app.services.geo import parse_geojson_column
 
 
+# OBS: Geography(srid=4326) — utan srid renderar GeoAlchemy2 typmoden
+# geography(GEOMETRY,-1), som inte matchar de funktionella indexen
+# (idx_*_geometry_geog) och därmed gör dem verkningslösa.
 def _prop_geog():
-    return cast(Property.geometry, Geography)
+    return cast(Property.geometry, Geography(srid=4326))
 
 
 def _proj_geog():
-    return cast(InfrastructureProject.geometry, Geography)
+    return cast(InfrastructureProject.geometry, Geography(srid=4326))
 
 
 async def nearby_projects(

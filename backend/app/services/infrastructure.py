@@ -1,8 +1,10 @@
+import logging
+
 from fastapi import HTTPException
 from geoalchemy2 import Geography
 from sqlalchemy import ColumnElement, cast, func, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.datasources import (
@@ -25,6 +27,8 @@ from app.schemas import (
 from app.services import properties as property_service
 from app.services.geo import WGS84_SRID, geojson_to_element
 from app.services.serializers import impact_zone_feature, project_feature
+
+logger = logging.getLogger(__name__)
 
 
 def _filter_conditions(
@@ -144,9 +148,11 @@ async def impact_zones(
     conditions = _filter_conditions(statuses=statuses, project_types=project_types, bbox=bbox)
     conditions.append(InfrastructureProject.geometry.is_not(None))
 
+    # OBS: Geography(srid=4326) — utan srid renderas geography(GEOMETRY,-1)
+    # som varken är giltig typmod eller matchar det funktionella indexet.
     zone_geojson = func.ST_AsGeoJSON(
         func.ST_Buffer(
-            cast(InfrastructureProject.geometry, Geography),
+            cast(InfrastructureProject.geometry, Geography(srid=WGS84_SRID)),
             InfrastructureProject.impact_radius_m,
         )
     )
@@ -177,7 +183,9 @@ async def upsert_projects(
     """Skriv in projekt från en datakälla. Returnerar (upserted, skipped).
 
     Konflikthantering sker på external_id i en enda upsert per rad —
-    inga N+1-läsfrågor.
+    inga N+1-läsfrågor. Varje rad skrivs i en savepoint så att ett
+    enskilt trasigt objekt räknas som skipped i stället för att fälla
+    hela synkroniseringen.
     """
     upserted = 0
     skipped = 0
@@ -188,6 +196,7 @@ async def upsert_projects(
             try:
                 values["geometry"] = geojson_to_element(item.geometry)
             except ValueError:
+                logger.warning("Hoppar över projekt %s: ogiltig geometri", item.external_id)
                 skipped += 1
                 continue
         else:
@@ -198,11 +207,26 @@ async def upsert_projects(
             key: getattr(stmt.excluded, key) for key in values if key != "external_id"
         }
         update_columns["updated_at"] = func.now()
+        # Skriv aldrig över en befintlig geometri med NULL — Trafikverket
+        # kan tillfälligt utelämna geometrin för ett objekt som tidigare
+        # levererats med geometri.
+        update_columns["geometry"] = func.coalesce(
+            stmt.excluded.geometry, InfrastructureProject.geometry
+        )
         stmt = stmt.on_conflict_do_update(
             index_elements=[InfrastructureProject.external_id], set_=update_columns
         )
-        await session.execute(stmt)
-        upserted += 1
+        try:
+            async with session.begin_nested():
+                await session.execute(stmt)
+            upserted += 1
+        except SQLAlchemyError:
+            logger.warning(
+                "Hoppar över projekt %s: databasfel vid upsert",
+                item.external_id,
+                exc_info=True,
+            )
+            skipped += 1
 
     return upserted, skipped
 
@@ -244,4 +268,5 @@ async def sync_source(
         fetched=len(projects) + len(properties),
         upserted=projects_upserted + properties_upserted,
         skipped=projects_skipped + properties_skipped,
+        truncated=datasource.truncated,
     )

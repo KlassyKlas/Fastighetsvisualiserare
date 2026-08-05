@@ -12,8 +12,10 @@ interface Props {
 const statusColor = matchColorExpression('status', STATUS_COLORS);
 
 /**
- * Linjeprojekt (vägar, järnvägar) renderas som linjer — den gamla appen
- * visade allt som cirklar och gjorde linjegeometrier oklickbara.
+ * Linjeprojekt (vägar, järnvägar) renderas som linjer och ytprojekt som
+ * fyllda områden — den gamla appen visade allt som cirklar och gjorde
+ * övriga geometrier oklickbara. Mapbox geometry-type kollapsar Multi*-
+ * varianter till bastypen, så tre filter täcker allt.
  */
 const lineLayer: LayerProps = {
   id: 'infrastructure-lines',
@@ -26,6 +28,27 @@ const lineLayer: LayerProps = {
   paint: {
     'line-color': statusColor,
     'line-width': ['interpolate', ['linear'], ['zoom'], 5, 2, 10, 3.5, 14, 6],
+    'line-opacity': 0.9,
+  },
+};
+
+const polygonLayer: LayerProps = {
+  id: 'infrastructure-polygons',
+  type: 'fill',
+  filter: ['==', ['geometry-type'], 'Polygon'],
+  paint: {
+    'fill-color': statusColor,
+    'fill-opacity': 0.25,
+  },
+};
+
+const polygonBorderLayer: LayerProps = {
+  id: 'infrastructure-polygon-borders',
+  type: 'line',
+  filter: ['==', ['geometry-type'], 'Polygon'],
+  paint: {
+    'line-color': statusColor,
+    'line-width': 2,
     'line-opacity': 0.9,
   },
 };
@@ -101,6 +124,8 @@ export default function InfrastructureLayer({ data, visible }: Props) {
 
   return (
     <Source id="infrastructure-source" type="geojson" data={data}>
+      <Layer {...polygonLayer} />
+      <Layer {...polygonBorderLayer} />
       <Layer {...lineLayer} />
       <Layer {...circleLayer} />
       <Layer {...labelLayer} />
