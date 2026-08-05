@@ -10,7 +10,12 @@ import Map, {
 } from 'react-map-gl/mapbox';
 import type { LayerProps } from 'react-map-gl/mapbox';
 
-import { impactZonesQuery, projectsQuery, propertiesQuery } from '@/api/queries';
+import {
+  impactZonesQuery,
+  projectsQuery,
+  propertiesQuery,
+  proximityScoresQuery,
+} from '@/api/queries';
 import { INITIAL_VIEW_STATE, MAP_STYLES, MAPBOX_TOKEN } from '@/config/map';
 import type { ProjectFeature, PropertyFeature } from '@/domain';
 import { useUiStore } from '@/store/uiStore';
@@ -48,11 +53,26 @@ export default function MapContainer() {
   const setSelectedProperty = useUiStore((s) => s.setSelectedProperty);
   const setSidebarOpen = useUiStore((s) => s.setSidebarOpen);
 
+  const scoreColoring = useUiStore((s) => s.scoreColoring);
+
   const { data: projectData } = useQuery(projectsQuery(filters));
   const { data: propertyData } = useQuery(propertiesQuery(filters));
   const { data: zoneData } = useQuery(impactZonesQuery(filters));
+  const { data: scoreData } = useQuery({
+    ...proximityScoresQuery(filters),
+    enabled: scoreColoring,
+  });
 
   const [cursor, setCursor] = useState('');
+
+  const useScores = scoreColoring && scoreData != null;
+  const maxScore = useMemo(
+    () =>
+      scoreData && scoreData.features.length > 0
+        ? Math.max(...scoreData.features.map((f) => f.properties.score))
+        : 1,
+    [scoreData],
+  );
 
   const interactiveLayerIds = useMemo(() => {
     const ids: string[] = [];
@@ -152,7 +172,14 @@ export default function MapContainer() {
       {layers.buildings3d && <Layer {...buildings3dLayer} />}
 
       {zoneData && <ImpactZoneLayer data={zoneData} visible={layers.impactZones} />}
-      {propertyData && <PropertyLayer data={propertyData} visible={layers.properties} />}
+      {(useScores ? scoreData : propertyData) && (
+        <PropertyLayer
+          data={useScores ? scoreData! : propertyData!}
+          visible={layers.properties}
+          colorByScore={useScores}
+          maxScore={maxScore}
+        />
+      )}
       {projectData && <InfrastructureLayer data={projectData} visible={layers.infrastructure} />}
     </Map>
   );

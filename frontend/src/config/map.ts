@@ -18,6 +18,13 @@ export const INITIAL_VIEW_STATE = {
 
 export const FALLBACK_COLOR = '#6b7280';
 
+/** Färgskala för närhetspoäng: låg → hög */
+export const SCORE_GRADIENT = {
+  low: '#155e75',
+  mid: '#eab308',
+  high: '#ef4444',
+} as const;
+
 export const STATUS_COLORS: Record<ProjectStatus, string> = {
   planerad: '#f59e0b',
   pågående: '#3b82f6',

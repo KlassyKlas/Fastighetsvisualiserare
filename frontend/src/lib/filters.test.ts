@@ -35,6 +35,13 @@ describe('applyProjectFilters', () => {
     expect(result.features.length).toBeGreaterThan(0);
     expect(result.features.every((f) => f.properties.project_type === 'järnväg')).toBe(true);
   });
+
+  it('filtrerar på aktivt år — samma semantik som backend', () => {
+    const result = applyProjectFilters(sampleProjects, { ...EMPTY_FILTERS, year: 2012 });
+    const names = result.features.map((f) => f.properties.name);
+    expect(names).toContain('Citybanan'); // aktiv 2009–2017
+    expect(names).not.toContain('Tvärförbindelse Södertörn'); // 2025–2032
+  });
 });
 
 describe('applyPropertyFilters', () => {

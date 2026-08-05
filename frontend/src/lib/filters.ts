@@ -10,6 +10,21 @@ import type {
   PropertyCollection,
 } from '@/domain';
 
+/**
+ * Projektet är aktivt någon gång under året. Okända datum utesluter
+ * inte — samma semantik som backendens year-filter. Datumen är
+ * ISO-strängar (ÅÅÅÅ-MM-DD) så strängjämförelse är korrekt.
+ */
+function activeInYear(
+  startDate: string | null | undefined,
+  endDate: string | null | undefined,
+  year: number,
+): boolean {
+  const startsInTime = startDate == null || startDate <= `${year}-12-31`;
+  const endsInTime = endDate == null || endDate >= `${year}-01-01`;
+  return startsInTime && endsInTime;
+}
+
 export function applyProjectFilters(
   collection: ProjectCollection,
   filters: FilterState,
@@ -26,6 +41,12 @@ export function applyProjectFilters(
       (f) =>
         f.properties.project_type != null &&
         filters.projectTypes.includes(f.properties.project_type),
+    );
+  }
+  if (filters.year != null) {
+    const year = filters.year;
+    features = features.filter((f) =>
+      activeInYear(f.properties.start_date, f.properties.end_date, year),
     );
   }
 
@@ -53,6 +74,12 @@ export function applyImpactZoneFilters(
       (f) =>
         f.properties.project_type != null &&
         filters.projectTypes.includes(f.properties.project_type),
+    );
+  }
+  if (filters.year != null) {
+    const year = filters.year;
+    features = features.filter((f) =>
+      activeInYear(f.properties.start_date, f.properties.end_date, year),
     );
   }
 

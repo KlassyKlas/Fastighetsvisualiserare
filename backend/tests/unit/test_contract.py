@@ -19,6 +19,7 @@ EXPECTED_PATHS = {
     "/api/v1/infrastructure/sources",
     "/api/v1/infrastructure/sync/{source_name}",
     "/api/v1/analysis/affected-properties",
+    "/api/v1/analysis/proximity-scores",
 }
 
 

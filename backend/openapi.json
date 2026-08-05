@@ -392,6 +392,18 @@
       "ImpactZoneProps": {
         "description": "Egenskaper för en serverberäknad påverkanszon (buffrad projektgeometri).",
         "properties": {
+          "end_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Date"
+          },
           "impact_radius_m": {
             "title": "Impact Radius M",
             "type": "number"
@@ -413,6 +425,18 @@
                 "type": "null"
               }
             ]
+          },
+          "start_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Date"
           },
           "status": {
             "anyOf": [
@@ -1267,6 +1291,332 @@
         "title": "PropertyType",
         "type": "string"
       },
+      "ProximityScoreFeature": {
+        "properties": {
+          "geometry": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Geometry"
+          },
+          "properties": {
+            "$ref": "#/components/schemas/ProximityScoreProps"
+          },
+          "type": {
+            "const": "Feature",
+            "default": "Feature",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "properties"
+        ],
+        "title": "ProximityScoreFeature",
+        "type": "object"
+      },
+      "ProximityScoreProps": {
+        "properties": {
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address"
+          },
+          "area_sqm": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Area Sqm"
+          },
+          "assessed_value_sek": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assessed Value Sek"
+          },
+          "building_year": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Building Year"
+          },
+          "city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "City"
+          },
+          "contributions": {
+            "description": "Bidragen bakom poängen, största först",
+            "items": {
+              "$ref": "#/components/schemas/ScoreContribution"
+            },
+            "title": "Contributions",
+            "type": "array"
+          },
+          "county": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "County"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "designation": {
+            "title": "Designation",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "living_area_sqm": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Living Area Sqm"
+          },
+          "metadata_json": {
+            "additionalProperties": true,
+            "title": "Metadata Json",
+            "type": "object"
+          },
+          "municipality": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Municipality"
+          },
+          "owner_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner Name"
+          },
+          "owner_org_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner Org Number"
+          },
+          "postal_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Postal Code"
+          },
+          "property_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PropertyType"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rank": {
+            "description": "1 = högst poäng i svaret",
+            "title": "Rank",
+            "type": "integer"
+          },
+          "score": {
+            "description": "Summan av alla projektbidrag — högre är bättre läge",
+            "title": "Score",
+            "type": "number"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          },
+          "zoning": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zoning"
+          }
+        },
+        "required": [
+          "id",
+          "designation",
+          "score",
+          "rank"
+        ],
+        "title": "ProximityScoreProps",
+        "type": "object"
+      },
+      "ProximityScoresCollection": {
+        "properties": {
+          "features": {
+            "description": "Sorterade efter poäng, högst först",
+            "items": {
+              "$ref": "#/components/schemas/ProximityScoreFeature"
+            },
+            "title": "Features",
+            "type": "array"
+          },
+          "max_distance_m": {
+            "description": "Sökradien som poängen beräknats med",
+            "title": "Max Distance M",
+            "type": "number"
+          },
+          "numberMatched": {
+            "title": "Numbermatched",
+            "type": "integer"
+          },
+          "numberReturned": {
+            "title": "Numberreturned",
+            "type": "integer"
+          },
+          "type": {
+            "const": "FeatureCollection",
+            "default": "FeatureCollection",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "numberMatched",
+          "numberReturned",
+          "max_distance_m"
+        ],
+        "title": "ProximityScoresCollection",
+        "type": "object"
+      },
+      "ScoreContribution": {
+        "description": "Ett enskilt projekts bidrag till en fastighets närhetspoäng.",
+        "properties": {
+          "distance_m": {
+            "title": "Distance M",
+            "type": "number"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "points": {
+            "title": "Points",
+            "type": "number"
+          },
+          "project_id": {
+            "title": "Project Id",
+            "type": "integer"
+          },
+          "project_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProjectType"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProjectStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "project_id",
+          "name",
+          "distance_m",
+          "points"
+        ],
+        "title": "ScoreContribution",
+        "type": "object"
+      },
       "SyncResult": {
         "description": "Resultatet av en synkronisering mot en extern datakälla.",
         "properties": {
@@ -1442,6 +1792,108 @@
         ]
       }
     },
+    "/api/v1/analysis/proximity-scores": {
+      "get": {
+        "description": "Närhetspoäng: fastigheter rankade efter närhet till infrastruktur.\n\nPoängen är summan av viktade bidrag (typ, status, avstånd, budget,\ntid till färdigställande) från projekt inom sökradien — varje bidrag\nredovisas för sig så att rankningen alltid går att förklara.",
+        "operationId": "proximity_scores_api_v1_analysis_proximity_scores_get",
+        "parameters": [
+          {
+            "description": "Räkna bara projekt med dessa statusar",
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "$ref": "#/components/schemas/ProjectStatus"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Räkna bara projekt med dessa statusar",
+              "title": "Status"
+            }
+          },
+          {
+            "description": "Räkna bara projekt av dessa typer",
+            "in": "query",
+            "name": "project_type",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "$ref": "#/components/schemas/ProjectType"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Räkna bara projekt av dessa typer",
+              "title": "Project Type"
+            }
+          },
+          {
+            "description": "Sökradie i meter",
+            "in": "query",
+            "name": "max_distance_m",
+            "required": false,
+            "schema": {
+              "default": 5000.0,
+              "description": "Sökradie i meter",
+              "exclusiveMinimum": 0,
+              "maximum": 50000,
+              "title": "Max Distance M",
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 500,
+              "maximum": 2000,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProximityScoresCollection"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Proximity Scores",
+        "tags": [
+          "analysis"
+        ]
+      }
+    },
     "/api/v1/health": {
       "get": {
         "description": "Hälsokontroll som även verifierar databasanslutningen.",
@@ -1505,6 +1957,26 @@
                 }
               ],
               "title": "Project Type"
+            }
+          },
+          {
+            "description": "Visa bara projekt som är aktiva under detta år",
+            "in": "query",
+            "name": "year",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 1900,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Visa bara projekt som är aktiva under detta år",
+              "title": "Year"
             }
           },
           {
@@ -1599,6 +2071,26 @@
               ],
               "description": "Filtrera på projekttyp (kan upprepas)",
               "title": "Project Type"
+            }
+          },
+          {
+            "description": "Visa bara projekt som är aktiva under detta år",
+            "in": "query",
+            "name": "year",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 1900,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Visa bara projekt som är aktiva under detta år",
+              "title": "Year"
             }
           },
           {

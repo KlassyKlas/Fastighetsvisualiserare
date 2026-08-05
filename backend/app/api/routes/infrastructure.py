@@ -17,6 +17,12 @@ from app.services import infrastructure as infrastructure_service
 router = APIRouter()
 
 
+YearQuery = Annotated[
+    int | None,
+    Query(ge=1900, le=2100, description="Visa bara projekt som är aktiva under detta år"),
+]
+
+
 @router.get("/projects", response_model=InfrastructureProjectCollection)
 async def list_projects(
     session: SessionDep,
@@ -28,6 +34,7 @@ async def list_projects(
         list[ProjectType] | None,
         Query(description="Filtrera på projekttyp (kan upprepas)"),
     ] = None,
+    year: YearQuery = None,
     limit: Annotated[int, Query(ge=1, le=2000)] = 500,
     offset: Annotated[int, Query(ge=0)] = 0,
 ) -> InfrastructureProjectCollection:
@@ -37,6 +44,7 @@ async def list_projects(
         statuses=status,
         project_types=project_type,
         bbox=bbox,
+        year=year,
         limit=limit,
         offset=offset,
     )
@@ -48,6 +56,7 @@ async def impact_zones(
     bbox: BboxDep,
     status: Annotated[list[ProjectStatus] | None, Query()] = None,
     project_type: Annotated[list[ProjectType] | None, Query()] = None,
+    year: YearQuery = None,
 ) -> ImpactZoneCollection:
     """Påverkanszoner: projektgeometrier buffrade med sin påverkansradie i meter.
 
@@ -55,7 +64,7 @@ async def impact_zones(
     punkter, linjer och ytor oavsett latitud.
     """
     return await infrastructure_service.impact_zones(
-        session, statuses=status, project_types=project_type, bbox=bbox
+        session, statuses=status, project_types=project_type, bbox=bbox, year=year
     )
 
 

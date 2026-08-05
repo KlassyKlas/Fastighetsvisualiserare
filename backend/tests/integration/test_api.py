@@ -176,6 +176,48 @@ async def test_create_with_invalid_geometry_gives_422(client):
     assert response.status_code == 422
 
 
+async def test_create_property_with_point_geometry_gives_422(client):
+    response = await client.post(
+        "/api/v1/properties",
+        json={
+            "designation": "Punktfastighet 1:1",
+            "geometry": {"type": "Point", "coordinates": [18.0, 59.0]},
+        },
+    )
+    assert response.status_code == 422
+
+
+async def test_proximity_scores(client):
+    response = await client.get("/api/v1/analysis/proximity-scores")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["numberReturned"] >= 1
+
+    scores = [f["properties"]["score"] for f in data["features"]]
+    assert scores == sorted(scores, reverse=True)
+    ranks = [f["properties"]["rank"] for f in data["features"]]
+    assert ranks == list(range(1, len(ranks) + 1))
+
+    top = data["features"][0]["properties"]
+    assert top["contributions"]
+    assert top["score"] == round(sum(c["points"] for c in top["contributions"]), 1)
+    # Bidragen är sorterade med största först
+    points = [c["points"] for c in top["contributions"]]
+    assert points == sorted(points, reverse=True)
+
+
+async def test_year_filter_on_projects(client):
+    response = await client.get("/api/v1/infrastructure/projects", params={"year": 2012})
+    names = {f["properties"]["name"] for f in response.json()["features"]}
+    assert "Citybanan" in names  # aktiv 2009–2017
+    assert "Tvärförbindelse Södertörn" not in names  # 2025–2032
+
+    zones = await client.get("/api/v1/infrastructure/impact-zones", params={"year": 2012})
+    zone_names = {f["properties"]["name"] for f in zones.json()["features"]}
+    assert "Citybanan" in zone_names
+    assert "Tvärförbindelse Södertörn" not in zone_names
+
+
 async def test_sync_unknown_source_gives_404(client):
     response = await client.post("/api/v1/infrastructure/sync/finnsinte")
     assert response.status_code == 404

@@ -1,6 +1,7 @@
 import clsx from 'clsx';
-import { ChevronLeft, ChevronRight, Info, Layers, Search } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Info, Layers, Search, TrendingUp } from 'lucide-react';
 import { useUiStore, type SidebarTab } from '@/store/uiStore';
+import AnalysisPanel from './AnalysisPanel';
 import LayerPanel from './LayerPanel';
 import ProjectDetails from './ProjectDetails';
 import PropertyDetails from './PropertyDetails';
@@ -9,6 +10,7 @@ import SearchPanel from './SearchPanel';
 const tabs: { id: SidebarTab; label: string; icon: typeof Search }[] = [
   { id: 'search', label: 'Sök', icon: Search },
   { id: 'layers', label: 'Lager', icon: Layers },
+  { id: 'analysis', label: 'Analys', icon: TrendingUp },
   { id: 'details', label: 'Detaljer', icon: Info },
 ];
 
@@ -26,6 +28,8 @@ export default function Sidebar() {
         return <SearchPanel />;
       case 'layers':
         return <LayerPanel />;
+      case 'analysis':
+        return <AnalysisPanel />;
       case 'details':
         if (selectedProject) return <ProjectDetails />;
         if (selectedProperty) return <PropertyDetails />;

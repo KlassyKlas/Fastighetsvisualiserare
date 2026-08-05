@@ -9,6 +9,7 @@ påverkanszoner). Demo-läget kan därmed aldrig glida ifrån kontraktet.
 
 import json
 import math
+from datetime import date
 from pathlib import Path
 from typing import Any
 
@@ -25,12 +26,22 @@ from app.schemas import (
     PropertyCollection,
     PropertyFeature,
     PropertyProps,
+    ProximityScoreFeature,
+    ProximityScoreProps,
+    ProximityScoresCollection,
+    ScoreContribution,
 )
 from app.seed_data import INFRASTRUCTURE_PROJECTS, PROPERTIES
+from app.services import scoring
 
 OUTPUT_PATH = Path(__file__).parents[2] / "frontend" / "src" / "data" / "sampleData.json"
 
 M_PER_DEG_LAT = 111_320.0
+
+# Fast referensdatum så att exporten är deterministisk — CI regenererar
+# och diffar filen, och poängmodellens tidsfaktor får inte glida med
+# dagens datum. Uppdatera medvetet vid behov (och committa om filen).
+REFERENCE_DATE = date(2026, 8, 5)
 
 
 def _buffer_wgs84(geometry: dict[str, Any], meters: float) -> dict[str, Any]:
@@ -54,6 +65,84 @@ def _to_multipolygon(geometry: dict[str, Any]) -> dict[str, Any]:
     if isinstance(geom, Polygon):
         geom = MultiPolygon([geom])
     return json.loads(json.dumps(mapping(geom)))
+
+
+def _distance_m(geometry_a: dict[str, Any], geometry_b: dict[str, Any]) -> float:
+    """Approximativt avstånd i meter via lokal ekvirektangulär skalning.
+
+    Riktiga avstånd beräknas av PostGIS — det här räcker för demodata.
+    """
+    geom_a = shape(geometry_a)
+    geom_b = shape(geometry_b)
+    lat = (geom_a.centroid.y + geom_b.centroid.y) / 2
+    m_per_deg_lng = M_PER_DEG_LAT * math.cos(math.radians(lat))
+
+    def to_meters(geom):
+        return shapely_transform(lambda x, y: (x * m_per_deg_lng, y * M_PER_DEG_LAT), geom)
+
+    return to_meters(geom_a).distance(to_meters(geom_b))
+
+
+def _build_proximity_scores() -> ProximityScoresCollection:
+    """Demo-poäng med SAMMA poängmodell som API:t (app.services.scoring)."""
+    scored = []
+    for prop_index, prop in enumerate(PROPERTIES, start=1):
+        if prop.geometry is None:
+            continue
+        contributions = []
+        for project_index, project in enumerate(INFRASTRUCTURE_PROJECTS, start=1):
+            if project.geometry is None:
+                continue
+            distance = _distance_m(prop.geometry, project.geometry)
+            if distance > scoring.DEFAULT_MAX_DISTANCE_M:
+                continue
+            points = scoring.project_points(
+                scoring.ScoredProject(
+                    project_type=project.project_type,
+                    status=project.status,
+                    budget_sek=project.budget_sek,
+                    end_date=project.end_date,
+                    distance_m=distance,
+                ),
+                max_distance_m=scoring.DEFAULT_MAX_DISTANCE_M,
+                today=REFERENCE_DATE,
+            )
+            contributions.append(
+                ScoreContribution(
+                    project_id=project_index,
+                    name=project.name,
+                    project_type=project.project_type,
+                    status=project.status,
+                    distance_m=round(distance, 1),
+                    points=points,
+                )
+            )
+        if contributions:
+            contributions.sort(key=lambda c: c.points, reverse=True)
+            scored.append((prop_index, prop, contributions))
+
+    scored.sort(key=lambda entry: scoring.total_score([c.points for c in entry[2]]), reverse=True)
+
+    features = [
+        ProximityScoreFeature(
+            geometry=_to_multipolygon(prop.geometry) if prop.geometry else None,
+            properties=ProximityScoreProps(
+                id=prop_index,
+                **prop.model_dump(exclude={"geometry"}),
+                score=scoring.total_score([c.points for c in contributions]),
+                rank=rank,
+                contributions=contributions,
+            ),
+        )
+        for rank, (prop_index, prop, contributions) in enumerate(scored, start=1)
+    ]
+
+    return ProximityScoresCollection(
+        features=features,
+        numberMatched=len(features),
+        numberReturned=len(features),
+        max_distance_m=scoring.DEFAULT_MAX_DISTANCE_M,
+    )
 
 
 def build_sample_data() -> dict[str, Any]:
@@ -87,6 +176,8 @@ def build_sample_data() -> dict[str, Any]:
                 name=item.name,
                 project_type=item.project_type,
                 status=item.status,
+                start_date=item.start_date,
+                end_date=item.end_date,
                 impact_radius_m=item.impact_radius_m,
             ),
         )
@@ -106,6 +197,7 @@ def build_sample_data() -> dict[str, Any]:
             numberReturned=len(project_features),
         ).model_dump(mode="json"),
         "impactZones": ImpactZoneCollection(features=zone_features).model_dump(mode="json"),
+        "proximityScores": _build_proximity_scores().model_dump(mode="json"),
     }
 
 

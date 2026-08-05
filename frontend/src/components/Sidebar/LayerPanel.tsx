@@ -14,6 +14,7 @@ import { useState } from 'react';
 import { syncTrafikverket } from '@/api/queries';
 import type { LayerVisibility } from '@/domain';
 import { useUiStore } from '@/store/uiStore';
+import Toggle from '../UI/Toggle';
 
 const layerItems: {
   key: keyof LayerVisibility;
@@ -26,25 +27,6 @@ const layerItems: {
   { key: 'buildings3d', label: '3D-byggnader', icon: Box },
   { key: 'terrain', label: 'Terräng', icon: Mountain },
 ];
-
-function Toggle({ checked, onChange }: { checked: boolean; onChange: () => void }) {
-  return (
-    <button
-      onClick={onChange}
-      className={clsx(
-        'relative w-10 h-5 rounded-full transition-colors flex-shrink-0',
-        checked ? 'bg-blue-500' : 'bg-slate-600',
-      )}
-    >
-      <div
-        className={clsx(
-          'absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform shadow-sm',
-          checked ? 'translate-x-5' : 'translate-x-0.5',
-        )}
-      />
-    </button>
-  );
-}
 
 export default function LayerPanel() {
   const layers = useUiStore((s) => s.layers);
@@ -59,8 +41,9 @@ export default function LayerPanel() {
   const syncMutation = useMutation({
     mutationFn: syncTrafikverket,
     onSuccess: (result) => {
+      const truncatedNote = result.truncated ? ' — ofullständig hämtning, kör igen' : '';
       setSyncMessage(
-        `${result.upserted} objekt synkroniserade (${result.fetched} hämtade, ${result.skipped} överhoppade)`,
+        `${result.upserted} objekt synkroniserade (${result.fetched} hämtade, ${result.skipped} överhoppade)${truncatedNote}`,
       );
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       queryClient.invalidateQueries({ queryKey: ['impact-zones'] });

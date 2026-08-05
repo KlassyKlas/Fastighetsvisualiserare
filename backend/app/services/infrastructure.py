@@ -1,8 +1,9 @@
 import logging
+from datetime import date
 
 from fastapi import HTTPException
 from geoalchemy2 import Geography
-from sqlalchemy import ColumnElement, cast, func, select
+from sqlalchemy import ColumnElement, cast, func, or_, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -36,12 +37,28 @@ def _filter_conditions(
     statuses: list[ProjectStatus] | None,
     project_types: list[ProjectType] | None,
     bbox: Bbox | None,
+    year: int | None = None,
 ) -> list[ColumnElement[bool]]:
     conditions: list[ColumnElement[bool]] = []
     if statuses:
         conditions.append(InfrastructureProject.status.in_(statuses))
     if project_types:
         conditions.append(InfrastructureProject.project_type.in_(project_types))
+    if year is not None:
+        # Projektet är aktivt någon gång under året; okänt datum
+        # utesluter inte (samma semantik som demo-filtret i frontenden)
+        conditions.append(
+            or_(
+                InfrastructureProject.start_date.is_(None),
+                InfrastructureProject.start_date <= date(year, 12, 31),
+            )
+        )
+        conditions.append(
+            or_(
+                InfrastructureProject.end_date.is_(None),
+                InfrastructureProject.end_date >= date(year, 1, 1),
+            )
+        )
     if bbox is not None:
         west, south, east, north = bbox
         conditions.append(
@@ -59,10 +76,13 @@ async def list_projects(
     statuses: list[ProjectStatus] | None = None,
     project_types: list[ProjectType] | None = None,
     bbox: Bbox | None = None,
+    year: int | None = None,
     limit: int = 500,
     offset: int = 0,
 ) -> InfrastructureProjectCollection:
-    conditions = _filter_conditions(statuses=statuses, project_types=project_types, bbox=bbox)
+    conditions = _filter_conditions(
+        statuses=statuses, project_types=project_types, bbox=bbox, year=year
+    )
 
     total = await session.scalar(
         select(func.count()).select_from(InfrastructureProject).where(*conditions)
@@ -141,11 +161,14 @@ async def impact_zones(
     statuses: list[ProjectStatus] | None = None,
     project_types: list[ProjectType] | None = None,
     bbox: Bbox | None = None,
+    year: int | None = None,
 ) -> ImpactZoneCollection:
     """Serverberäknade påverkanszoner: projektgeometrin buffrad med
     impact_radius_m i meter (via geography), för alla geometrityper —
     även linjer och ytor."""
-    conditions = _filter_conditions(statuses=statuses, project_types=project_types, bbox=bbox)
+    conditions = _filter_conditions(
+        statuses=statuses, project_types=project_types, bbox=bbox, year=year
+    )
     conditions.append(InfrastructureProject.geometry.is_not(None))
 
     # OBS: Geography(srid=4326) — utan srid renderas geography(GEOMETRY,-1)
@@ -163,6 +186,8 @@ async def impact_zones(
             InfrastructureProject.name,
             InfrastructureProject.project_type,
             InfrastructureProject.status,
+            InfrastructureProject.start_date,
+            InfrastructureProject.end_date,
             InfrastructureProject.impact_radius_m,
             zone_geojson,
         )
@@ -170,10 +195,7 @@ async def impact_zones(
         .order_by(InfrastructureProject.id)
     )
 
-    features = [
-        impact_zone_feature(project_id, name, project_type, status, radius, geojson)
-        for project_id, name, project_type, status, radius, geojson in rows.all()
-    ]
+    features = [impact_zone_feature(*row) for row in rows.all()]
     return ImpactZoneCollection(features=features)
 
 

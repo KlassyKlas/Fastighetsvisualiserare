@@ -61,6 +61,8 @@ class ImpactZoneProps(BaseModel):
     name: str
     project_type: ProjectType | None = None
     status: ProjectStatus | None = None
+    start_date: date | None = None
+    end_date: date | None = None
     impact_radius_m: float
 
 

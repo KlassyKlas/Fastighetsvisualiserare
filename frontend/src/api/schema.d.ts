@@ -26,6 +26,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/analysis/proximity-scores": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Proximity Scores
+         * @description Närhetspoäng: fastigheter rankade efter närhet till infrastruktur.
+         *
+         *     Poängen är summan av viktade bidrag (typ, status, avstånd, budget,
+         *     tid till färdigställande) från projekt inom sökradien — varje bidrag
+         *     redovisas för sig så att rankningen alltid går att förklara.
+         */
+        get: operations["proximity_scores_api_v1_analysis_proximity_scores_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/health": {
         parameters: {
             query?: never;
@@ -366,6 +390,8 @@ export interface components {
          * @description Egenskaper för en serverberäknad påverkanszon (buffrad projektgeometri).
          */
         ImpactZoneProps: {
+            /** End Date */
+            end_date?: string | null;
             /** Impact Radius M */
             impact_radius_m: number;
             /** Name */
@@ -373,6 +399,8 @@ export interface components {
             /** Project Id */
             project_id: number;
             project_type?: components["schemas"]["ProjectType"] | null;
+            /** Start Date */
+            start_date?: string | null;
             status?: components["schemas"]["ProjectStatus"] | null;
         };
         /** InfrastructureProjectCollection */
@@ -642,6 +670,114 @@ export interface components {
          * @enum {string}
          */
         PropertyType: "bostad" | "kontor" | "handel" | "industri" | "utbildning" | "villa";
+        /** ProximityScoreFeature */
+        ProximityScoreFeature: {
+            /** Geometry */
+            geometry?: {
+                [key: string]: unknown;
+            } | null;
+            properties: components["schemas"]["ProximityScoreProps"];
+            /**
+             * Type
+             * @default Feature
+             * @constant
+             */
+            type: "Feature";
+        };
+        /** ProximityScoreProps */
+        ProximityScoreProps: {
+            /** Address */
+            address?: string | null;
+            /** Area Sqm */
+            area_sqm?: number | null;
+            /** Assessed Value Sek */
+            assessed_value_sek?: number | null;
+            /** Building Year */
+            building_year?: number | null;
+            /** City */
+            city?: string | null;
+            /**
+             * Contributions
+             * @description Bidragen bakom poängen, största först
+             */
+            contributions?: components["schemas"]["ScoreContribution"][];
+            /** County */
+            county?: string | null;
+            /** Created At */
+            created_at?: string | null;
+            /** Designation */
+            designation: string;
+            /** Id */
+            id: number;
+            /** Living Area Sqm */
+            living_area_sqm?: number | null;
+            /** Metadata Json */
+            metadata_json?: {
+                [key: string]: unknown;
+            };
+            /** Municipality */
+            municipality?: string | null;
+            /** Owner Name */
+            owner_name?: string | null;
+            /** Owner Org Number */
+            owner_org_number?: string | null;
+            /** Postal Code */
+            postal_code?: string | null;
+            property_type?: components["schemas"]["PropertyType"] | null;
+            /**
+             * Rank
+             * @description 1 = högst poäng i svaret
+             */
+            rank: number;
+            /**
+             * Score
+             * @description Summan av alla projektbidrag — högre är bättre läge
+             */
+            score: number;
+            /** Updated At */
+            updated_at?: string | null;
+            /** Zoning */
+            zoning?: string | null;
+        };
+        /** ProximityScoresCollection */
+        ProximityScoresCollection: {
+            /**
+             * Features
+             * @description Sorterade efter poäng, högst först
+             */
+            features?: components["schemas"]["ProximityScoreFeature"][];
+            /**
+             * Max Distance M
+             * @description Sökradien som poängen beräknats med
+             */
+            max_distance_m: number;
+            /** Numbermatched */
+            numberMatched: number;
+            /** Numberreturned */
+            numberReturned: number;
+            /**
+             * Type
+             * @default FeatureCollection
+             * @constant
+             */
+            type: "FeatureCollection";
+        };
+        /**
+         * ScoreContribution
+         * @description Ett enskilt projekts bidrag till en fastighets närhetspoäng.
+         */
+        ScoreContribution: {
+            /** Distance M */
+            distance_m: number;
+            /** Name */
+            name: string;
+            /** Points */
+            points: number;
+            /** Project Id */
+            project_id: number;
+            project_type?: components["schemas"]["ProjectType"] | null;
+            status?: components["schemas"]["ProjectStatus"] | null;
+        };
         /**
          * SyncResult
          * @description Resultatet av en synkronisering mot en extern datakälla.
@@ -728,6 +864,43 @@ export interface operations {
             };
         };
     };
+    proximity_scores_api_v1_analysis_proximity_scores_get: {
+        parameters: {
+            query?: {
+                /** @description Räkna bara projekt med dessa statusar */
+                status?: components["schemas"]["ProjectStatus"][] | null;
+                /** @description Räkna bara projekt av dessa typer */
+                project_type?: components["schemas"]["ProjectType"][] | null;
+                /** @description Sökradie i meter */
+                max_distance_m?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProximityScoresCollection"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     health_check_api_v1_health_get: {
         parameters: {
             query?: never;
@@ -753,6 +926,8 @@ export interface operations {
             query?: {
                 status?: components["schemas"]["ProjectStatus"][] | null;
                 project_type?: components["schemas"]["ProjectType"][] | null;
+                /** @description Visa bara projekt som är aktiva under detta år */
+                year?: number | null;
                 /** @description Avgränsningsruta i WGS84: väst,syd,öst,norr */
                 bbox?: string | null;
             };
@@ -789,6 +964,8 @@ export interface operations {
                 status?: components["schemas"]["ProjectStatus"][] | null;
                 /** @description Filtrera på projekttyp (kan upprepas) */
                 project_type?: components["schemas"]["ProjectType"][] | null;
+                /** @description Visa bara projekt som är aktiva under detta år */
+                year?: number | null;
                 limit?: number;
                 offset?: number;
                 /** @description Avgränsningsruta i WGS84: väst,syd,öst,norr */

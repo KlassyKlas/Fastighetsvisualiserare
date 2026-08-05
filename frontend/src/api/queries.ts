@@ -11,7 +11,12 @@
  */
 import { queryOptions } from '@tanstack/react-query';
 import { client } from '@/api/client';
-import { sampleImpactZones, sampleProjects, sampleProperties } from '@/data/sampleData';
+import {
+  sampleImpactZones,
+  sampleProjects,
+  sampleProperties,
+  sampleProximityScores,
+} from '@/data/sampleData';
 import { applyImpactZoneFilters, applyProjectFilters, applyPropertyFilters } from '@/lib/filters';
 import { useUiStore } from '@/store/uiStore';
 import type {
@@ -20,6 +25,7 @@ import type {
   NearbyProjectsResponse,
   ProjectCollection,
   PropertyCollection,
+  ProximityScoresCollection,
   SyncResult,
 } from '@/domain';
 
@@ -75,6 +81,7 @@ export function projectsQuery(filters: FilterState) {
             query: {
               status: nonEmpty(filters.statuses),
               project_type: nonEmpty(filters.projectTypes),
+              year: filters.year ?? undefined,
               limit: LIST_LIMIT,
             },
           },
@@ -138,6 +145,7 @@ export function impactZonesQuery(filters: FilterState) {
             query: {
               status: nonEmpty(filters.statuses),
               project_type: nonEmpty(filters.projectTypes),
+              year: filters.year ?? undefined,
             },
           },
           signal,
@@ -148,6 +156,38 @@ export function impactZonesQuery(filters: FilterState) {
         if (isBackendUnreachable(error) && !signal.aborted) {
           markDemoMode(true);
           return applyImpactZoneFilters(sampleImpactZones, filters);
+        }
+        throw error;
+      }
+    },
+    staleTime: 60_000,
+    refetchInterval: retryWhileDemo,
+  });
+}
+
+export function proximityScoresQuery(filters: FilterState) {
+  return queryOptions({
+    queryKey: ['proximity-scores', filters],
+    queryFn: async ({ signal }): Promise<ProximityScoresCollection> => {
+      try {
+        const { data, error, response } = await client.GET('/api/v1/analysis/proximity-scores', {
+          params: {
+            query: {
+              status: nonEmpty(filters.statuses),
+              project_type: nonEmpty(filters.projectTypes),
+            },
+          },
+          signal,
+        });
+        ensureOk(error, response);
+        markDemoMode(false);
+        return data as unknown as ProximityScoresCollection;
+      } catch (error) {
+        if (isBackendUnreachable(error) && !signal.aborted) {
+          markDemoMode(true);
+          // Demo-poängen är förberäknade för hela projektmängden —
+          // filter påverkar dem inte (illustrativt läge).
+          return sampleProximityScores;
         }
         throw error;
       }

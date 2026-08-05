@@ -48,3 +48,38 @@ class AffectedPropertiesCollection(BaseModel):
     features: list[AffectedPropertyFeature] = Field(default_factory=list)
     numberMatched: int
     numberReturned: int
+
+
+class ScoreContribution(BaseModel):
+    """Ett enskilt projekts bidrag till en fastighets närhetspoäng."""
+
+    project_id: int
+    name: str
+    project_type: ProjectType | None = None
+    status: ProjectStatus | None = None
+    distance_m: float
+    points: float
+
+
+class ProximityScoreProps(PropertyProps):
+    score: float = Field(description="Summan av alla projektbidrag — högre är bättre läge")
+    rank: int = Field(description="1 = högst poäng i svaret")
+    contributions: list[ScoreContribution] = Field(
+        default_factory=list, description="Bidragen bakom poängen, största först"
+    )
+
+
+class ProximityScoreFeature(BaseModel):
+    type: Literal["Feature"] = "Feature"
+    geometry: dict | None = None
+    properties: ProximityScoreProps
+
+
+class ProximityScoresCollection(BaseModel):
+    type: Literal["FeatureCollection"] = "FeatureCollection"
+    features: list[ProximityScoreFeature] = Field(
+        default_factory=list, description="Sorterade efter poäng, högst först"
+    )
+    numberMatched: int
+    numberReturned: int
+    max_distance_m: float = Field(description="Sökradien som poängen beräknats med")

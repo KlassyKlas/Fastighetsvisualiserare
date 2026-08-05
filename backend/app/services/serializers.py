@@ -4,6 +4,8 @@ Geometrier serialiseras av PostGIS (ST_AsGeoJSON) direkt i frågan —
 ingen shapely-rundresa per rad.
 """
 
+from datetime import date
+
 from app.models import InfrastructureProject, Property
 from app.schemas import (
     ImpactZoneFeature,
@@ -37,6 +39,8 @@ def impact_zone_feature(
     name: str,
     project_type: str | None,
     status: str | None,
+    start_date: date | None,
+    end_date: date | None,
     impact_radius_m: float,
     geojson: str | None,
 ) -> ImpactZoneFeature:
@@ -47,6 +51,8 @@ def impact_zone_feature(
             name=name,
             project_type=project_type,
             status=status,
+            start_date=start_date,
+            end_date=end_date,
             impact_radius_m=impact_radius_m,
         ),
     )

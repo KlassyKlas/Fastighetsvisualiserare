@@ -8,7 +8,12 @@
  */
 import { describe, expect, it } from 'vitest';
 import openapi from '../../../backend/openapi.json';
-import { sampleImpactZones, sampleProjects, sampleProperties } from '@/data/sampleData';
+import {
+  sampleImpactZones,
+  sampleProjects,
+  sampleProperties,
+  sampleProximityScores,
+} from '@/data/sampleData';
 
 const USED_PATHS = [
   '/api/v1/health',
@@ -17,6 +22,7 @@ const USED_PATHS = [
   '/api/v1/infrastructure/sync/{source_name}',
   '/api/v1/properties',
   '/api/v1/properties/{property_id}/nearby-projects',
+  '/api/v1/analysis/proximity-scores',
 ] as const;
 
 describe('API-kontraktet', () => {
@@ -59,5 +65,16 @@ describe('demodatat (genererat från backendens seed-fixturer)', () => {
       expect(feature.geometry?.type).toBe('MultiPolygon');
       expect(typeof feature.properties.id).toBe('number');
     }
+  });
+
+  it('demo-poängen är rankade och summerar sina bidrag', () => {
+    const features = sampleProximityScores.features;
+    expect(features.length).toBeGreaterThan(0);
+    features.forEach((feature, index) => {
+      expect(feature.properties.rank).toBe(index + 1);
+      const contributions = feature.properties.contributions ?? [];
+      const sum = contributions.reduce((acc, c) => acc + c.points, 0);
+      expect(feature.properties.score).toBeCloseTo(sum, 1);
+    });
   });
 });

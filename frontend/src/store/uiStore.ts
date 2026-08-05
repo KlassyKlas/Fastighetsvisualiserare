@@ -9,7 +9,7 @@ import type {
 } from '@/domain';
 import { EMPTY_FILTERS } from '@/domain';
 
-export type SidebarTab = 'search' | 'layers' | 'details';
+export type SidebarTab = 'search' | 'layers' | 'analysis' | 'details';
 export type MapStyleId = 'dark' | 'satellite';
 
 interface UiState {
@@ -23,6 +23,8 @@ interface UiState {
   searchQuery: string;
   /** true när backend inte nås och appen visar exempeldata */
   demoMode: boolean;
+  /** Färga fastigheterna på kartan efter närhetspoäng */
+  scoreColoring: boolean;
 
   toggleLayer: (layer: keyof LayerVisibility) => void;
   setSelectedProject: (feature: ProjectFeature | null) => void;
@@ -35,6 +37,7 @@ interface UiState {
   setMapStyle: (style: MapStyleId) => void;
   setSearchQuery: (query: string) => void;
   setDemoMode: (demo: boolean) => void;
+  setScoreColoring: (enabled: boolean) => void;
   clearSelection: () => void;
 }
 
@@ -55,6 +58,7 @@ export const useUiStore = create<UiState>((set) => ({
   mapStyle: 'dark',
   searchQuery: '',
   demoMode: false,
+  scoreColoring: false,
 
   toggleLayer: (layer) =>
     set((state) => ({
@@ -101,6 +105,7 @@ export const useUiStore = create<UiState>((set) => ({
   setMapStyle: (style) => set({ mapStyle: style }),
   setSearchQuery: (query) => set({ searchQuery: query }),
   setDemoMode: (demo) => set({ demoMode: demo }),
+  setScoreColoring: (enabled) => set({ scoreColoring: enabled }),
 
   clearSelection: () =>
     set({

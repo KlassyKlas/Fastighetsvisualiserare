@@ -5,6 +5,10 @@ from app.schemas.analysis import (
     AffectingProject,
     NearbyProject,
     NearbyProjectsResponse,
+    ProximityScoreFeature,
+    ProximityScoreProps,
+    ProximityScoresCollection,
+    ScoreContribution,
 )
 from app.schemas.common import GeoJSONGeometry, HealthStatus, SyncResult
 from app.schemas.infrastructure import (
@@ -43,5 +47,9 @@ __all__ = [
     "PropertyCreate",
     "PropertyFeature",
     "PropertyProps",
+    "ProximityScoreFeature",
+    "ProximityScoreProps",
+    "ProximityScoresCollection",
+    "ScoreContribution",
     "SyncResult",
 ]
