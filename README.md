@@ -61,8 +61,13 @@ docker compose --profile full up --build
   Klienten renderar bara.
 - **Datakällor är pluggbara.** En källa implementerar `DataSource`,
   returnerar typade ingest-modeller och registreras med `@register` —
-  då finns den automatiskt på `POST /api/v1/infrastructure/sync/{namn}`.
-  Trafikverket (Situation 1.6) är implementerad; Lantmäteriet är stubbad.
+  då finns den automatiskt på `POST /api/v1/infrastructure/sync/{namn}`
+  och i lagerpanelens synkknappar. Implementerade: `trafikverket`
+  (Situation 1.6, kräver API-nyckel) och `nationell_plan`
+  (investeringsprojekt: korridorer från riksintressetjänsten +
+  kostnad/fas ur Bilaga 1, ingen nyckel); Lantmäteriet är stubbad.
+  Bilaga 1-tabellen regenereras med `scripts/import_bilaga1.py` vid
+  ny planrevidering.
 - **Demo-läget kan inte ljuga.** Exempeldatat genereras från backendens
   seed-fixturer och har API:ts exakta form; när det används visas det
   tydligt i gränssnittet.
@@ -91,7 +96,9 @@ annars säger CI ifrån.
 
 ## Färdplan (idéer i prioritetsordning)
 
-1. Riktiga investeringsprojekt från Trafikverket (nationell plan) som egen datakälla
+1. ~~Riktiga investeringsprojekt från Trafikverket (nationell plan)~~ — byggt: datakällan
+   `nationell_plan` hämtar korridorer från riksintressetjänsten och berikar med kostnad/fas
+   ur Bilaga 1 (synka via lagerpanelen)
 2. ~~Närhetspoäng~~ — byggd: Analys-fliken rankar fastigheter med transparent poängmodell
 3. ~~Tidsreglage~~ — byggt: dra i årsreglaget under filterraden
 4. Isokroner (restid) via Mapbox Isochrone API
@@ -100,3 +107,5 @@ annars säger CI ifrån.
 7. "Nytt sedan senast": panel över projekt som tillkommit/ändrats sedan förra synken (created_at/updated_at finns redan)
 8. Delbara länkar: filter, år, poängläge och vald fastighet i URL:en
 9. Ägarvy: gruppera fastigheter per ägare ("visa allt Vasakronan äger")
+10. Förberäknade påverkanszoner: zon-kolumn som sätts vid synk i stället för
+    ST_Buffer per anrop — korridorgeometrierna gör zonfrågan tung (~1,4 s)
