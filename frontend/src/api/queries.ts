@@ -20,6 +20,13 @@ import {
   sampleProperties,
   sampleProximityScores,
 } from '@/data/sampleData';
+import {
+  createDemoWatch,
+  deleteDemoWatch,
+  demoWatchEvents,
+  listDemoWatches,
+  markDemoWatchSeen,
+} from '@/lib/demoWatches';
 import { applyImpactZoneFilters, applyProjectFilters, applyPropertyFilters } from '@/lib/filters';
 import { useUiStore } from '@/store/uiStore';
 import type {
@@ -33,7 +40,12 @@ import type {
   PropertyCollection,
   ProximityScoresCollection,
   SyncResult,
+  WatchedAreaCollection,
+  WatchedAreaCreate,
+  WatchedAreaFeature,
+  WatchEventsResponse,
 } from '@/domain';
+import type { Polygon, Position } from 'geojson';
 
 /** Servern tillåter max 2000 — begär taket så att inget trunkeras i onödan. */
 const LIST_LIMIT = 2000;
@@ -358,6 +370,119 @@ export function sourcesQuery() {
     staleTime: 5 * 60_000,
     refetchInterval: retryWhileDemo,
   });
+}
+
+/**
+ * Bevakade områden. I demo-läge lagras bevakningarna i localStorage och
+ * händelserna beräknas klientsidigt (lib/demoWatches) — med samma
+ * semantik som backendens PostGIS-fråga.
+ */
+export function watchesQuery() {
+  return queryOptions({
+    queryKey: ['watches'],
+    queryFn: async ({ signal }): Promise<WatchedAreaCollection> => {
+      try {
+        const { data, error, response } = await client.GET('/api/v1/watches', { signal });
+        ensureOk(error, response);
+        markDemoMode(false);
+        return data as unknown as WatchedAreaCollection;
+      } catch (error) {
+        if (isBackendUnreachable(error) && !signal.aborted) {
+          markDemoMode(true);
+          return listDemoWatches();
+        }
+        throw error;
+      }
+    },
+    staleTime: 60_000,
+    refetchInterval: retryWhileDemo,
+  });
+}
+
+export function watchEventsQuery() {
+  return queryOptions({
+    queryKey: ['watch-events'],
+    queryFn: async ({ signal }): Promise<WatchEventsResponse> => {
+      try {
+        const { data, error, response } = await client.GET('/api/v1/watches/events', { signal });
+        ensureOk(error, response);
+        markDemoMode(false);
+        return data as unknown as WatchEventsResponse;
+      } catch (error) {
+        if (isBackendUnreachable(error) && !signal.aborted) {
+          markDemoMode(true);
+          return demoWatchEvents();
+        }
+        throw error;
+      }
+    },
+    staleTime: 30_000,
+    // Notiser ska dyka upp utan omladdning — fråga om varje minut.
+    // Intervallet täcker även demo-lägets backendomförsök.
+    refetchInterval: 60_000,
+  });
+}
+
+/** Yttre ringen ur en Polygon-geometri — demobevakningarna lagrar ringar. */
+function outerRing(geometry: WatchedAreaCreate['geometry']): Position[] {
+  return ((geometry as unknown as Polygon).coordinates?.[0] ?? []) as Position[];
+}
+
+export async function createWatch(data: WatchedAreaCreate): Promise<WatchedAreaFeature> {
+  if (useUiStore.getState().demoMode) {
+    return createDemoWatch(data.name, outerRing(data.geometry));
+  }
+  try {
+    const { data: created, error, response } = await client.POST('/api/v1/watches', { body: data });
+    ensureOk(error, response);
+    return created as unknown as WatchedAreaFeature;
+  } catch (error) {
+    if (isBackendUnreachable(error)) {
+      markDemoMode(true);
+      return createDemoWatch(data.name, outerRing(data.geometry));
+    }
+    throw error;
+  }
+}
+
+export async function deleteWatch(watchId: number): Promise<void> {
+  if (useUiStore.getState().demoMode) {
+    deleteDemoWatch(watchId);
+    return;
+  }
+  try {
+    const { error, response } = await client.DELETE('/api/v1/watches/{watch_id}', {
+      params: { path: { watch_id: watchId } },
+    });
+    ensureOk(error, response);
+  } catch (error) {
+    if (isBackendUnreachable(error)) {
+      markDemoMode(true);
+      deleteDemoWatch(watchId);
+      return;
+    }
+    throw error;
+  }
+}
+
+export async function markWatchSeen(watchId: number): Promise<void> {
+  if (useUiStore.getState().demoMode) {
+    markDemoWatchSeen(watchId);
+    return;
+  }
+  try {
+    const { error, response } = await client.POST('/api/v1/watches/{watch_id}/mark-seen', {
+      params: { path: { watch_id: watchId } },
+    });
+    ensureOk(error, response);
+  } catch (error) {
+    if (isBackendUnreachable(error)) {
+      markDemoMode(true);
+      markDemoWatchSeen(watchId);
+      return;
+    }
+    throw error;
+  }
 }
 
 export async function syncSource(sourceName: string): Promise<SyncResult> {

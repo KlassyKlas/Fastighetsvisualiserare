@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import clsx from 'clsx';
 import {
+  Bell,
   Box,
   Building2,
   CircleDot,
@@ -29,6 +30,7 @@ const layerItems: {
   { key: 'impactZones', label: 'Påverkansområden', icon: CircleDot },
   { key: 'detailPlans', label: 'Detaljplaner', icon: FileText },
   { key: 'demographics', label: 'Demografi (DeSO)', icon: Users },
+  { key: 'watches', label: 'Bevakade områden', icon: Bell },
   { key: 'buildings3d', label: '3D-byggnader', icon: Box },
   { key: 'terrain', label: 'Terräng', icon: Mountain },
 ];

@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import {
   Calendar,
+  FileText,
   Grid3X3,
   Home,
   Landmark,
@@ -162,6 +163,7 @@ export default function PropertyDetails() {
   const clearSelection = useUiStore((s) => s.clearSelection);
   const setIsochroneOrigin = useUiStore((s) => s.setIsochroneOrigin);
   const setSidebarTab = useUiStore((s) => s.setSidebarTab);
+  const setReportProperty = useUiStore((s) => s.setReportProperty);
 
   if (!selectedProperty) return null;
 
@@ -332,13 +334,21 @@ export default function PropertyDetails() {
         </div>
       </div>
 
+      <button
+        onClick={() => setReportProperty(selectedProperty)}
+        className="w-full mt-6 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-colors"
+      >
+        <FileText className="w-4 h-4" />
+        Objektsrapport
+      </button>
+
       {isochroneAnchor && (
         <button
           onClick={() => {
             setIsochroneOrigin({ ...isochroneAnchor, label: props.designation });
             setSidebarTab('analysis');
           }}
-          className="w-full mt-6 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-colors"
+          className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-colors"
         >
           <Timer className="w-4 h-4" />
           Restider härifrån

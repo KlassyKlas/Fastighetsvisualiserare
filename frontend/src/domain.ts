@@ -20,6 +20,11 @@ export type ProximityScoreProps = components['schemas']['ProximityScoreProps'];
 export type ScoreContribution = components['schemas']['ScoreContribution'];
 export type DetailPlanProps = components['schemas']['DetailPlanProps'];
 export type DesoAreaProps = components['schemas']['DesoAreaProps'];
+export type WatchedAreaProps = components['schemas']['WatchedAreaProps'];
+export type WatchedAreaCreate = components['schemas']['WatchedAreaCreate'];
+export type WatchEventKind = components['schemas']['WatchEventKind'];
+export type WatchEvents = components['schemas']['WatchEvents'];
+export type WatchEventsResponse = components['schemas']['WatchEventsResponse'];
 
 /**
  * API:t serialiserar geometrier som generisk GeoJSON. För kartlagren
@@ -31,6 +36,7 @@ export type ImpactZoneFeature = Feature<Geometry, ImpactZoneProps>;
 export type ProximityScoreFeature = Feature<Geometry, ProximityScoreProps>;
 export type DetailPlanFeature = Feature<Geometry, DetailPlanProps>;
 export type DesoAreaFeature = Feature<Geometry, DesoAreaProps>;
+export type WatchedAreaFeature = Feature<Geometry, WatchedAreaProps>;
 
 export interface PaginatedCollection {
   numberMatched?: number;
@@ -45,6 +51,8 @@ export type ProximityScoresCollection = FeatureCollection<Geometry, ProximitySco
 export type DetailPlanCollection = FeatureCollection<Geometry, DetailPlanProps> &
   PaginatedCollection;
 export type DesoAreaCollection = FeatureCollection<Geometry, DesoAreaProps> & PaginatedCollection;
+export type WatchedAreaCollection = FeatureCollection<Geometry, WatchedAreaProps> &
+  PaginatedCollection;
 
 /** Metrik som färgsätter demografilagret (DeSO-choropleth). */
 export type DemographicsMetric = 'population' | 'density' | 'income' | 'education';
@@ -75,6 +83,7 @@ export interface LayerVisibility {
   impactZones: boolean;
   detailPlans: boolean;
   demographics: boolean;
+  watches: boolean;
   buildings3d: boolean;
   terrain: boolean;
 }

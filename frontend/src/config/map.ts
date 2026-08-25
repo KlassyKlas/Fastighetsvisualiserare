@@ -44,6 +44,9 @@ export const ISOCHRONE_PROFILE_LABELS: Record<IsochroneProfile, string> = {
 /** Startpunktsmarkörens färg på kartan. */
 export const ISOCHRONE_ORIGIN_COLOR = '#3b82f6';
 
+/** Bevakade områden på kartan (sparade och under ritning). */
+export const WATCH_COLOR = '#e879f9';
+
 export const STATUS_COLORS: Record<ProjectStatus, string> = {
   planerad: '#f59e0b',
   pågående: '#3b82f6',

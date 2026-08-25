@@ -14,6 +14,24 @@ body {
   color: var(--color-slate-100);
 }
 
+/* Objektsrapporten: vid utskrift döljs allt utom rapporten, som får
+   flöda fritt över sidorna i stället för att rulla i sitt overlay. */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-report,
+  .print-report * {
+    visibility: visible;
+  }
+  .print-report {
+    position: absolute !important;
+    inset: 0;
+    overflow: visible !important;
+    background: white !important;
+  }
+}
+
 /* Egen rullist */
 ::-webkit-scrollbar {
   width: 6px;

@@ -1,5 +1,7 @@
+import { useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
-import { ChevronLeft, ChevronRight, Info, Layers, Search, TrendingUp } from 'lucide-react';
+import { Bell, ChevronLeft, ChevronRight, Info, Layers, Search, TrendingUp } from 'lucide-react';
+import { watchEventsQuery } from '@/api/queries';
 import { useUiStore, type SidebarTab } from '@/store/uiStore';
 import AnalysisPanel from './AnalysisPanel';
 import DetailPlanDetails from './DetailPlanDetails';
@@ -7,11 +9,13 @@ import LayerPanel from './LayerPanel';
 import ProjectDetails from './ProjectDetails';
 import PropertyDetails from './PropertyDetails';
 import SearchPanel from './SearchPanel';
+import WatchPanel from './WatchPanel';
 
 const tabs: { id: SidebarTab; label: string; icon: typeof Search }[] = [
   { id: 'search', label: 'Sök', icon: Search },
   { id: 'layers', label: 'Lager', icon: Layers },
   { id: 'analysis', label: 'Analys', icon: TrendingUp },
+  { id: 'watches', label: 'Bevakning', icon: Bell },
   { id: 'details', label: 'Detaljer', icon: Info },
 ];
 
@@ -24,6 +28,10 @@ export default function Sidebar() {
   const setSidebarOpen = useUiStore((s) => s.setSidebarOpen);
   const setSidebarTab = useUiStore((s) => s.setSidebarTab);
 
+  // Osedda händelser i bevakade områden — badgen syns oavsett aktiv flik.
+  const { data: eventData } = useQuery(watchEventsQuery());
+  const eventCount = eventData?.total_events ?? 0;
+
   const renderContent = () => {
     switch (sidebarTab) {
       case 'search':
@@ -32,6 +40,8 @@ export default function Sidebar() {
         return <LayerPanel />;
       case 'analysis':
         return <AnalysisPanel />;
+      case 'watches':
+        return <WatchPanel />;
       case 'details':
         if (selectedProject) return <ProjectDetails />;
         if (selectedProperty) return <PropertyDetails />;
@@ -70,14 +80,23 @@ export default function Sidebar() {
               setSidebarTab(tab.id);
             }}
             className={clsx(
-              'flex items-center justify-center gap-2 px-3 py-3 transition-colors relative text-sm',
+              // Fem flikar på 320px — ikon över etikett i stället för
+              // bredvid, annars får texterna inte plats.
+              'flex flex-col items-center justify-center gap-0.5 py-2.5 transition-colors relative',
               sidebarTab === tab.id ? 'text-blue-400' : 'text-slate-400 hover:text-slate-200',
               sidebarOpen ? 'flex-1' : 'w-12',
             )}
             title={tab.label}
           >
-            <tab.icon className="w-4 h-4 flex-shrink-0" />
-            {sidebarOpen && <span>{tab.label}</span>}
+            <span className="relative">
+              <tab.icon className="w-4 h-4 flex-shrink-0" />
+              {tab.id === 'watches' && eventCount > 0 && (
+                <span className="absolute -top-1.5 -right-2 inline-flex items-center justify-center min-w-3.5 h-3.5 px-0.5 rounded-full bg-red-500 text-white text-[9px] font-bold leading-none">
+                  {eventCount > 99 ? '99+' : eventCount}
+                </span>
+              )}
+            </span>
+            {sidebarOpen && <span className="text-[11px]">{tab.label}</span>}
             {sidebarTab === tab.id && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500" />
             )}

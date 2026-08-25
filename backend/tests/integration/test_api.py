@@ -238,3 +238,60 @@ async def test_sources_listed(client):
     sources = response.json()
     assert "trafikverket" in sources
     assert sources["nationell_plan"] == "Trafikverket (nationell plan)"
+
+
+async def test_watch_lifecycle(client):
+    # Skapa en bevakning över Stockholms innerstad
+    payload = {
+        "name": "Innerstan",
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [[[17.9, 59.2], [18.3, 59.2], [18.3, 59.4], [17.9, 59.4], [17.9, 59.2]]],
+        },
+    }
+    created = await client.post("/api/v1/watches", json=payload)
+    assert created.status_code == 201
+    watch = created.json()
+    assert watch["geometry"]["type"] == "MultiPolygon"
+    assert watch["properties"]["last_seen_at"] is not None  # börjar "ren"
+    watch_id = watch["properties"]["id"]
+
+    listed = await client.get("/api/v1/watches")
+    assert watch_id in {f["properties"]["id"] for f in listed.json()["features"]}
+
+    # Direkt efter skapandet: projekt i området räknas, men inga händelser
+    events = (await client.get("/api/v1/watches/events")).json()
+    entry = next(w for w in events["watches"] if w["watch_id"] == watch_id)
+    assert entry["project_count"] >= 1  # Nya Slussen m.fl. ligger i rutan
+    assert entry["project_events"] == []
+
+    # Rör ett projekt i området — synkupserten flyttar fram updated_at
+    async with SessionFactory() as session:
+        await upsert_projects(session, INFRASTRUCTURE_PROJECTS)
+        await session.commit()
+
+    events = (await client.get("/api/v1/watches/events")).json()
+    entry = next(w for w in events["watches"] if w["watch_id"] == watch_id)
+    assert len(entry["project_events"]) >= 1
+    assert {e["event_kind"] for e in entry["project_events"]} == {"ändrat"}
+    assert events["total_events"] >= 1
+
+    # Markera som sett — händelserna nollställs
+    seen = await client.post(f"/api/v1/watches/{watch_id}/mark-seen")
+    assert seen.status_code == 200
+    events = (await client.get("/api/v1/watches/events")).json()
+    entry = next(w for w in events["watches"] if w["watch_id"] == watch_id)
+    assert entry["project_events"] == []
+    assert entry["project_count"] >= 1  # innehållet finns kvar, bara sett
+
+    deleted = await client.delete(f"/api/v1/watches/{watch_id}")
+    assert deleted.status_code == 204
+    assert (await client.delete(f"/api/v1/watches/{watch_id}")).status_code == 404
+
+
+async def test_watch_with_point_geometry_gives_422(client):
+    response = await client.post(
+        "/api/v1/watches",
+        json={"name": "Punkt", "geometry": {"type": "Point", "coordinates": [18.0, 59.3]}},
+    )
+    assert response.status_code == 422

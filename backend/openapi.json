@@ -656,6 +656,23 @@
         "title": "DetailPlanProps",
         "type": "object"
       },
+      "DetailPlanWatchEvent": {
+        "description": "En detaljplan som tillkommit/ändrats i ett bevakat område.",
+        "properties": {
+          "event_kind": {
+            "$ref": "#/components/schemas/WatchEventKind"
+          },
+          "plan": {
+            "$ref": "#/components/schemas/DetailPlanFeature"
+          }
+        },
+        "required": [
+          "event_kind",
+          "plan"
+        ],
+        "title": "DetailPlanWatchEvent",
+        "type": "object"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -1201,6 +1218,23 @@
         ],
         "title": "ProjectType",
         "type": "string"
+      },
+      "ProjectWatchEvent": {
+        "description": "Ett infrastrukturprojekt som tillkommit/ändrats i ett bevakat område.",
+        "properties": {
+          "event_kind": {
+            "$ref": "#/components/schemas/WatchEventKind"
+          },
+          "project": {
+            "$ref": "#/components/schemas/InfrastructureProjectFeature"
+          }
+        },
+        "required": [
+          "event_kind",
+          "project"
+        ],
+        "title": "ProjectWatchEvent",
+        "type": "object"
       },
       "PropertyCollection": {
         "properties": {
@@ -2047,6 +2081,232 @@
           "type"
         ],
         "title": "ValidationError",
+        "type": "object"
+      },
+      "WatchEventKind": {
+        "description": "Händelsetyp i ett bevakat område sedan användaren senast tittade.",
+        "enum": [
+          "nytt",
+          "ändrat"
+        ],
+        "title": "WatchEventKind",
+        "type": "string"
+      },
+      "WatchEvents": {
+        "description": "Händelserna för ett bevakat område sedan senaste \"markera som sett\".",
+        "properties": {
+          "last_seen_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Seen At"
+          },
+          "plan_count": {
+            "description": "Totalt antal detaljplaner som skär området",
+            "title": "Plan Count",
+            "type": "integer"
+          },
+          "plan_events": {
+            "items": {
+              "$ref": "#/components/schemas/DetailPlanWatchEvent"
+            },
+            "title": "Plan Events",
+            "type": "array"
+          },
+          "project_count": {
+            "description": "Totalt antal projekt som skär området",
+            "title": "Project Count",
+            "type": "integer"
+          },
+          "project_events": {
+            "items": {
+              "$ref": "#/components/schemas/ProjectWatchEvent"
+            },
+            "title": "Project Events",
+            "type": "array"
+          },
+          "watch_id": {
+            "title": "Watch Id",
+            "type": "integer"
+          },
+          "watch_name": {
+            "title": "Watch Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "watch_id",
+          "watch_name",
+          "project_count",
+          "plan_count"
+        ],
+        "title": "WatchEvents",
+        "type": "object"
+      },
+      "WatchEventsResponse": {
+        "properties": {
+          "total_events": {
+            "description": "Summan av händelser över alla bevakade områden",
+            "title": "Total Events",
+            "type": "integer"
+          },
+          "watches": {
+            "items": {
+              "$ref": "#/components/schemas/WatchEvents"
+            },
+            "title": "Watches",
+            "type": "array"
+          }
+        },
+        "required": [
+          "total_events"
+        ],
+        "title": "WatchEventsResponse",
+        "type": "object"
+      },
+      "WatchedAreaCollection": {
+        "properties": {
+          "features": {
+            "items": {
+              "$ref": "#/components/schemas/WatchedAreaFeature"
+            },
+            "title": "Features",
+            "type": "array"
+          },
+          "numberMatched": {
+            "description": "Totalt antal bevakade områden",
+            "title": "Numbermatched",
+            "type": "integer"
+          },
+          "numberReturned": {
+            "description": "Antal features i detta svar",
+            "title": "Numberreturned",
+            "type": "integer"
+          },
+          "type": {
+            "const": "FeatureCollection",
+            "default": "FeatureCollection",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "numberMatched",
+          "numberReturned"
+        ],
+        "title": "WatchedAreaCollection",
+        "type": "object"
+      },
+      "WatchedAreaCreate": {
+        "properties": {
+          "geometry": {
+            "additionalProperties": true,
+            "description": "GeoJSON-geometri (Polygon eller MultiPolygon) i WGS84",
+            "title": "Geometry",
+            "type": "object"
+          },
+          "name": {
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "geometry"
+        ],
+        "title": "WatchedAreaCreate",
+        "type": "object"
+      },
+      "WatchedAreaFeature": {
+        "properties": {
+          "geometry": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Geometry"
+          },
+          "properties": {
+            "$ref": "#/components/schemas/WatchedAreaProps"
+          },
+          "type": {
+            "const": "Feature",
+            "default": "Feature",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "properties"
+        ],
+        "title": "WatchedAreaFeature",
+        "type": "object"
+      },
+      "WatchedAreaProps": {
+        "properties": {
+          "created_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "last_seen_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "När användaren senast markerade händelserna som sedda",
+            "title": "Last Seen At"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "WatchedAreaProps",
         "type": "object"
       }
     }
@@ -3378,6 +3638,218 @@
         "summary": "Nearby Projects",
         "tags": [
           "properties"
+        ]
+      }
+    },
+    "/api/v1/watches": {
+      "get": {
+        "description": "Alla bevakade områden som GeoJSON FeatureCollection.",
+        "operationId": "list_watches_api_v1_watches_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WatchedAreaCollection"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Watches",
+        "tags": [
+          "watches"
+        ]
+      },
+      "post": {
+        "description": "Skapa ett bevakat område från en ritad polygon.",
+        "operationId": "create_watch_api_v1_watches_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-api-key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WatchedAreaCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WatchedAreaFeature"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Watch",
+        "tags": [
+          "watches"
+        ]
+      }
+    },
+    "/api/v1/watches/events": {
+      "get": {
+        "description": "Händelser i alla bevakade områden sedan de senast markerades som sedda.\n\nNya och ändrade infrastrukturprojekt och detaljplaner som skär\nrespektive område (ST_Intersects i PostGIS), plus totalräkning av\nvad som finns i området just nu.",
+        "operationId": "watch_events_api_v1_watches_events_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WatchEventsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Watch Events",
+        "tags": [
+          "watches"
+        ]
+      }
+    },
+    "/api/v1/watches/{watch_id}": {
+      "delete": {
+        "operationId": "delete_watch_api_v1_watches__watch_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "watch_id",
+            "required": true,
+            "schema": {
+              "title": "Watch Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-api-key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Watch",
+        "tags": [
+          "watches"
+        ]
+      }
+    },
+    "/api/v1/watches/{watch_id}/mark-seen": {
+      "post": {
+        "description": "Markera områdets händelser som sedda (flyttar fram last_seen_at).",
+        "operationId": "mark_watch_seen_api_v1_watches__watch_id__mark_seen_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "watch_id",
+            "required": true,
+            "schema": {
+              "title": "Watch Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-api-key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WatchedAreaFeature"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Mark Watch Seen",
+        "tags": [
+          "watches"
         ]
       }
     }

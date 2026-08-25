@@ -316,6 +316,91 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/watches": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Watches
+         * @description Alla bevakade områden som GeoJSON FeatureCollection.
+         */
+        get: operations["list_watches_api_v1_watches_get"];
+        put?: never;
+        /**
+         * Create Watch
+         * @description Skapa ett bevakat område från en ritad polygon.
+         */
+        post: operations["create_watch_api_v1_watches_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/watches/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Watch Events
+         * @description Händelser i alla bevakade områden sedan de senast markerades som sedda.
+         *
+         *     Nya och ändrade infrastrukturprojekt och detaljplaner som skär
+         *     respektive område (ST_Intersects i PostGIS), plus totalräkning av
+         *     vad som finns i området just nu.
+         */
+        get: operations["watch_events_api_v1_watches_events_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/watches/{watch_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Watch */
+        delete: operations["delete_watch_api_v1_watches__watch_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/watches/{watch_id}/mark-seen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mark Watch Seen
+         * @description Markera områdets händelser som sedda (flyttar fram last_seen_at).
+         */
+        post: operations["mark_watch_seen_api_v1_watches__watch_id__mark_seen_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -546,6 +631,14 @@ export interface components {
             /** Updated At */
             updated_at?: string | null;
         };
+        /**
+         * DetailPlanWatchEvent
+         * @description En detaljplan som tillkommit/ändrats i ett bevakat område.
+         */
+        DetailPlanWatchEvent: {
+            event_kind: components["schemas"]["WatchEventKind"];
+            plan: components["schemas"]["DetailPlanFeature"];
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -757,6 +850,14 @@ export interface components {
          * @enum {string}
          */
         ProjectType: "väg" | "järnväg" | "kollektivtrafik" | "bro" | "tunnel" | "cykelväg" | "övrigt";
+        /**
+         * ProjectWatchEvent
+         * @description Ett infrastrukturprojekt som tillkommit/ändrats i ett bevakat område.
+         */
+        ProjectWatchEvent: {
+            event_kind: components["schemas"]["WatchEventKind"];
+            project: components["schemas"]["InfrastructureProjectFeature"];
+        };
         /** PropertyCollection */
         PropertyCollection: {
             /** Features */
@@ -1027,6 +1128,111 @@ export interface components {
             msg: string;
             /** Error Type */
             type: string;
+        };
+        /**
+         * WatchEventKind
+         * @description Händelsetyp i ett bevakat område sedan användaren senast tittade.
+         * @enum {string}
+         */
+        WatchEventKind: "nytt" | "ändrat";
+        /**
+         * WatchEvents
+         * @description Händelserna för ett bevakat område sedan senaste "markera som sett".
+         */
+        WatchEvents: {
+            /** Last Seen At */
+            last_seen_at?: string | null;
+            /**
+             * Plan Count
+             * @description Totalt antal detaljplaner som skär området
+             */
+            plan_count: number;
+            /** Plan Events */
+            plan_events?: components["schemas"]["DetailPlanWatchEvent"][];
+            /**
+             * Project Count
+             * @description Totalt antal projekt som skär området
+             */
+            project_count: number;
+            /** Project Events */
+            project_events?: components["schemas"]["ProjectWatchEvent"][];
+            /** Watch Id */
+            watch_id: number;
+            /** Watch Name */
+            watch_name: string;
+        };
+        /** WatchEventsResponse */
+        WatchEventsResponse: {
+            /**
+             * Total Events
+             * @description Summan av händelser över alla bevakade områden
+             */
+            total_events: number;
+            /** Watches */
+            watches?: components["schemas"]["WatchEvents"][];
+        };
+        /** WatchedAreaCollection */
+        WatchedAreaCollection: {
+            /** Features */
+            features?: components["schemas"]["WatchedAreaFeature"][];
+            /**
+             * Numbermatched
+             * @description Totalt antal bevakade områden
+             */
+            numberMatched: number;
+            /**
+             * Numberreturned
+             * @description Antal features i detta svar
+             */
+            numberReturned: number;
+            /**
+             * Type
+             * @default FeatureCollection
+             * @constant
+             */
+            type: "FeatureCollection";
+        };
+        /** WatchedAreaCreate */
+        WatchedAreaCreate: {
+            /**
+             * Geometry
+             * @description GeoJSON-geometri (Polygon eller MultiPolygon) i WGS84
+             */
+            geometry: {
+                [key: string]: unknown;
+            };
+            /** Name */
+            name: string;
+        };
+        /** WatchedAreaFeature */
+        WatchedAreaFeature: {
+            /** Geometry */
+            geometry?: {
+                [key: string]: unknown;
+            } | null;
+            properties: components["schemas"]["WatchedAreaProps"];
+            /**
+             * Type
+             * @default Feature
+             * @constant
+             */
+            type: "Feature";
+        };
+        /** WatchedAreaProps */
+        WatchedAreaProps: {
+            /** Created At */
+            created_at?: string | null;
+            /** Id */
+            id: number;
+            /**
+             * Last Seen At
+             * @description När användaren senast markerade händelserna som sedda
+             */
+            last_seen_at?: string | null;
+            /** Name */
+            name: string;
+            /** Updated At */
+            updated_at?: string | null;
         };
     };
     responses: never;
@@ -1601,6 +1807,145 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["NearbyProjectsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_watches_api_v1_watches_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WatchedAreaCollection"];
+                };
+            };
+        };
+    };
+    create_watch_api_v1_watches_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-api-key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WatchedAreaCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WatchedAreaFeature"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    watch_events_api_v1_watches_events_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WatchEventsResponse"];
+                };
+            };
+        };
+    };
+    delete_watch_api_v1_watches__watch_id__delete: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-api-key"?: string | null;
+            };
+            path: {
+                watch_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mark_watch_seen_api_v1_watches__watch_id__mark_seen_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-api-key"?: string | null;
+            };
+            path: {
+                watch_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WatchedAreaFeature"];
                 };
             };
             /** @description Validation Error */

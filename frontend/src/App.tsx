@@ -1,4 +1,5 @@
 import MapContainer from './components/Map/MapContainer';
+import PropertyReport from './components/Report/PropertyReport';
 import Sidebar from './components/Sidebar/Sidebar';
 import DemoBanner from './components/UI/DemoBanner';
 import ErrorBanner from './components/UI/ErrorBanner';
@@ -18,6 +19,7 @@ function App() {
         <DemoBanner />
         <ErrorBanner />
       </div>
+      <PropertyReport />
     </div>
   );
 }

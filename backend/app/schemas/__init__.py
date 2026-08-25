@@ -28,6 +28,16 @@ from app.schemas.property import (
     PropertyFeature,
     PropertyProps,
 )
+from app.schemas.watch import (
+    DetailPlanWatchEvent,
+    ProjectWatchEvent,
+    WatchedAreaCollection,
+    WatchedAreaCreate,
+    WatchedAreaFeature,
+    WatchedAreaProps,
+    WatchEvents,
+    WatchEventsResponse,
+)
 
 __all__ = [
     "AffectedPropertiesCollection",
@@ -40,6 +50,7 @@ __all__ = [
     "DetailPlanCollection",
     "DetailPlanFeature",
     "DetailPlanProps",
+    "DetailPlanWatchEvent",
     "GeoJSONGeometry",
     "HealthStatus",
     "ImpactZoneCollection",
@@ -51,6 +62,7 @@ __all__ = [
     "InfrastructureProjectProps",
     "NearbyProject",
     "NearbyProjectsResponse",
+    "ProjectWatchEvent",
     "PropertyCollection",
     "PropertyCreate",
     "PropertyFeature",
@@ -60,4 +72,10 @@ __all__ = [
     "ProximityScoresCollection",
     "ScoreContribution",
     "SyncResult",
+    "WatchEvents",
+    "WatchEventsResponse",
+    "WatchedAreaCollection",
+    "WatchedAreaCreate",
+    "WatchedAreaFeature",
+    "WatchedAreaProps",
 ]

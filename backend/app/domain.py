@@ -24,6 +24,13 @@ class ProjectType(StrEnum):
     OVRIGT = "övrigt"
 
 
+class WatchEventKind(StrEnum):
+    """Händelsetyp i ett bevakat område sedan användaren senast tittade."""
+
+    NYTT = "nytt"
+    ANDRAT = "ändrat"
+
+
 class PropertyType(StrEnum):
     BOSTAD = "bostad"
     KONTOR = "kontor"

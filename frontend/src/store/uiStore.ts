@@ -14,7 +14,7 @@ import type {
 import { EMPTY_FILTERS } from '@/domain';
 import { toggleMinute } from '@/lib/isochrone';
 
-export type SidebarTab = 'search' | 'layers' | 'analysis' | 'details';
+export type SidebarTab = 'search' | 'layers' | 'analysis' | 'watches' | 'details';
 export type MapStyleId = 'dark' | 'satellite';
 
 interface UiState {
@@ -40,6 +40,12 @@ interface UiState {
   isochroneMinutes: number[];
   /** true medan användaren väljer startpunkt genom att klicka i kartan */
   isochronePicking: boolean;
+  /** true medan användaren ritar ett bevakningsområde i kartan */
+  watchDrawing: boolean;
+  /** Hörnen (lng, lat) i området som ritas — sparas som polygon */
+  watchDraftPoints: [number, number][];
+  /** Fastighet som objektsrapporten visas för (null = ingen rapport) */
+  reportProperty: PropertyFeature | null;
 
   toggleLayer: (layer: keyof LayerVisibility) => void;
   setSelectedProject: (feature: ProjectFeature | null) => void;
@@ -60,6 +66,10 @@ interface UiState {
   toggleIsochroneMinute: (minute: number) => void;
   setIsochronePicking: (picking: boolean) => void;
   clearIsochrone: () => void;
+  setWatchDrawing: (drawing: boolean) => void;
+  addWatchDraftPoint: (point: [number, number]) => void;
+  undoWatchDraftPoint: () => void;
+  setReportProperty: (feature: PropertyFeature | null) => void;
   clearSelection: () => void;
 }
 
@@ -72,6 +82,7 @@ export const useUiStore = create<UiState>((set) => ({
     // de hämtas per kartvy och ska inte belasta förstaladdningen.
     detailPlans: false,
     demographics: false,
+    watches: true,
     buildings3d: true,
     terrain: true,
   },
@@ -91,6 +102,9 @@ export const useUiStore = create<UiState>((set) => ({
   isochroneProfile: 'walking',
   isochroneMinutes: [10, 20, 30],
   isochronePicking: false,
+  watchDrawing: false,
+  watchDraftPoints: [],
+  reportProperty: null,
 
   toggleLayer: (layer) =>
     set((state) => ({
@@ -163,6 +177,24 @@ export const useUiStore = create<UiState>((set) => ({
 
   /** Profil och minutval behålls — bara analysen stängs av. */
   clearIsochrone: () => set({ isochroneOrigin: null, isochronePicking: false }),
+
+  // Ritläget och isokron-väljaren tar båda över kartklicken — bara ett
+  // av dem får vara aktivt åt gången. Att avsluta ritningen rensar
+  // alltid utkastet.
+  setWatchDrawing: (drawing) =>
+    set({
+      watchDrawing: drawing,
+      watchDraftPoints: [],
+      ...(drawing ? { isochronePicking: false } : {}),
+    }),
+
+  addWatchDraftPoint: (point) =>
+    set((state) => ({ watchDraftPoints: [...state.watchDraftPoints, point] })),
+
+  undoWatchDraftPoint: () =>
+    set((state) => ({ watchDraftPoints: state.watchDraftPoints.slice(0, -1) })),
+
+  setReportProperty: (feature) => set({ reportProperty: feature }),
 
   clearSelection: () =>
     set({

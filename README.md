@@ -110,7 +110,11 @@ annars säger CI ifrån.
    utbildning och fastighetspanelen visar områdesstatistik via PostGIS-uppslag. Utan
    Lantmäteriet-nycklar används den publika sökproxyn (sätt LANTMATERIET_CONSUMER_KEY/SECRET
    för riktiga API:t); SCB-källan är helt öppen
-6. Bevakade områden med notiser · exporterbara objektsrapporter
+6. ~~Bevakade områden med notiser · exporterbara objektsrapporter~~ — byggt: rita ett
+   område i Bevakning-fliken och få notisbadge när projekt/detaljplaner tillkommer eller
+   ändras där (ST_Intersects + last_seen_at i PostGIS; localStorage-bevakningar i
+   demo-läge). Objektsrapport skapas från fastighetens detaljpanel och exporteras via
+   Skriv ut → Spara som PDF
 7. "Nytt sedan senast": panel över projekt som tillkommit/ändrats sedan förra synken (created_at/updated_at finns redan)
 8. Delbara länkar: filter, år, poängläge och vald fastighet i URL:en
 9. Ägarvy: gruppera fastigheter per ägare ("visa allt Vasakronan äger")

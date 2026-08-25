@@ -18,6 +18,7 @@ import {
   projectsQuery,
   propertiesQuery,
   proximityScoresQuery,
+  watchesQuery,
 } from '@/api/queries';
 import { INITIAL_VIEW_STATE, MAP_STYLES, MAPBOX_TOKEN } from '@/config/map';
 import type { DetailPlanFeature, ProjectFeature, PropertyFeature } from '@/domain';
@@ -28,6 +29,7 @@ import ImpactZoneLayer from './layers/ImpactZoneLayer';
 import InfrastructureLayer from './layers/InfrastructureLayer';
 import IsochroneLayer from './layers/IsochroneLayer';
 import PropertyLayer from './layers/PropertyLayer';
+import WatchLayer, { WatchDraftLayer } from './layers/WatchLayer';
 
 const buildings3dLayer: LayerProps = {
   id: 'buildings-3d',
@@ -69,6 +71,10 @@ export default function MapContainer() {
   const isochronePicking = useUiStore((s) => s.isochronePicking);
   const setIsochroneOrigin = useUiStore((s) => s.setIsochroneOrigin);
 
+  const watchDrawing = useUiStore((s) => s.watchDrawing);
+  const watchDraftPoints = useUiStore((s) => s.watchDraftPoints);
+  const addWatchDraftPoint = useUiStore((s) => s.addWatchDraftPoint);
+
   const { data: projectData } = useQuery(projectsQuery(filters));
   const { data: propertyData } = useQuery(propertiesQuery(filters));
   const { data: zoneData } = useQuery(impactZonesQuery(filters));
@@ -79,6 +85,7 @@ export default function MapContainer() {
   const { data: isochroneData } = useQuery(
     isochroneQuery(isochroneOrigin, isochroneProfile, isochroneMinutes),
   );
+  const { data: watchData } = useQuery(watchesQuery());
 
   // Detaljplaner och DeSO är nationella datamängder — de hämtas per
   // kartvy (bbox sätts vid load/moveend) och bara när lagret är på.
@@ -157,6 +164,13 @@ export default function MapContainer() {
 
   const handleClick = useCallback(
     (event: MapLayerMouseEvent) => {
+      // I ritläget lägger varje kartklick till ett hörn i bevaknings-
+      // området — inga markeringar får ske samtidigt.
+      if (watchDrawing) {
+        addWatchDraftPoint([event.lngLat.lng, event.lngLat.lat]);
+        return;
+      }
+
       // I väljarläget blir nästa kartklick startpunkt för restidsanalysen —
       // och får inte samtidigt markera fastigheten/projektet under muspekaren.
       if (isochronePicking) {
@@ -187,12 +201,14 @@ export default function MapContainer() {
       }
     },
     [
+      addWatchDraftPoint,
       isochronePicking,
       setIsochroneOrigin,
       setSelectedDetailPlan,
       setSelectedProject,
       setSelectedProperty,
       setSidebarOpen,
+      watchDrawing,
     ],
   );
 
@@ -247,7 +263,7 @@ export default function MapContainer() {
       onMoveEnd={(event) => updateViewportBbox(event.target)}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      cursor={isochronePicking ? 'crosshair' : cursor}
+      cursor={isochronePicking || watchDrawing ? 'crosshair' : cursor}
     >
       <NavigationControl position="top-right" />
       <GeolocateControl position="top-right" />
@@ -274,6 +290,8 @@ export default function MapContainer() {
         <IsochroneLayer origin={isochroneOrigin} data={isochroneData} minutes={isochroneMinutes} />
       )}
       {detailPlanData && <DetailPlanLayer data={detailPlanData} visible={layers.detailPlans} />}
+      {watchData && <WatchLayer data={watchData} visible={layers.watches} />}
+      {watchDrawing && <WatchDraftLayer points={watchDraftPoints} />}
       {enrichedPropertyData && (
         <PropertyLayer
           data={enrichedPropertyData}
