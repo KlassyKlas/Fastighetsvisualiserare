@@ -22,24 +22,18 @@ config.set_main_option("sqlalchemy.url", get_settings().database_url)
 target_metadata = Base.metadata
 
 
-def extension_owned_tables(connection: Connection) -> set[str]:
-    """Tabeller som ägs av en PostgreSQL-extension (PostGIS, Tiger, topology).
-
-    Precis den mängd tabeller som finns i databasen utan att ha modeller —
-    legitimt. En egen tabell vars modell raderats utan drop-migration är
-    inte extension-ägd och flaggas därmed fortfarande av alembic check.
+# Tabeller som ägs av en PostgreSQL-extension (PostGIS, Tiger, topology) —
+# precis den mängd som finns i databasen utan att ha modeller. En egen
+# tabell vars modell raderats utan drop-migration är inte extension-ägd
+# och flaggas därmed fortfarande av alembic check.
+EXTENSION_TABLES_SQL = text(
     """
-    rows = connection.execute(
-        text(
-            """
-            SELECT c.relname
-            FROM pg_class c
-            JOIN pg_depend d ON d.objid = c.oid AND d.deptype = 'e'
-            WHERE c.relkind IN ('r', 'p')
-            """
-        )
-    )
-    return set(rows.scalars())
+    SELECT c.relname
+    FROM pg_class c
+    JOIN pg_depend d ON d.objid = c.oid AND d.deptype = 'e'
+    WHERE c.relkind IN ('r', 'p')
+    """
+)
 
 
 def make_include_object(extension_tables: set[str]) -> Callable[..., bool]:
@@ -86,13 +80,13 @@ def run_migrations_offline() -> None:
         context.run_migrations()
 
 
-def do_run_migrations(connection: Connection) -> None:
+def do_run_migrations(connection: Connection, extension_tables: set[str]) -> None:
     context.configure(
         connection=connection,
         target_metadata=target_metadata,
         # GeoAlchemy2:s hjälpare gör att autogenerate hanterar
         # geometrikolumner och spatiala index korrekt.
-        include_object=make_include_object(extension_owned_tables(connection)),
+        include_object=make_include_object(extension_tables),
         process_revision_directives=alembic_helpers.writer,
         render_item=alembic_helpers.render_item,
     )
@@ -107,8 +101,15 @@ async def run_async_migrations() -> None:
         prefix="sqlalchemy.",
     )
 
+    # Uppslaget görs på en EGEN anslutning: en fråga på migrations-
+    # anslutningen före context.configure öppnar en implicit transaktion
+    # som gör alembics eget commit verkningslöst — hela upgrade head
+    # rullas då tillbaka när anslutningen stängs.
     async with connectable.connect() as connection:
-        await connection.run_sync(do_run_migrations)
+        extension_tables = set((await connection.execute(EXTENSION_TABLES_SQL)).scalars())
+
+    async with connectable.connect() as connection:
+        await connection.run_sync(do_run_migrations, extension_tables)
 
     await connectable.dispose()
 
