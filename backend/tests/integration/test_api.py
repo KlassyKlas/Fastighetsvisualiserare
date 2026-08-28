@@ -12,6 +12,7 @@ import os
 
 import pytest
 from httpx import ASGITransport, AsyncClient
+from sqlalchemy import text
 
 from app.db import SessionFactory
 from app.seed_data import INFRASTRUCTURE_PROJECTS, PROPERTIES
@@ -304,6 +305,32 @@ async def test_watch_lifecycle(client):
     deleted = await client.delete(f"/api/v1/watches/{watch_id}")
     assert deleted.status_code == 204
     assert (await client.delete(f"/api/v1/watches/{watch_id}")).status_code == 404
+
+
+async def test_functional_geography_indexes_exist():
+    """De funktionella geography-indexen kan inte jämföras av alembic check
+    (PostgreSQL normaliserar uttrycket; filtreras därför i alembic/env.py)
+    — verifiera i stället här att de finns, är GiST och castar till
+    geography. Utan dem kör analysfrågorna oindexerat."""
+    async with SessionFactory() as session:
+        rows = await session.execute(
+            text(
+                """
+                SELECT indexname, indexdef
+                FROM pg_indexes
+                WHERE indexname LIKE 'idx\\_%\\_geometry\\_geog'
+                """
+            )
+        )
+        index_defs = {name: definition.lower() for name, definition in rows.all()}
+
+    for index_name in (
+        "idx_properties_geometry_geog",
+        "idx_infrastructure_projects_geometry_geog",
+    ):
+        assert index_name in index_defs, f"{index_name} saknas i databasen"
+        assert "using gist" in index_defs[index_name]
+        assert "::geography(geometry,4326)" in index_defs[index_name]
 
 
 async def test_watch_with_point_geometry_gives_422(client):

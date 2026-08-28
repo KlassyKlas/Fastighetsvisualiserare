@@ -64,22 +64,22 @@ export function segmentsIntersect(p1: Position, p2: Position, p3: Position, p4: 
     if (value === 0) return 0;
     return value > 0 ? 1 : 2;
   };
-  const onSegment = (a: Position, b: Position, c: Position): boolean =>
-    b[0] <= Math.max(a[0], c[0]) &&
-    b[0] >= Math.min(a[0], c[0]) &&
-    b[1] <= Math.max(a[1], c[1]) &&
-    b[1] >= Math.min(a[1], c[1]);
 
-  const o1 = orientation(p1, p2, p3);
-  const o2 = orientation(p1, p2, p4);
-  const o3 = orientation(p3, p4, p1);
-  const o4 = orientation(p3, p4, p2);
+  if (
+    orientation(p1, p2, p3) !== orientation(p1, p2, p4) &&
+    orientation(p3, p4, p1) !== orientation(p3, p4, p2)
+  ) {
+    return true;
+  }
 
-  if (o1 !== o2 && o3 !== o4) return true;
-  if (o1 === 0 && onSegment(p1, p3, p2)) return true;
-  if (o2 === 0 && onSegment(p1, p4, p2)) return true;
-  if (o3 === 0 && onSegment(p3, p1, p4)) return true;
-  return o4 === 0 && onSegment(p3, p2, p4);
+  // Kolinjära specialfall: en ändpunkt ligger på den andra sträckan.
+  // pointOnSegment gör sin egen kolinjäritetskoll, så inga o==0-vakter behövs.
+  return (
+    pointOnSegment(p3, p1, p2) ||
+    pointOnSegment(p4, p1, p2) ||
+    pointOnSegment(p1, p3, p4) ||
+    pointOnSegment(p2, p3, p4)
+  );
 }
 
 function lineCrossesPolygonEdge(line: Ring, polygon: PolygonCoords): boolean {
