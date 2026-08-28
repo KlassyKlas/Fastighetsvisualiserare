@@ -13,22 +13,25 @@ from app.services.planning import upsert_detail_plans
 from app.services.properties import upsert_properties
 
 
+def _report(label: str, counts: tuple[int, int, int]) -> None:
+    upserted, unchanged, skipped = counts
+    print(f"{label}: {upserted} inskrivna, {unchanged} oförändrade, {skipped} överhoppade")
+
+
 async def main() -> None:
     async with SessionFactory() as session:
-        projects_upserted, projects_skipped = await upsert_projects(
-            session, INFRASTRUCTURE_PROJECTS
-        )
-        properties_upserted, properties_skipped = await upsert_properties(session, PROPERTIES)
-        plans_upserted, plans_skipped = await upsert_detail_plans(session, DETAIL_PLANS)
-        deso_upserted, deso_skipped = await upsert_deso_areas(session, DESO_AREAS)
+        project_counts = await upsert_projects(session, INFRASTRUCTURE_PROJECTS)
+        property_counts = await upsert_properties(session, PROPERTIES)
+        plan_counts = await upsert_detail_plans(session, DETAIL_PLANS)
+        deso_counts = await upsert_deso_areas(session, DESO_AREAS)
         await session.commit()
 
     await engine.dispose()
 
-    print(f"Infrastrukturprojekt: {projects_upserted} inskrivna, {projects_skipped} överhoppade")
-    print(f"Fastigheter: {properties_upserted} inskrivna, {properties_skipped} överhoppade")
-    print(f"Detaljplaner: {plans_upserted} inskrivna, {plans_skipped} överhoppade")
-    print(f"DeSO-områden: {deso_upserted} inskrivna, {deso_skipped} överhoppade")
+    _report("Infrastrukturprojekt", project_counts)
+    _report("Fastigheter", property_counts)
+    _report("Detaljplaner", plan_counts)
+    _report("DeSO-områden", deso_counts)
 
 
 if __name__ == "__main__":

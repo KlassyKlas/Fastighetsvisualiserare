@@ -56,7 +56,7 @@ export default function LayerPanel() {
       const truncatedNote = result.truncated ? ' — ofullständig hämtning, kör igen' : '';
       const label = sources?.[sourceName] ?? sourceName;
       setSyncMessage(
-        `${label}: ${result.upserted} objekt synkroniserade (${result.fetched} hämtade, ${result.skipped} överhoppade)${truncatedNote}`,
+        `${label}: ${result.upserted} objekt synkroniserade (${result.fetched} hämtade, ${result.unchanged ?? 0} oförändrade, ${result.skipped} överhoppade)${truncatedNote}`,
       );
       // Synkade projekt påverkar även närhetspoäng och närliggande
       // projekt — inte bara kartlagren.

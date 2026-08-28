@@ -23,6 +23,10 @@ Frontend (från `frontend/`):
 2. **Schemat ägs av Alembic.** Aldrig `create_all` i appkod. Modelländring →
    `uv run alembic revision --autogenerate -m "..."` (kräver databas; env.py
    har GeoAlchemy2:s alembic_helpers så spatiala index hanteras rätt).
+   **Undantag:** på miljöer utan PostGIS-databas handskrivs migrationen
+   (följ mönstret i 0002/0003) — CI kör `alembic upgrade head` + `alembic
+   check` mot riktig PostGIS och fångar både trasiga migrationer och
+   modell–schemadrift.
 3. **Geometrier skrivs alltid via `app/services/geo.py`** (`from_shape` med
    SRID 4326). Rena WKT-strängar utan SRID avvisas av PostGIS.
 4. **Spatial analys görs i PostGIS** (geography-cast för meter), inte i Python

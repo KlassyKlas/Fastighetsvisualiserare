@@ -1111,8 +1111,14 @@ export interface components {
              */
             truncated: boolean;
             /**
+             * Unchanged
+             * @description Antal objekt som var identiska med databasen och lämnades orörda
+             * @default 0
+             */
+            unchanged: number;
+            /**
              * Upserted
-             * @description Antal objekt som skapades eller uppdaterades
+             * @description Antal objekt som skapades eller faktiskt ändrades
              */
             upserted: number;
         };
