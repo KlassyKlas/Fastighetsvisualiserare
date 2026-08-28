@@ -20,6 +20,25 @@ config.set_main_option("sqlalchemy.url", get_settings().database_url)
 target_metadata = Base.metadata
 
 
+def include_object(obj: object, name: str | None, type_: str, reflected: bool, compare_to: object):
+    """GeoAlchemy2:s filter + två källor till falsk drift i alembic check.
+
+    1) PostGIS-imagen skeppar Tiger/topology-tabeller (tabblock20, layer,
+       spatial_ref_sys, ...) som ligger i search_path men inte i våra
+       modeller — de ska inte rapporteras som borttagna. Blind fläck:
+       en modell som raderas utan drop-migration upptäcks inte heller.
+    2) De funktionella geography-indexen (idx_*_geometry_geog) jämförs
+       textuellt och PostgreSQL normaliserar uttrycket
+       ('geometry::geography(...)' ≠ 'CAST(geometry AS geography(...))')
+       — evig falsk drift. De förvaltas för hand i modell + migration.
+    """
+    if type_ == "table" and reflected and compare_to is None:
+        return False
+    if type_ == "index" and name is not None and name.endswith("_geometry_geog"):
+        return False
+    return alembic_helpers.include_object(obj, name, type_, reflected, compare_to)
+
+
 def run_migrations_offline() -> None:
     """Generera SQL utan databasanslutning (alembic upgrade --sql)."""
     context.configure(
@@ -27,7 +46,7 @@ def run_migrations_offline() -> None:
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
-        include_object=alembic_helpers.include_object,
+        include_object=include_object,
         process_revision_directives=alembic_helpers.writer,
         render_item=alembic_helpers.render_item,
     )
@@ -42,7 +61,7 @@ def do_run_migrations(connection: Connection) -> None:
         target_metadata=target_metadata,
         # GeoAlchemy2:s hjälpare gör att autogenerate hanterar
         # geometrikolumner och spatiala index korrekt.
-        include_object=alembic_helpers.include_object,
+        include_object=include_object,
         process_revision_directives=alembic_helpers.writer,
         render_item=alembic_helpers.render_item,
     )
