@@ -1,4 +1,4 @@
-"""Bevakade områden: CRUD och händelsefråga.
+"""Bevakade områden: listning, skapande, radering, sett-markering och händelsefråga.
 
 Ett bevakat område är en användarritad polygon. Händelsefrågan svarar
 på "vad har hänt i mina områden sedan jag senast tittade?" — nya och
@@ -54,6 +54,16 @@ def _watched_area_feature(watch: WatchedArea, geojson: str | None) -> WatchedAre
     )
 
 
+async def _load_feature(session: AsyncSession, watch: WatchedArea) -> WatchedAreaFeature:
+    """Serialisera en bevakning med geometrin hämtad som GeoJSON."""
+    geojson = await session.scalar(
+        select(func.ST_AsGeoJSON(WatchedArea.geometry, GEOJSON_DECIMALER)).where(
+            WatchedArea.id == watch.id
+        )
+    )
+    return _watched_area_feature(watch, geojson)
+
+
 async def list_watches(session: AsyncSession) -> WatchedAreaCollection:
     rows = await session.execute(
         select(WatchedArea, func.ST_AsGeoJSON(WatchedArea.geometry, GEOJSON_DECIMALER)).order_by(
@@ -81,13 +91,7 @@ async def create_watch(session: AsyncSession, data: WatchedAreaCreate) -> Watche
     session.add(watch)
     await session.commit()
     await session.refresh(watch)
-
-    geojson = await session.scalar(
-        select(func.ST_AsGeoJSON(WatchedArea.geometry, GEOJSON_DECIMALER)).where(
-            WatchedArea.id == watch.id
-        )
-    )
-    return _watched_area_feature(watch, geojson)
+    return await _load_feature(session, watch)
 
 
 async def delete_watch(session: AsyncSession, watch_id: int) -> bool:
@@ -106,13 +110,7 @@ async def mark_seen(session: AsyncSession, watch_id: int) -> WatchedAreaFeature 
     watch.last_seen_at = func.now()
     await session.commit()
     await session.refresh(watch)
-
-    geojson = await session.scalar(
-        select(func.ST_AsGeoJSON(WatchedArea.geometry, GEOJSON_DECIMALER)).where(
-            WatchedArea.id == watch.id
-        )
-    )
-    return _watched_area_feature(watch, geojson)
+    return await _load_feature(session, watch)
 
 
 async def events(session: AsyncSession) -> WatchEventsResponse:

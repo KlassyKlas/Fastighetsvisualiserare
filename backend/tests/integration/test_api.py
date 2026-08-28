@@ -265,14 +265,31 @@ async def test_watch_lifecycle(client):
     assert entry["project_count"] >= 1  # Nya Slussen m.fl. ligger i rutan
     assert entry["project_events"] == []
 
-    # Rör ett projekt i området — synkupserten flyttar fram updated_at
+    # Oförändrad omsynkning får INTE flytta updated_at och tända notiser —
+    # ändringsdetekteringen i upserten lämnar identiska rader orörda
     async with SessionFactory() as session:
-        await upsert_projects(session, INFRASTRUCTURE_PROJECTS)
+        upserted, unchanged, skipped = await upsert_projects(session, INFRASTRUCTURE_PROJECTS)
         await session.commit()
+    assert upserted == 0
+    assert unchanged == len(INFRASTRUCTURE_PROJECTS)
+    assert skipped == 0
 
     events = (await client.get("/api/v1/watches/events")).json()
     entry = next(w for w in events["watches"] if w["watch_id"] == watch_id)
-    assert len(entry["project_events"]) >= 1
+    assert entry["project_events"] == []
+
+    # En FAKTISK ändring ger exakt en "ändrat"-händelse för det projektet
+    slussen = next(p for p in INFRASTRUCTURE_PROJECTS if p.name == "Nya Slussen")
+    modified = slussen.model_copy(update={"budget_sek": (slussen.budget_sek or 0) + 1})
+    async with SessionFactory() as session:
+        upserted, unchanged, _ = await upsert_projects(session, [modified])
+        await session.commit()
+    assert (upserted, unchanged) == (1, 0)
+
+    events = (await client.get("/api/v1/watches/events")).json()
+    entry = next(w for w in events["watches"] if w["watch_id"] == watch_id)
+    changed_names = [e["project"]["properties"]["name"] for e in entry["project_events"]]
+    assert changed_names == ["Nya Slussen"]
     assert {e["event_kind"] for e in entry["project_events"]} == {"ändrat"}
     assert events["total_events"] >= 1
 

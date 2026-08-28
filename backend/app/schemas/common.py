@@ -21,7 +21,11 @@ class SyncResult(BaseModel):
 
     source: str
     fetched: int = Field(description="Antal objekt som datakällan levererade")
-    upserted: int = Field(description="Antal objekt som skapades eller uppdaterades")
+    upserted: int = Field(description="Antal objekt som skapades eller faktiskt ändrades")
+    unchanged: int = Field(
+        default=0,
+        description="Antal objekt som var identiska med databasen och lämnades orörda",
+    )
     skipped: int = Field(description="Antal objekt som hoppades över (t.ex. ogiltig geometri)")
     truncated: bool = Field(
         default=False,

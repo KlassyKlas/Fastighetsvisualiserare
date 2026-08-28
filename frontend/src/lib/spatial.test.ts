@@ -4,6 +4,7 @@ import {
   geometryIntersectsMultiPolygon,
   pointInPolygon,
   pointInRing,
+  pointOnSegment,
   segmentsIntersect,
 } from './spatial';
 
@@ -41,12 +42,34 @@ describe('pointInRing', () => {
   });
 });
 
+describe('pointOnSegment', () => {
+  it('punkt mitt på sträckan', () => {
+    expect(pointOnSegment([5, 0], [0, 0], [10, 0])).toBe(true);
+  });
+  it('kolinjär punkt utanför sträckan', () => {
+    expect(pointOnSegment([15, 0], [0, 0], [10, 0])).toBe(false);
+  });
+  it('punkt bredvid sträckan', () => {
+    expect(pointOnSegment([5, 1], [0, 0], [10, 0])).toBe(false);
+  });
+});
+
 describe('pointInPolygon', () => {
   it('punkt i hålet räknas som utanför', () => {
     expect(pointInPolygon([5, 5], SQUARE_WITH_HOLE)).toBe(false);
   });
   it('punkt mellan hål och ytterkant är innanför', () => {
     expect(pointInPolygon([2, 2], SQUARE_WITH_HOLE)).toBe(true);
+  });
+  // Randfall — ST_Intersects räknar polygonens rand som träff
+  it('punkt på ytterkanten räknas som träff', () => {
+    expect(pointInPolygon([10, 5], SQUARE)).toBe(true);
+  });
+  it('punkt i ett hörn räknas som träff', () => {
+    expect(pointInPolygon([10, 10], SQUARE)).toBe(true);
+  });
+  it('punkt på hålets kant räknas som träff', () => {
+    expect(pointInPolygon([4, 5], SQUARE_WITH_HOLE)).toBe(true);
   });
 });
 

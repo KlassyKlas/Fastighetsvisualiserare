@@ -13,6 +13,7 @@ from app.schemas import DetailPlanCollection
 from app.services.geo import WGS84_SRID, geojson_to_element
 from app.services.infrastructure import GEOJSON_DECIMALER
 from app.services.serializers import detail_plan_feature
+from app.services.upsert import changed_where
 
 logger = logging.getLogger(__name__)
 
@@ -70,13 +71,15 @@ async def list_detail_plans(
 
 async def upsert_detail_plans(
     session: AsyncSession, items: list[DetailPlanIngest]
-) -> tuple[int, int]:
-    """Skriv in detaljplaner från en datakälla. Returnerar (upserted, skipped).
+) -> tuple[int, int, int]:
+    """Skriv in detaljplaner från en datakälla. Returnerar (upserted, unchanged, skipped).
 
     Samma mönster som projektupserten: konflikt på external_id, en
-    savepoint per rad så att ett trasigt objekt inte fäller hela synken.
+    savepoint per rad så att ett trasigt objekt inte fäller hela synken,
+    och oförändrade rader lämnas orörda (updated_at driver notiserna).
     """
     upserted = 0
+    unchanged = 0
     skipped = 0
 
     for item in items:
@@ -100,12 +103,17 @@ async def upsert_detail_plans(
         update_columns["updated_at"] = func.now()
         update_columns["geometry"] = func.coalesce(stmt.excluded.geometry, DetailPlan.geometry)
         stmt = stmt.on_conflict_do_update(
-            index_elements=[DetailPlan.external_id], set_=update_columns
+            index_elements=[DetailPlan.external_id],
+            set_=update_columns,
+            where=changed_where(stmt, DetailPlan, values, conflict_key="external_id"),
         )
         try:
             async with session.begin_nested():
-                await session.execute(stmt)
-            upserted += 1
+                result = await session.execute(stmt)
+            if result.rowcount:
+                upserted += 1
+            else:
+                unchanged += 1
         except SQLAlchemyError:
             logger.warning(
                 "Hoppar över detaljplan %s: databasfel vid upsert",
@@ -114,4 +122,4 @@ async def upsert_detail_plans(
             )
             skipped += 1
 
-    return upserted, skipped
+    return upserted, unchanged, skipped

@@ -11,6 +11,7 @@ from app.models import Property
 from app.schemas import PropertyCollection, PropertyCreate, PropertyFeature
 from app.services.geo import WGS84_SRID, geojson_to_element
 from app.services.serializers import property_feature
+from app.services.upsert import changed_where
 
 logger = logging.getLogger(__name__)
 
@@ -148,16 +149,21 @@ async def create_property(session: AsyncSession, data: PropertyCreate) -> Proper
     return property_feature(prop, geojson)
 
 
-async def upsert_properties(session: AsyncSession, items: list[PropertyIngest]) -> tuple[int, int]:
-    """Skriv in fastigheter från en datakälla. Returnerar (upserted, skipped).
+async def upsert_properties(
+    session: AsyncSession, items: list[PropertyIngest]
+) -> tuple[int, int, int]:
+    """Skriv in fastigheter från en datakälla. Returnerar (upserted, unchanged, skipped).
 
     Konflikthantering sker på fastighetsbeteckning (designation). Varje rad
     skrivs i en savepoint så att ett enskilt trasigt objekt räknas som
-    skipped i stället för att fälla hela synkroniseringen.
+    skipped i stället för att fälla hela synkroniseringen. Oförändrade
+    rader rörs inte alls — updated_at ska bara flyttas fram vid faktiska
+    ändringar (bevakningsnotiserna bygger på det).
     """
     from sqlalchemy.dialects.postgresql import insert as pg_insert
 
     upserted = 0
+    unchanged = 0
     skipped = 0
 
     for item in items:
@@ -183,12 +189,17 @@ async def upsert_properties(session: AsyncSession, items: list[PropertyIngest]) 
         # tillfälligt sakna geometri för ett objekt de tidigare levererat.
         update_columns["geometry"] = func.coalesce(stmt.excluded.geometry, Property.geometry)
         stmt = stmt.on_conflict_do_update(
-            index_elements=[Property.designation], set_=update_columns
+            index_elements=[Property.designation],
+            set_=update_columns,
+            where=changed_where(stmt, Property, values, conflict_key="designation"),
         )
         try:
             async with session.begin_nested():
-                await session.execute(stmt)
-            upserted += 1
+                result = await session.execute(stmt)
+            if result.rowcount:
+                upserted += 1
+            else:
+                unchanged += 1
         except SQLAlchemyError:
             logger.warning(
                 "Hoppar över fastighet %s: databasfel vid upsert",
@@ -197,4 +208,4 @@ async def upsert_properties(session: AsyncSession, items: list[PropertyIngest]) 
             )
             skipped += 1
 
-    return upserted, skipped
+    return upserted, unchanged, skipped

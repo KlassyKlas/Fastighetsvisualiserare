@@ -13,7 +13,27 @@ type Ring = Position[];
 type PolygonCoords = Ring[];
 type MultiPolygonCoords = PolygonCoords[];
 
-/** Ray casting: ligger punkten innanför ringen? Kantpunkter räknas som inne. */
+/** Ligger punkten exakt på sträckan a–b? */
+export function pointOnSegment(point: Position, a: Position, b: Position): boolean {
+  const cross = (b[0] - a[0]) * (point[1] - a[1]) - (b[1] - a[1]) * (point[0] - a[0]);
+  if (cross !== 0) return false;
+  return (
+    point[0] >= Math.min(a[0], b[0]) &&
+    point[0] <= Math.max(a[0], b[0]) &&
+    point[1] >= Math.min(a[1], b[1]) &&
+    point[1] <= Math.max(a[1], b[1])
+  );
+}
+
+function pointOnRingBoundary(point: Position, ring: Ring): boolean {
+  for (let i = 0; i < ring.length - 1; i++) {
+    if (pointOnSegment(point, ring[i], ring[i + 1])) return true;
+  }
+  return false;
+}
+
+/** Ray casting: ligger punkten strikt innanför ringen? Kantpunkter är
+ * ODEFINIERADE här — de hanteras separat i pointInPolygon. */
 export function pointInRing(point: Position, ring: Ring): boolean {
   const [x, y] = point;
   let inside = false;
@@ -27,8 +47,12 @@ export function pointInRing(point: Position, ring: Ring): boolean {
   return inside;
 }
 
-/** Punkt i polygon: innanför yttre ringen och inte i något hål. */
+/** Punkt i polygon: innanför yttre ringen och inte i något hål.
+ * Punkter på polygonens rand (även hålens kanter) räknas som träff —
+ * samma svar som ST_Intersects, vars randfall annars skiljer sig från
+ * ray casting. */
 export function pointInPolygon(point: Position, polygon: PolygonCoords): boolean {
+  if (polygon.some((ring) => pointOnRingBoundary(point, ring))) return true;
   if (polygon.length === 0 || !pointInRing(point, polygon[0])) return false;
   return polygon.slice(1).every((hole) => !pointInRing(point, hole));
 }

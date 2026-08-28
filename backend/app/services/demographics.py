@@ -18,6 +18,7 @@ from app.schemas import DesoAreaCollection, DesoAreaFeature
 from app.services.geo import WGS84_SRID, geojson_to_element
 from app.services.infrastructure import GEOJSON_DECIMALER
 from app.services.serializers import deso_area_feature
+from app.services.upsert import changed_where
 
 logger = logging.getLogger(__name__)
 
@@ -103,9 +104,12 @@ async def lookup_deso_area(
     return deso_area_feature(area, None, area_m2)
 
 
-async def upsert_deso_areas(session: AsyncSession, items: list[DesoAreaIngest]) -> tuple[int, int]:
-    """Skriv in DeSO-områden från en datakälla. Returnerar (upserted, skipped)."""
+async def upsert_deso_areas(
+    session: AsyncSession, items: list[DesoAreaIngest]
+) -> tuple[int, int, int]:
+    """Skriv in DeSO-områden från en datakälla. Returnerar (upserted, unchanged, skipped)."""
     upserted = 0
+    unchanged = 0
     skipped = 0
 
     for item in items:
@@ -126,15 +130,22 @@ async def upsert_deso_areas(session: AsyncSession, items: list[DesoAreaIngest]) 
         update_columns = {key: getattr(stmt.excluded, key) for key in values if key != "deso_code"}
         update_columns["updated_at"] = func.now()
         update_columns["geometry"] = func.coalesce(stmt.excluded.geometry, DesoArea.geometry)
-        stmt = stmt.on_conflict_do_update(index_elements=[DesoArea.deso_code], set_=update_columns)
+        stmt = stmt.on_conflict_do_update(
+            index_elements=[DesoArea.deso_code],
+            set_=update_columns,
+            where=changed_where(stmt, DesoArea, values, conflict_key="deso_code"),
+        )
         try:
             async with session.begin_nested():
-                await session.execute(stmt)
-            upserted += 1
+                result = await session.execute(stmt)
+            if result.rowcount:
+                upserted += 1
+            else:
+                unchanged += 1
         except SQLAlchemyError:
             logger.warning(
                 "Hoppar över DeSO %s: databasfel vid upsert", item.deso_code, exc_info=True
             )
             skipped += 1
 
-    return upserted, skipped
+    return upserted, unchanged, skipped

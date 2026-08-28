@@ -45,6 +45,11 @@ jobs:
       - name: Kör migrationerna mot PostGIS
         run: uv run alembic upgrade head
 
+      # Fångar modell–schemadrift som upgrade head inte ser (t.ex. en
+      # modelländring utan tillhörande migration).
+      - name: Modellerna måste matcha det migrerade schemat (alembic check)
+        run: uv run alembic check
+
       - name: Tester (inklusive integrationssvit)
         run: uv run pytest
         env:

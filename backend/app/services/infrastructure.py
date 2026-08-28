@@ -28,6 +28,7 @@ from app.schemas import (
 from app.services import properties as property_service
 from app.services.geo import WGS84_SRID, geojson_to_element
 from app.services.serializers import impact_zone_feature, project_feature
+from app.services.upsert import changed_where
 
 logger = logging.getLogger(__name__)
 
@@ -217,15 +218,18 @@ async def impact_zones(
 
 async def upsert_projects(
     session: AsyncSession, items: list[InfrastructureProjectIngest]
-) -> tuple[int, int]:
-    """Skriv in projekt från en datakälla. Returnerar (upserted, skipped).
+) -> tuple[int, int, int]:
+    """Skriv in projekt från en datakälla. Returnerar (upserted, unchanged, skipped).
 
     Konflikthantering sker på external_id i en enda upsert per rad —
     inga N+1-läsfrågor. Varje rad skrivs i en savepoint så att ett
     enskilt trasigt objekt räknas som skipped i stället för att fälla
-    hela synkroniseringen.
+    hela synkroniseringen. Oförändrade rader rörs inte alls (WHERE-
+    klausul på uppdateringen) — annars skulle updated_at flyttas fram
+    vid varje omsynkning och tända falska notiser i bevakade områden.
     """
     upserted = 0
+    unchanged = 0
     skipped = 0
 
     for item in items:
@@ -252,12 +256,19 @@ async def upsert_projects(
             stmt.excluded.geometry, InfrastructureProject.geometry
         )
         stmt = stmt.on_conflict_do_update(
-            index_elements=[InfrastructureProject.external_id], set_=update_columns
+            index_elements=[InfrastructureProject.external_id],
+            set_=update_columns,
+            where=changed_where(stmt, InfrastructureProject, values, conflict_key="external_id"),
         )
         try:
             async with session.begin_nested():
-                await session.execute(stmt)
-            upserted += 1
+                result = await session.execute(stmt)
+            # rowcount 0 = konflikt utan innehållsändring (WHERE föll) —
+            # raden är oförändrad och updated_at har inte rörts.
+            if result.rowcount:
+                upserted += 1
+            else:
+                unchanged += 1
         except SQLAlchemyError:
             logger.warning(
                 "Hoppar över projekt %s: databasfel vid upsert",
@@ -266,7 +277,7 @@ async def upsert_projects(
             )
             skipped += 1
 
-    return upserted, skipped
+    return upserted, unchanged, skipped
 
 
 async def sync_source(
@@ -302,20 +313,21 @@ async def sync_source(
     except NotImplementedError as exc:
         raise HTTPException(status_code=501, detail=str(exc)) from exc
 
-    projects_upserted, projects_skipped = await upsert_projects(session, projects)
-    properties_upserted, properties_skipped = await property_service.upsert_properties(
-        session, properties
-    )
-    plans_upserted, plans_skipped = await planning_service.upsert_detail_plans(
-        session, detail_plans
-    )
-    deso_upserted, deso_skipped = await demographics_service.upsert_deso_areas(session, deso_areas)
+    project_counts = await upsert_projects(session, projects)
+    property_counts = await property_service.upsert_properties(session, properties)
+    plan_counts = await planning_service.upsert_detail_plans(session, detail_plans)
+    deso_counts = await demographics_service.upsert_deso_areas(session, deso_areas)
     await session.commit()
 
+    upserted, unchanged, skipped = (
+        sum(counts)
+        for counts in zip(project_counts, property_counts, plan_counts, deso_counts, strict=True)
+    )
     return SyncResult(
         source=source_name,
         fetched=len(projects) + len(properties) + len(detail_plans) + len(deso_areas),
-        upserted=projects_upserted + properties_upserted + plans_upserted + deso_upserted,
-        skipped=projects_skipped + properties_skipped + plans_skipped + deso_skipped,
+        upserted=upserted,
+        unchanged=unchanged,
+        skipped=skipped,
         truncated=datasource.truncated,
     )
