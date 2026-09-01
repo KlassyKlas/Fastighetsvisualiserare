@@ -3,7 +3,7 @@ from datetime import date
 
 from fastapi import HTTPException
 from geoalchemy2 import Geography, Geometry
-from sqlalchemy import ColumnElement, cast, func, or_, select
+from sqlalchemy import ColumnElement, cast, func, insert, or_, select, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -17,13 +17,15 @@ from app.datasources import (
     get_datasource,
 )
 from app.domain import ProjectStatus, ProjectType
-from app.models import InfrastructureProject
+from app.models import InfrastructureProject, SyncRun
 from app.schemas import (
     ImpactZoneCollection,
     InfrastructureProjectCollection,
     InfrastructureProjectCreate,
     InfrastructureProjectFeature,
     SyncResult,
+    SyncRunInfo,
+    SyncRunList,
 )
 from app.services import properties as property_service
 from app.services.geo import WGS84_SRID, geojson_to_element
@@ -303,31 +305,102 @@ async def sync_source(
     from app.services import demographics as demographics_service
     from app.services import planning as planning_service
 
+    # Loggraden committas INNAN hämtningen: en körning som dör i HTTP-lagret
+    # ska ändå synas i synkloggen (med felet) — annars vet ingen att den
+    # ens försökte. id och started_at läses ur INSERT-satsens RETURNING, inte
+    # via refresh: en refresh efter commit öppnar en ny transaktion som
+    # skulle hålla en poolad anslutning "idle in transaction" under hela den
+    # (potentiellt minutlånga) hämtningen. Ingen transaktion ska vara öppen
+    # medan vi väntar på nätverket.
+    run = (
+        await session.execute(insert(SyncRun).values(source=source_name).returning(SyncRun))
+    ).scalar_one()
+    await session.commit()
+    run_id, started_at = run.id, run.started_at
+
     try:
         projects = await datasource.fetch_infrastructure_projects(bbox)
         properties = await datasource.fetch_properties(bbox)
         detail_plans = await datasource.fetch_detail_plans(bbox)
         deso_areas = await datasource.fetch_deso_areas(bbox)
     except DataSourceError as exc:
+        await _finish_failed_run(session, run_id, exc)
         raise HTTPException(status_code=502, detail=str(exc)) from exc
     except NotImplementedError as exc:
+        await _finish_failed_run(session, run_id, exc)
         raise HTTPException(status_code=501, detail=str(exc)) from exc
+    except Exception as exc:
+        # Oväntat fel (bugg, oinpackat nätverksfel) blir 500 som förut, men
+        # loggraden stängs ändå — annars ser körningen ut att pågå för evigt.
+        await _finish_failed_run(session, run_id, exc)
+        raise
 
-    project_counts = await upsert_projects(session, projects)
-    property_counts = await property_service.upsert_properties(session, properties)
-    plan_counts = await planning_service.upsert_detail_plans(session, detail_plans)
-    deso_counts = await demographics_service.upsert_deso_areas(session, deso_areas)
-    await session.commit()
+    try:
+        project_counts = await upsert_projects(session, projects)
+        property_counts = await property_service.upsert_properties(session, properties)
+        plan_counts = await planning_service.upsert_detail_plans(session, detail_plans)
+        deso_counts = await demographics_service.upsert_deso_areas(session, deso_areas)
 
-    upserted, unchanged, skipped = (
-        sum(counts)
-        for counts in zip(project_counts, property_counts, plan_counts, deso_counts, strict=True)
-    )
+        upserted, unchanged, skipped = (
+            sum(counts)
+            for counts in zip(
+                project_counts, property_counts, plan_counts, deso_counts, strict=True
+            )
+        )
+        fetched = len(projects) + len(properties) + len(detail_plans) + len(deso_areas)
+
+        # Utfallet skrivs i SAMMA commit som datat — loggen kan aldrig påstå
+        # att en synk lyckades om upserterna rullades tillbaka.
+        run.fetched = fetched
+        run.upserted = upserted
+        run.unchanged = unchanged
+        run.skipped = skipped
+        run.truncated = datasource.truncated
+        run.finished_at = func.now()
+        await session.commit()
+    except Exception as exc:
+        # Databasfel som savepoint-logiken i upserterna inte fångar (tappad
+        # anslutning, fel vid commit) rullar tillbaka datat — då ska
+        # loggraden stängas med felet, inte stå kvar som "pågår".
+        await _finish_failed_run(session, run_id, exc)
+        raise
+
     return SyncResult(
         source=source_name,
-        fetched=len(projects) + len(properties) + len(detail_plans) + len(deso_areas),
+        fetched=fetched,
         upserted=upserted,
         unchanged=unchanged,
         skipped=skipped,
         truncated=datasource.truncated,
+        run_id=run_id,
+        started_at=started_at,
     )
+
+
+async def _finish_failed_run(session: AsyncSession, run_id: int, exc: BaseException) -> None:
+    """Stäng loggraden med felet.
+
+    Rullar tillbaka först: efter en misslyckad commit eller tappad
+    anslutning vägrar sessionen allt annat tills dess (utan öppen
+    transaktion är rollbacken ett no-op). Stängningen är en fristående
+    UPDATE på id — raden är redan committad, så den fungerar oavsett vad
+    rollbacken gjort med ORM-objektet (allt expireras).
+    """
+    await session.rollback()
+    await session.execute(
+        update(SyncRun)
+        .where(SyncRun.id == run_id)
+        .values(error=(str(exc) or type(exc).__name__)[:500], finished_at=func.now())
+        # Ingen läser ORM-objektet efteråt — hoppa över synkroniseringen av
+        # identitetskartan (den skulle annars kosta en extra fråga).
+        .execution_options(synchronize_session=False)
+    )
+    await session.commit()
+
+
+async def list_sync_runs(session: AsyncSession, *, limit: int = 20) -> SyncRunList:
+    """Senaste synkkörningarna, nyast först (id som tiebreak vid lika starttid)."""
+    rows = await session.execute(
+        select(SyncRun).order_by(SyncRun.started_at.desc(), SyncRun.id.desc()).limit(limit)
+    )
+    return SyncRunList(runs=[SyncRunInfo.model_validate(run) for run in rows.scalars()])

@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from app.api.routes import (
     analysis,
+    changes,
     demographics,
     health,
     infrastructure,
@@ -18,3 +19,4 @@ api_router.include_router(analysis.router, prefix="/analysis", tags=["analysis"]
 api_router.include_router(planning.router, prefix="/planning", tags=["planning"])
 api_router.include_router(demographics.router, prefix="/demographics", tags=["demographics"])
 api_router.include_router(watches.router, prefix="/watches", tags=["watches"])
+api_router.include_router(changes.router, prefix="/changes", tags=["changes"])

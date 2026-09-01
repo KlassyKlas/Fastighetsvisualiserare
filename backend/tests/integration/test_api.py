@@ -9,14 +9,21 @@ kör `alembic upgrade head` först). Lokalt:
 """
 
 import os
+from datetime import UTC, datetime
 
 import pytest
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy import text
+from sqlalchemy import func, select, text
+from sqlalchemy.exc import SQLAlchemyError
 
+from app.datasources import Bbox, DataSource, DataSourceError, InfrastructureProjectIngest
+from app.datasources.base import _registry
 from app.db import SessionFactory
-from app.seed_data import INFRASTRUCTURE_PROJECTS, PROPERTIES
+from app.models import SyncRun
+from app.seed_data import DETAIL_PLANS, INFRASTRUCTURE_PROJECTS, PROPERTIES
+from app.services import infrastructure as infrastructure_service
 from app.services.infrastructure import upsert_projects
+from app.services.planning import upsert_detail_plans
 from app.services.properties import upsert_properties
 
 pytestmark = [
@@ -38,6 +45,7 @@ async def client():
     async with SessionFactory() as session:
         await upsert_projects(session, INFRASTRUCTURE_PROJECTS)
         await upsert_properties(session, PROPERTIES)
+        await upsert_detail_plans(session, DETAIL_PLANS)
         await session.commit()
 
     transport = ASGITransport(app=app)
@@ -339,3 +347,307 @@ async def test_watch_with_point_geometry_gives_422(client):
         json={"name": "Punkt", "geometry": {"type": "Point", "coordinates": [18.0, 59.3]}},
     )
     assert response.status_code == 422
+
+
+# --- Punkt 7: Nytt sedan senast ---------------------------------------------
+
+LONG_AGO = "2000-01-01T00:00:00Z"
+
+
+async def test_changes_since_long_ago_lists_seed_as_new(client):
+    response = await client.get("/api/v1/changes", params={"since": LONG_AGO, "limit": 500})
+    assert response.status_code == 200
+    data = response.json()
+    assert datetime.fromisoformat(data["since"]) == datetime(2000, 1, 1, tzinfo=UTC)
+
+    # Allt i seeden är skapat efter 2000 → "nytt", aldrig "ändrat"
+    assert data["project_new"] >= len(INFRASTRUCTURE_PROJECTS)
+    assert data["plan_new"] >= len(DETAIL_PLANS)
+    assert data["project_changed"] == 0
+    assert data["plan_changed"] == 0
+    assert data["total_events"] == (
+        data["project_new"] + data["project_changed"] + data["plan_new"] + data["plan_changed"]
+    )
+    assert data["truncated"] is False
+    assert len(data["project_events"]) + len(data["plan_events"]) == data["total_events"]
+
+    assert {e["event_kind"] for e in data["project_events"]} == {"nytt"}
+    project_names = {e["project"]["properties"]["name"] for e in data["project_events"]}
+    assert project_names >= {p.name for p in INFRASTRUCTURE_PROJECTS}
+    plan_names = {e["plan"]["properties"]["name"] for e in data["plan_events"]}
+    assert plan_names >= {p.name for p in DETAIL_PLANS}
+    assert data["plan_events"][0]["plan"]["geometry"]["type"] == "MultiPolygon"
+
+    # Senast ändrade först (parsa — strängjämförelse faller på mikrosekunderna)
+    stamps = [
+        datetime.fromisoformat(e["project"]["properties"]["updated_at"])
+        for e in data["project_events"]
+    ]
+    assert stamps == sorted(stamps, reverse=True)
+
+
+async def test_changes_in_future_is_empty(client):
+    response = await client.get("/api/v1/changes", params={"since": "2999-01-01T00:00:00Z"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["project_events"] == []
+    assert data["plan_events"] == []
+    assert data["total_events"] == 0
+    assert data["truncated"] is False
+
+
+async def test_changes_limit_truncates_but_keeps_totals(client):
+    full = (await client.get("/api/v1/changes", params={"since": LONG_AGO, "limit": 500})).json()
+
+    limited = (await client.get("/api/v1/changes", params={"since": LONG_AGO, "limit": 1})).json()
+    assert limited["truncated"] is True
+    assert limited["total_events"] == full["total_events"]
+    # Projekten fyller listan först — planerna får det som blir över (inget)
+    assert len(limited["project_events"]) == 1
+    assert limited["plan_events"] == []
+
+    # Precis ett steg över projekten: alla projekt + en plan, resten trunkerat
+    project_total = full["project_new"] + full["project_changed"]
+    plan_total = full["plan_new"] + full["plan_changed"]
+    mixed = (
+        await client.get("/api/v1/changes", params={"since": LONG_AGO, "limit": project_total + 1})
+    ).json()
+    assert len(mixed["project_events"]) == project_total
+    assert len(mixed["plan_events"]) == 1
+    assert mixed["truncated"] is (plan_total > 1)
+    assert mixed["total_events"] == full["total_events"]
+
+
+async def test_changes_accepts_naive_since_as_utc(client):
+    response = await client.get("/api/v1/changes", params={"since": "2000-01-01T00:00:00"})
+    assert response.status_code == 200
+    since = datetime.fromisoformat(response.json()["since"])
+    assert since.tzinfo is not None
+    assert since == datetime(2000, 1, 1, tzinfo=UTC)
+
+
+async def test_changes_requires_since(client):
+    assert (await client.get("/api/v1/changes")).status_code == 422
+    assert (
+        await client.get("/api/v1/changes", params={"since": LONG_AGO, "limit": 0})
+    ).status_code == 422
+
+
+async def test_changes_reports_modified_project_as_changed(client):
+    # Tidsankaret tas ur databasen så att app- och databasklocka inte kan skilja sig
+    async with SessionFactory() as session:
+        before = await session.scalar(select(func.now()))
+    assert before is not None
+
+    ostlanken = next(p for p in INFRASTRUCTURE_PROJECTS if p.external_id == "seed-ostlanken")
+    modified = ostlanken.model_copy(update={"budget_sek": (ostlanken.budget_sek or 0) + 1})
+    async with SessionFactory() as session:
+        upserted, _, _ = await upsert_projects(session, [modified])
+        await session.commit()
+    assert upserted == 1
+
+    data = (await client.get("/api/v1/changes", params={"since": before.isoformat()})).json()
+    kinds = {e["project"]["properties"]["name"]: e["event_kind"] for e in data["project_events"]}
+    assert kinds[ostlanken.name] == "ändrat"
+    assert data["project_changed"] >= 1
+    assert data["total_events"] >= 1
+
+
+# --- Punkt 7: synklogg -------------------------------------------------------
+
+
+async def test_sync_runs_are_listed_latest_first(client):
+    async with SessionFactory() as session:
+        run = SyncRun(
+            source="testkälla", fetched=3, upserted=2, unchanged=1, finished_at=func.now()
+        )
+        session.add(run)
+        await session.commit()
+        run_id = run.id
+
+    response = await client.get("/api/v1/infrastructure/sync/runs", params={"limit": 5})
+    assert response.status_code == 200
+    runs = response.json()["runs"]
+    assert 1 <= len(runs) <= 5
+    assert runs[0]["id"] == run_id  # nyast först
+    assert runs[0]["source"] == "testkälla"
+    assert runs[0]["finished_at"] is not None
+    assert runs[0]["error"] is None
+    assert runs[0]["truncated"] is False
+    counts = (runs[0]["fetched"], runs[0]["upserted"], runs[0]["unchanged"], runs[0]["skipped"])
+    assert counts == (3, 2, 1, 0)  # skipped via server_default
+
+    starts = [datetime.fromisoformat(r["started_at"]) for r in runs]
+    assert starts == sorted(starts, reverse=True)
+
+    bad = await client.get("/api/v1/infrastructure/sync/runs", params={"limit": 0})
+    assert bad.status_code == 422
+
+
+class _FailingSource(DataSource):
+    name = "testkalla_fel"
+    display_name = "Testkälla (fel)"
+
+    async def fetch_infrastructure_projects(
+        self, bbox: Bbox | None = None
+    ) -> list[InfrastructureProjectIngest]:
+        raise DataSourceError(self.name, "nere för underhåll")
+
+
+class _TinySource(DataSource):
+    name = "testkalla_ok"
+    display_name = "Testkälla (ok)"
+
+    async def fetch_infrastructure_projects(
+        self, bbox: Bbox | None = None
+    ) -> list[InfrastructureProjectIngest]:
+        return [INFRASTRUCTURE_PROJECTS[0]]
+
+
+async def test_failed_sync_is_logged_with_error(client, monkeypatch):
+    monkeypatch.setitem(_registry, _FailingSource.name, _FailingSource)
+
+    response = await client.post(f"/api/v1/infrastructure/sync/{_FailingSource.name}")
+    assert response.status_code == 502
+
+    # Raden skapades före hämtningen och stängdes med felet
+    runs = (await client.get("/api/v1/infrastructure/sync/runs")).json()["runs"]
+    run = next(r for r in runs if r["source"] == _FailingSource.name)
+    assert "nere för underhåll" in run["error"]
+    assert run["finished_at"] is not None
+    assert (run["fetched"], run["upserted"], run["unchanged"], run["skipped"]) == (0, 0, 0, 0)
+
+
+async def test_successful_sync_returns_run_and_logs_counts(client, monkeypatch):
+    monkeypatch.setitem(_registry, _TinySource.name, _TinySource)
+
+    response = await client.post(f"/api/v1/infrastructure/sync/{_TinySource.name}")
+    assert response.status_code == 200
+    result = response.json()
+    assert result["fetched"] == 1
+    # Seedprojektet finns redan oförändrat i databasen
+    assert (result["upserted"], result["unchanged"], result["skipped"]) == (0, 1, 0)
+    assert isinstance(result["run_id"], int)
+    assert datetime.fromisoformat(result["started_at"]).tzinfo is not None
+
+    runs = (await client.get("/api/v1/infrastructure/sync/runs")).json()["runs"]
+    run = next(r for r in runs if r["id"] == result["run_id"])
+    assert run["source"] == _TinySource.name
+    assert run["error"] is None
+    assert run["finished_at"] is not None
+    assert (run["fetched"], run["upserted"], run["unchanged"]) == (1, 0, 1)
+    assert datetime.fromisoformat(run["started_at"]) == datetime.fromisoformat(result["started_at"])
+
+
+class _CrashSource(_TinySource):
+    name = "testkalla_krasch"
+    display_name = "Testkälla (krasch efter hämtning)"
+
+
+async def test_sync_crash_after_fetch_closes_run_with_error(client, monkeypatch):
+    """Ett fel efter hämtningen får inte lämna loggraden som 'pågår' för evigt."""
+    monkeypatch.setitem(_registry, _CrashSource.name, _CrashSource)
+
+    async def exploding_upsert(session, items):
+        # Ett riktigt databasfel: Postgres sätter transaktionen i avbrutet
+        # läge, så loggraden kan bara stängas om sessionen rullats tillbaka.
+        await session.execute(text("SELECT * FROM tabell_som_inte_finns"))
+        raise AssertionError("nås aldrig")
+
+    monkeypatch.setattr(infrastructure_service, "upsert_projects", exploding_upsert)
+
+    # Appen har inga egna felhanterare: Starlette svarar 500 och kastar
+    # vidare, och httpx ASGITransport lyfter undantaget till testet.
+    with pytest.raises(SQLAlchemyError):
+        await client.post(f"/api/v1/infrastructure/sync/{_CrashSource.name}")
+
+    runs = (await client.get("/api/v1/infrastructure/sync/runs")).json()["runs"]
+    run = next(r for r in runs if r["source"] == _CrashSource.name)
+    assert run["finished_at"] is not None
+    assert "tabell_som_inte_finns" in run["error"]
+    # Inget hann skrivas — räkningarna står kvar på sina defaultvärden
+    assert (run["fetched"], run["upserted"], run["unchanged"], run["skipped"]) == (0, 0, 0, 0)
+
+
+# --- Punkt 7/8: detaljplan per id --------------------------------------------
+
+
+async def test_get_detail_plan(client):
+    listed = (await client.get("/api/v1/planning/detail-plans")).json()
+    assert listed["numberMatched"] >= len(DETAIL_PLANS)
+    plan_id = next(
+        f["properties"]["id"]
+        for f in listed["features"]
+        if f["properties"]["external_id"] == "seed-dp-hagastaden"
+    )
+
+    response = await client.get(f"/api/v1/planning/detail-plans/{plan_id}")
+    assert response.status_code == 200
+    plan = response.json()
+    assert plan["properties"]["name"] == "Detaljplan för Hagastaden etapp 3"
+    assert plan["properties"]["municipality"] == "Stockholm"
+    assert plan["geometry"]["type"] == "MultiPolygon"
+
+
+async def test_get_unknown_detail_plan_gives_404(client):
+    response = await client.get("/api/v1/planning/detail-plans/999999")
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Detaljplanen hittades inte"
+
+
+# --- Punkt 9: ägarvy ---------------------------------------------------------
+
+URW = "Unibail-Rodamco-Westfield"
+
+
+async def test_owners_grouped_and_sorted(client):
+    response = await client.get("/api/v1/properties/owners")
+    assert response.status_code == 200
+    data = response.json()
+    owners = data["owners"]
+    assert data["numberMatched"] >= len(owners) >= 2
+    assert data["numberReturned"] == len(owners)
+
+    counts = [o["property_count"] for o in owners]
+    assert counts == sorted(counts, reverse=True)
+    # Enda ägaren med två fastigheter i seeden — därför överst
+    assert owners[0]["owner_name"] == URW
+
+    urw = owners[0]
+    assert urw["property_count"] == 2
+    assert urw["owner_org_number"] == "556079-1415"
+    assert urw["municipalities"] == ["Solna", "Täby"]
+    assert urw["total_area_sqm"] == 12_000 + 15_000
+    assert urw["total_assessed_value_sek"] == 350_000_000 + 280_000_000
+
+    west, south, east, north = urw["extent"]
+    assert west < east and south < north
+    # Utbredningen täcker både Solna (18.00, 59.36) och Täby (18.07, 59.44)
+    assert west <= 18.00 <= east and west <= 18.07 <= east
+    assert south <= 59.36 <= north and south <= 59.44 <= north
+
+    limited = (await client.get("/api/v1/properties/owners", params={"limit": 2})).json()
+    assert len(limited["owners"]) == 2
+    assert limited["numberMatched"] == data["numberMatched"]
+
+
+async def test_owner_filter_on_properties(client):
+    response = await client.get("/api/v1/properties", params={"owner": URW})
+    assert response.status_code == 200
+    data = response.json()
+    assert {f["properties"]["owner_name"] for f in data["features"]} == {URW}
+    assert data["numberMatched"] == data["numberReturned"] == 2
+
+    # Exakt match — inte fritext
+    partial = (await client.get("/api/v1/properties", params={"owner": "Unibail"})).json()
+    assert partial["numberMatched"] == 0
+
+
+async def test_owners_municipality_filter(client):
+    response = await client.get("/api/v1/properties/owners", params={"municipality": "Täby"})
+    assert response.status_code == 200
+    owners = response.json()["owners"]
+    urw = next(o for o in owners if o["owner_name"] == URW)
+    assert urw["property_count"] == 1
+    assert urw["municipalities"] == ["Täby"]
+    assert all(o["municipalities"] == ["Täby"] for o in owners)

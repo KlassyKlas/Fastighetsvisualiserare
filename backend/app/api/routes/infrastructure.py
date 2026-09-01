@@ -11,6 +11,7 @@ from app.schemas import (
     InfrastructureProjectCreate,
     InfrastructureProjectFeature,
     SyncResult,
+    SyncRunList,
 )
 from app.services import infrastructure as infrastructure_service
 
@@ -92,6 +93,19 @@ async def create_project(
     session: SessionDep, data: InfrastructureProjectCreate
 ) -> InfrastructureProjectFeature:
     return await infrastructure_service.create_project(session, data)
+
+
+@router.get("/sync/runs", response_model=SyncRunList)
+async def list_sync_runs(
+    session: SessionDep,
+    limit: Annotated[int, Query(ge=1, le=200, description="Antal körningar, nyast först")] = 20,
+) -> SyncRunList:
+    """Synkloggen: senaste körningarna per anrop av POST /sync/{källa}.
+
+    Lyckade som misslyckade (error satt). Senaste körningens started_at
+    är tidsankaret "sedan senaste synk" i panelen Nytt sedan senast.
+    """
+    return await infrastructure_service.list_sync_runs(session, limit=limit)
 
 
 @router.post("/sync/{source_name}", response_model=SyncResult, dependencies=[WriteAccess])

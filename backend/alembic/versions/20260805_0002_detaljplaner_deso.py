@@ -1,7 +1,7 @@
 """Detaljplaner (Lantmäteriet NGP) och DeSO-områden (SCB).
 
 Revision ID: 0002
-Revides: 0001
+Revises: 0001
 
 Handskriven migration (autogenerate kräver databas). Spatiala index
 skapas explicit med GeoAlchemy2:s standardnamn, samma mönster som 0001.

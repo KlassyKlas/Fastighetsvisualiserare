@@ -44,6 +44,39 @@ class PropertyCollection(BaseModel):
     numberReturned: int = Field(description="Antal features i detta svar")
 
 
+class OwnerSummary(BaseModel):
+    """En ägares samlade innehav — grupperat på exakt owner_name."""
+
+    owner_name: str
+    owner_org_number: str | None = Field(
+        default=None, description="Lägsta organisationsnumret i gruppen (normalt det enda)"
+    )
+    property_count: int = Field(description="Antal fastigheter som matchar filtret")
+    total_area_sqm: float | None = Field(
+        default=None, description="Summan av area_sqm — null om ingen fastighet har yta"
+    )
+    total_assessed_value_sek: int | None = Field(
+        default=None,
+        description="Summan av assessed_value_sek — null om ingen fastighet har taxeringsvärde",
+    )
+    municipalities: list[str] = Field(
+        default_factory=list,
+        description="Kommuner där ägaren har fastigheter, distinkta och sorterade",
+    )
+    extent: list[float] | None = Field(
+        default=None,
+        description="Utbredning [väst, syd, öst, norr] i WGS84 — null om alla geometrier saknas",
+    )
+
+
+class OwnerSummaryList(BaseModel):
+    owners: list[OwnerSummary] = Field(
+        default_factory=list, description="Störst innehav först, därefter ägarnamn"
+    )
+    numberMatched: int = Field(description="Totalt antal ägare som matchar filtret")
+    numberReturned: int = Field(description="Antal ägare i detta svar")
+
+
 class PropertyCreate(BaseModel):
     designation: str = Field(min_length=1)
     municipality: str | None = None

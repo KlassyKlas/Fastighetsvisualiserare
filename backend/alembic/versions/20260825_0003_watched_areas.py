@@ -1,7 +1,7 @@
 """Bevakade områden (watched_areas).
 
 Revision ID: 0003
-Revides: 0002
+Revises: 0002
 
 Handskriven migration (autogenerate kräver databas). Händelsefrågan
 använder ST_Intersects — ren geometrioperation, så det vanliga

@@ -1,9 +1,9 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, HTTPException, Query
 
 from app.api.deps import BboxDep, SessionDep
-from app.schemas import DetailPlanCollection
+from app.schemas import DetailPlanCollection, DetailPlanFeature
 from app.services import planning as planning_service
 
 router = APIRouter()
@@ -35,3 +35,12 @@ async def list_detail_plans(
         limit=limit,
         offset=offset,
     )
+
+
+@router.get("/detail-plans/{plan_id}", response_model=DetailPlanFeature)
+async def get_detail_plan(session: SessionDep, plan_id: int) -> DetailPlanFeature:
+    """En detaljplan med full geometri — t.ex. för att öppna en delad länk."""
+    feature = await planning_service.get_detail_plan(session, plan_id)
+    if feature is None:
+        raise HTTPException(status_code=404, detail="Detaljplanen hittades inte")
+    return feature

@@ -1,7 +1,7 @@
 """${message}
 
 Revision ID: ${up_revision}
-Revides: ${down_revision | comma,n}
+Revises: ${down_revision | comma,n}
 Skapad: ${create_date}
 
 """
