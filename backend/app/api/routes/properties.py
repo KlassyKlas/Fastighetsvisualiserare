@@ -4,7 +4,13 @@ from fastapi import APIRouter, HTTPException, Query
 
 from app.api.deps import BboxDep, SessionDep, WriteAccess
 from app.domain import PropertyType
-from app.schemas import NearbyProjectsResponse, PropertyCollection, PropertyCreate, PropertyFeature
+from app.schemas import (
+    NearbyProjectsResponse,
+    OwnerSummaryList,
+    PropertyCollection,
+    PropertyCreate,
+    PropertyFeature,
+)
 from app.services import analysis as analysis_service
 from app.services import properties as property_service
 
@@ -24,6 +30,10 @@ async def list_properties(
     ] = None,
     min_value: Annotated[int | None, Query(ge=0, description="Lägsta taxeringsvärde (SEK)")] = None,
     max_value: Annotated[int | None, Query(ge=0, description="Högsta taxeringsvärde (SEK)")] = None,
+    owner: Annotated[
+        str | None,
+        Query(description="Visa bara fastigheter med exakt denna ägare (owner_name)"),
+    ] = None,
     limit: Annotated[int, Query(ge=1, le=2000)] = 500,
     offset: Annotated[int, Query(ge=0)] = 0,
 ) -> PropertyCollection:
@@ -34,6 +44,7 @@ async def list_properties(
         property_types=property_type,
         min_value=min_value,
         max_value=max_value,
+        owner=owner,
         bbox=bbox,
         limit=limit,
         offset=offset,
@@ -48,6 +59,27 @@ async def search_properties(
 ) -> PropertyCollection:
     """Fritextsök på beteckning, adress, ägare, stad och kommun."""
     return await property_service.search_properties(session, q, limit)
+
+
+# Måste deklareras före "/{property_id}" — annars försöker FastAPI tolka
+# "owners" som ett heltal och svarar 422.
+@router.get("/owners", response_model=OwnerSummaryList)
+async def list_owners(
+    session: SessionDep,
+    bbox: BboxDep,
+    municipality: Annotated[
+        list[str] | None, Query(description="Filtrera på kommun (kan upprepas)")
+    ] = None,
+    limit: Annotated[int, Query(ge=1, le=500)] = 50,
+) -> OwnerSummaryList:
+    """Ägare grupperade på owner_name med innehavets nyckeltal, störst innehav först.
+
+    Aggregeringen (antal, summor, kommuner, utbredning via ST_Extent)
+    görs i PostGIS över samma filter som fastighetslistan.
+    """
+    return await property_service.list_owners(
+        session, municipalities=municipality, bbox=bbox, limit=limit
+    )
 
 
 @router.get("/{property_id}", response_model=PropertyFeature)

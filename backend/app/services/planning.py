@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.datasources import Bbox, DetailPlanIngest
 from app.models import DetailPlan
-from app.schemas import DetailPlanCollection
+from app.schemas import DetailPlanCollection, DetailPlanFeature
 from app.services.geo import WGS84_SRID, geojson_to_element
 from app.services.infrastructure import GEOJSON_DECIMALER
 from app.services.serializers import detail_plan_feature
@@ -67,6 +67,20 @@ async def list_detail_plans(
         numberMatched=total or 0,
         numberReturned=len(features),
     )
+
+
+async def get_detail_plan(session: AsyncSession, plan_id: int) -> DetailPlanFeature | None:
+    row = (
+        await session.execute(
+            select(DetailPlan, func.ST_AsGeoJSON(DetailPlan.geometry, GEOJSON_DECIMALER)).where(
+                DetailPlan.id == plan_id
+            )
+        )
+    ).one_or_none()
+    if row is None:
+        return None
+    plan, geojson = row
+    return detail_plan_feature(plan, geojson)
 
 
 async def upsert_detail_plans(

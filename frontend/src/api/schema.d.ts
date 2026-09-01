@@ -50,6 +50,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/changes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Changes
+         * @description Nytt sedan senast: nya och ändrade projekt och detaljplaner i hela datamängden.
+         *
+         *     Globalt komplement till bevakningarna (som svarar per ritat område).
+         *     Räkningarna gäller hela urvalet; händelselistan begränsas av limit
+         *     med projekt först och detaljplaner därefter.
+         */
+        get: operations["list_changes_api_v1_changes_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/demographics/deso-areas": {
         parameters: {
             query?: never;
@@ -196,6 +220,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/infrastructure/sync/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Sync Runs
+         * @description Synkloggen: senaste körningarna per anrop av POST /sync/{källa}.
+         *
+         *     Lyckade som misslyckade (error satt). Senaste körningens started_at
+         *     är tidsankaret "sedan senaste synk" i panelen Nytt sedan senast.
+         */
+        get: operations["list_sync_runs_api_v1_infrastructure_sync_runs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/infrastructure/sync/{source_name}": {
         parameters: {
             query?: never;
@@ -238,6 +285,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/planning/detail-plans/{plan_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Detail Plan
+         * @description En detaljplan med full geometri — t.ex. för att öppna en delad länk.
+         */
+        get: operations["get_detail_plan_api_v1_planning_detail_plans__plan_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/properties": {
         parameters: {
             query?: never;
@@ -253,6 +320,29 @@ export interface paths {
         put?: never;
         /** Create Property */
         post: operations["create_property_api_v1_properties_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/properties/owners": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Owners
+         * @description Ägare grupperade på owner_name med innehavets nyckeltal, störst innehav först.
+         *
+         *     Aggregeringen (antal, summor, kommuner, utbredning via ST_Extent)
+         *     görs i PostGIS över samma filter som fastighetslistan.
+         */
+        get: operations["list_owners_api_v1_properties_owners_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -489,6 +579,56 @@ export interface components {
             project_id: number;
             project_type?: components["schemas"]["ProjectType"] | null;
             status?: components["schemas"]["ProjectStatus"] | null;
+        };
+        /**
+         * ChangesResponse
+         * @description Nya och ändrade objekt i hela datamängden sedan en tidpunkt.
+         *
+         *     Händelselistorna begränsas av limit (projekt fyller listan först,
+         *     detaljplaner får resten) medan räkningarna alltid gäller hela
+         *     urvalet — total_events är därför sant även när truncated är true.
+         */
+        ChangesResponse: {
+            /**
+             * Plan Changed
+             * @description Antal detaljplaner som bara ändrats efter since
+             */
+            plan_changed: number;
+            /** Plan Events */
+            plan_events?: components["schemas"]["DetailPlanWatchEvent"][];
+            /**
+             * Plan New
+             * @description Antal detaljplaner som skapats efter since
+             */
+            plan_new: number;
+            /**
+             * Project Changed
+             * @description Antal projekt som bara ändrats efter since
+             */
+            project_changed: number;
+            /** Project Events */
+            project_events?: components["schemas"]["ProjectWatchEvent"][];
+            /**
+             * Project New
+             * @description Antal projekt som skapats efter since
+             */
+            project_new: number;
+            /**
+             * Since
+             * Format: date-time
+             * @description Tidpunkten händelserna räknas från, normaliserad till UTC
+             */
+            since: string;
+            /**
+             * Total Events
+             * @description Summan av de fyra räkningarna — inte bara de returnerade händelserna
+             */
+            total_events: number;
+            /**
+             * Truncated
+             * @description true om fler händelser finns än limit
+             */
+            truncated: boolean;
         };
         /** DesoAreaCollection */
         DesoAreaCollection: {
@@ -841,6 +981,62 @@ export interface components {
             property_id: number;
         };
         /**
+         * OwnerSummary
+         * @description En ägares samlade innehav — grupperat på exakt owner_name.
+         */
+        OwnerSummary: {
+            /**
+             * Extent
+             * @description Utbredning [väst, syd, öst, norr] i WGS84 — null om alla geometrier saknas
+             */
+            extent?: number[] | null;
+            /**
+             * Municipalities
+             * @description Kommuner där ägaren har fastigheter, distinkta och sorterade
+             */
+            municipalities?: string[];
+            /** Owner Name */
+            owner_name: string;
+            /**
+             * Owner Org Number
+             * @description Lägsta organisationsnumret i gruppen (normalt det enda)
+             */
+            owner_org_number?: string | null;
+            /**
+             * Property Count
+             * @description Antal fastigheter som matchar filtret
+             */
+            property_count: number;
+            /**
+             * Total Area Sqm
+             * @description Summan av area_sqm — null om ingen fastighet har yta
+             */
+            total_area_sqm?: number | null;
+            /**
+             * Total Assessed Value Sek
+             * @description Summan av assessed_value_sek — null om ingen fastighet har taxeringsvärde
+             */
+            total_assessed_value_sek?: number | null;
+        };
+        /** OwnerSummaryList */
+        OwnerSummaryList: {
+            /**
+             * Numbermatched
+             * @description Totalt antal ägare som matchar filtret
+             */
+            numberMatched: number;
+            /**
+             * Numberreturned
+             * @description Antal ägare i detta svar
+             */
+            numberReturned: number;
+            /**
+             * Owners
+             * @description Störst innehav först, därefter ägarnamn
+             */
+            owners?: components["schemas"]["OwnerSummary"][];
+        };
+        /**
          * ProjectStatus
          * @enum {string}
          */
@@ -1098,12 +1294,23 @@ export interface components {
              */
             fetched: number;
             /**
+             * Run Id
+             * @description Körningens id i synkloggen (GET /infrastructure/sync/runs)
+             */
+            run_id: number;
+            /**
              * Skipped
              * @description Antal objekt som hoppades över (t.ex. ogiltig geometri)
              */
             skipped: number;
             /** Source */
             source: string;
+            /**
+             * Started At
+             * Format: date-time
+             * @description När körningen startade — tidsankare för 'Nytt sedan senast'
+             */
+            started_at: string;
             /**
              * Truncated
              * @description true om källan inte kunde hämta allt (sidgräns nådd) — kör synken igen
@@ -1121,6 +1328,49 @@ export interface components {
              * @description Antal objekt som skapades eller faktiskt ändrades
              */
             upserted: number;
+        };
+        /**
+         * SyncRunInfo
+         * @description En loggad synkkörning — alla kolumner i sync_runs.
+         */
+        SyncRunInfo: {
+            /**
+             * Error
+             * @description Felmeddelande om körningen misslyckades
+             */
+            error?: string | null;
+            /** Fetched */
+            fetched: number;
+            /**
+             * Finished At
+             * @description null medan körningen pågår (eller om processen dog)
+             */
+            finished_at?: string | null;
+            /** Id */
+            id: number;
+            /** Skipped */
+            skipped: number;
+            /** Source */
+            source: string;
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            /** Truncated */
+            truncated: boolean;
+            /** Unchanged */
+            unchanged: number;
+            /** Upserted */
+            upserted: number;
+        };
+        /** SyncRunList */
+        SyncRunList: {
+            /**
+             * Runs
+             * @description Senaste körningarna, nyast först
+             */
+            runs?: components["schemas"]["SyncRunInfo"][];
         };
         /** ValidationError */
         ValidationError: {
@@ -1310,6 +1560,40 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProximityScoresCollection"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_changes_api_v1_changes_get: {
+        parameters: {
+            query: {
+                /** @description Visa det som skapats eller ändrats efter denna tidpunkt (ISO 8601; naiv tid tolkas som UTC) */
+                since: string;
+                /** @description Högsta antal händelser i svaret */
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChangesResponse"];
                 };
             };
             /** @description Validation Error */
@@ -1577,6 +1861,38 @@ export interface operations {
             };
         };
     };
+    list_sync_runs_api_v1_infrastructure_sync_runs_get: {
+        parameters: {
+            query?: {
+                /** @description Antal körningar, nyast först */
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SyncRunList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     sync_source_api_v1_infrastructure_sync__source_name__post: {
         parameters: {
             query?: {
@@ -1651,6 +1967,37 @@ export interface operations {
             };
         };
     };
+    get_detail_plan_api_v1_planning_detail_plans__plan_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plan_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DetailPlanFeature"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_properties_api_v1_properties_get: {
         parameters: {
             query?: {
@@ -1662,6 +2009,8 @@ export interface operations {
                 min_value?: number | null;
                 /** @description Högsta taxeringsvärde (SEK) */
                 max_value?: number | null;
+                /** @description Visa bara fastigheter med exakt denna ägare (owner_name) */
+                owner?: string | null;
                 limit?: number;
                 offset?: number;
                 /** @description Avgränsningsruta i WGS84: väst,syd,öst,norr */
@@ -1715,6 +2064,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PropertyFeature"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_owners_api_v1_properties_owners_get: {
+        parameters: {
+            query?: {
+                /** @description Filtrera på kommun (kan upprepas) */
+                municipality?: string[] | null;
+                limit?: number;
+                /** @description Avgränsningsruta i WGS84: väst,syd,öst,norr */
+                bbox?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OwnerSummaryList"];
                 };
             };
             /** @description Validation Error */

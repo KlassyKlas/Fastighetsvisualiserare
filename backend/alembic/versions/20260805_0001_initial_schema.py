@@ -1,7 +1,7 @@
 """Initialt schema: properties och infrastructure_projects med PostGIS.
 
 Revision ID: 0001
-Revides: None
+Revises: None
 
 Handskriven initial migration. Spatiala index skapas explicit med
 GeoAlchemy2:s standardnamn (idx_<tabell>_<kolumn>) så att framtida

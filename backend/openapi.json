@@ -302,6 +302,72 @@
         "title": "AffectingProject",
         "type": "object"
       },
+      "ChangesResponse": {
+        "description": "Nya och ändrade objekt i hela datamängden sedan en tidpunkt.\n\nHändelselistorna begränsas av limit (projekt fyller listan först,\ndetaljplaner får resten) medan räkningarna alltid gäller hela\nurvalet — total_events är därför sant även när truncated är true.",
+        "properties": {
+          "plan_changed": {
+            "description": "Antal detaljplaner som bara ändrats efter since",
+            "title": "Plan Changed",
+            "type": "integer"
+          },
+          "plan_events": {
+            "items": {
+              "$ref": "#/components/schemas/DetailPlanWatchEvent"
+            },
+            "title": "Plan Events",
+            "type": "array"
+          },
+          "plan_new": {
+            "description": "Antal detaljplaner som skapats efter since",
+            "title": "Plan New",
+            "type": "integer"
+          },
+          "project_changed": {
+            "description": "Antal projekt som bara ändrats efter since",
+            "title": "Project Changed",
+            "type": "integer"
+          },
+          "project_events": {
+            "items": {
+              "$ref": "#/components/schemas/ProjectWatchEvent"
+            },
+            "title": "Project Events",
+            "type": "array"
+          },
+          "project_new": {
+            "description": "Antal projekt som skapats efter since",
+            "title": "Project New",
+            "type": "integer"
+          },
+          "since": {
+            "description": "Tidpunkten händelserna räknas från, normaliserad till UTC",
+            "format": "date-time",
+            "title": "Since",
+            "type": "string"
+          },
+          "total_events": {
+            "description": "Summan av de fyra räkningarna — inte bara de returnerade händelserna",
+            "title": "Total Events",
+            "type": "integer"
+          },
+          "truncated": {
+            "description": "true om fler händelser finns än limit",
+            "title": "Truncated",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "since",
+          "project_new",
+          "project_changed",
+          "plan_new",
+          "plan_changed",
+          "total_events",
+          "truncated"
+        ],
+        "title": "ChangesResponse",
+        "type": "object"
+      },
       "DesoAreaCollection": {
         "properties": {
           "features": {
@@ -1197,6 +1263,113 @@
         "title": "NearbyProjectsResponse",
         "type": "object"
       },
+      "OwnerSummary": {
+        "description": "En ägares samlade innehav — grupperat på exakt owner_name.",
+        "properties": {
+          "extent": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Utbredning [väst, syd, öst, norr] i WGS84 — null om alla geometrier saknas",
+            "title": "Extent"
+          },
+          "municipalities": {
+            "description": "Kommuner där ägaren har fastigheter, distinkta och sorterade",
+            "items": {
+              "type": "string"
+            },
+            "title": "Municipalities",
+            "type": "array"
+          },
+          "owner_name": {
+            "title": "Owner Name",
+            "type": "string"
+          },
+          "owner_org_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Lägsta organisationsnumret i gruppen (normalt det enda)",
+            "title": "Owner Org Number"
+          },
+          "property_count": {
+            "description": "Antal fastigheter som matchar filtret",
+            "title": "Property Count",
+            "type": "integer"
+          },
+          "total_area_sqm": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Summan av area_sqm — null om ingen fastighet har yta",
+            "title": "Total Area Sqm"
+          },
+          "total_assessed_value_sek": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Summan av assessed_value_sek — null om ingen fastighet har taxeringsvärde",
+            "title": "Total Assessed Value Sek"
+          }
+        },
+        "required": [
+          "owner_name",
+          "property_count"
+        ],
+        "title": "OwnerSummary",
+        "type": "object"
+      },
+      "OwnerSummaryList": {
+        "properties": {
+          "numberMatched": {
+            "description": "Totalt antal ägare som matchar filtret",
+            "title": "Numbermatched",
+            "type": "integer"
+          },
+          "numberReturned": {
+            "description": "Antal ägare i detta svar",
+            "title": "Numberreturned",
+            "type": "integer"
+          },
+          "owners": {
+            "description": "Störst innehav först, därefter ägarnamn",
+            "items": {
+              "$ref": "#/components/schemas/OwnerSummary"
+            },
+            "title": "Owners",
+            "type": "array"
+          }
+        },
+        "required": [
+          "numberMatched",
+          "numberReturned"
+        ],
+        "title": "OwnerSummaryList",
+        "type": "object"
+      },
       "ProjectStatus": {
         "enum": [
           "planerad",
@@ -2013,6 +2186,11 @@
             "title": "Fetched",
             "type": "integer"
           },
+          "run_id": {
+            "description": "Körningens id i synkloggen (GET /infrastructure/sync/runs)",
+            "title": "Run Id",
+            "type": "integer"
+          },
           "skipped": {
             "description": "Antal objekt som hoppades över (t.ex. ogiltig geometri)",
             "title": "Skipped",
@@ -2020,6 +2198,12 @@
           },
           "source": {
             "title": "Source",
+            "type": "string"
+          },
+          "started_at": {
+            "description": "När körningen startade — tidsankare för 'Nytt sedan senast'",
+            "format": "date-time",
+            "title": "Started At",
             "type": "string"
           },
           "truncated": {
@@ -2044,9 +2228,100 @@
           "source",
           "fetched",
           "upserted",
-          "skipped"
+          "skipped",
+          "run_id",
+          "started_at"
         ],
         "title": "SyncResult",
+        "type": "object"
+      },
+      "SyncRunInfo": {
+        "description": "En loggad synkkörning — alla kolumner i sync_runs.",
+        "properties": {
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Felmeddelande om körningen misslyckades",
+            "title": "Error"
+          },
+          "fetched": {
+            "title": "Fetched",
+            "type": "integer"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "null medan körningen pågår (eller om processen dog)",
+            "title": "Finished At"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "skipped": {
+            "title": "Skipped",
+            "type": "integer"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "started_at": {
+            "format": "date-time",
+            "title": "Started At",
+            "type": "string"
+          },
+          "truncated": {
+            "title": "Truncated",
+            "type": "boolean"
+          },
+          "unchanged": {
+            "title": "Unchanged",
+            "type": "integer"
+          },
+          "upserted": {
+            "title": "Upserted",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "source",
+          "started_at",
+          "fetched",
+          "upserted",
+          "unchanged",
+          "skipped",
+          "truncated"
+        ],
+        "title": "SyncRunInfo",
+        "type": "object"
+      },
+      "SyncRunList": {
+        "properties": {
+          "runs": {
+            "description": "Senaste körningarna, nyast först",
+            "items": {
+              "$ref": "#/components/schemas/SyncRunInfo"
+            },
+            "title": "Runs",
+            "type": "array"
+          }
+        },
+        "title": "SyncRunList",
         "type": "object"
       },
       "ValidationError": {
@@ -2531,6 +2806,66 @@
         "summary": "Proximity Scores",
         "tags": [
           "analysis"
+        ]
+      }
+    },
+    "/api/v1/changes": {
+      "get": {
+        "description": "Nytt sedan senast: nya och ändrade projekt och detaljplaner i hela datamängden.\n\nGlobalt komplement till bevakningarna (som svarar per ritat område).\nRäkningarna gäller hela urvalet; händelselistan begränsas av limit\nmed projekt först och detaljplaner därefter.",
+        "operationId": "list_changes_api_v1_changes_get",
+        "parameters": [
+          {
+            "description": "Visa det som skapats eller ändrats efter denna tidpunkt (ISO 8601; naiv tid tolkas som UTC)",
+            "in": "query",
+            "name": "since",
+            "required": true,
+            "schema": {
+              "description": "Visa det som skapats eller ändrats efter denna tidpunkt (ISO 8601; naiv tid tolkas som UTC)",
+              "format": "date-time",
+              "title": "Since",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Högsta antal händelser i svaret",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 200,
+              "description": "Högsta antal händelser i svaret",
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChangesResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Changes",
+        "tags": [
+          "changes"
         ]
       }
     },
@@ -3084,6 +3419,54 @@
         ]
       }
     },
+    "/api/v1/infrastructure/sync/runs": {
+      "get": {
+        "description": "Synkloggen: senaste körningarna per anrop av POST /sync/{källa}.\n\nLyckade som misslyckade (error satt). Senaste körningens started_at\när tidsankaret \"sedan senaste synk\" i panelen Nytt sedan senast.",
+        "operationId": "list_sync_runs_api_v1_infrastructure_sync_runs_get",
+        "parameters": [
+          {
+            "description": "Antal körningar, nyast först",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "description": "Antal körningar, nyast först",
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncRunList"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Sync Runs",
+        "tags": [
+          "infrastructure"
+        ]
+      }
+    },
     "/api/v1/infrastructure/sync/{source_name}": {
       "post": {
         "description": "Synkronisera en registrerad datakälla till databasen (upsert).",
@@ -3278,6 +3661,49 @@
         ]
       }
     },
+    "/api/v1/planning/detail-plans/{plan_id}": {
+      "get": {
+        "description": "En detaljplan med full geometri — t.ex. för att öppna en delad länk.",
+        "operationId": "get_detail_plan_api_v1_planning_detail_plans__plan_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "plan_id",
+            "required": true,
+            "schema": {
+              "title": "Plan Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetailPlanFeature"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Detail Plan",
+        "tags": [
+          "planning"
+        ]
+      }
+    },
     "/api/v1/properties": {
       "get": {
         "description": "Fastigheter som GeoJSON FeatureCollection, med filter och paginering.",
@@ -3361,6 +3787,24 @@
               ],
               "description": "Högsta taxeringsvärde (SEK)",
               "title": "Max Value"
+            }
+          },
+          {
+            "description": "Visa bara fastigheter med exakt denna ägare (owner_name)",
+            "in": "query",
+            "name": "owner",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Visa bara fastigheter med exakt denna ägare (owner_name)",
+              "title": "Owner"
             }
           },
           {
@@ -3485,6 +3929,91 @@
           }
         },
         "summary": "Create Property",
+        "tags": [
+          "properties"
+        ]
+      }
+    },
+    "/api/v1/properties/owners": {
+      "get": {
+        "description": "Ägare grupperade på owner_name med innehavets nyckeltal, störst innehav först.\n\nAggregeringen (antal, summor, kommuner, utbredning via ST_Extent)\ngörs i PostGIS över samma filter som fastighetslistan.",
+        "operationId": "list_owners_api_v1_properties_owners_get",
+        "parameters": [
+          {
+            "description": "Filtrera på kommun (kan upprepas)",
+            "in": "query",
+            "name": "municipality",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filtrera på kommun (kan upprepas)",
+              "title": "Municipality"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Avgränsningsruta i WGS84: väst,syd,öst,norr",
+            "in": "query",
+            "name": "bbox",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Avgränsningsruta i WGS84: väst,syd,öst,norr",
+              "title": "Bbox"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OwnerSummaryList"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Owners",
         "tags": [
           "properties"
         ]

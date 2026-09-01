@@ -10,7 +10,14 @@ from app.schemas.analysis import (
     ProximityScoresCollection,
     ScoreContribution,
 )
-from app.schemas.common import GeoJSONGeometry, HealthStatus, SyncResult
+from app.schemas.changes import ChangesResponse
+from app.schemas.common import (
+    GeoJSONGeometry,
+    HealthStatus,
+    SyncResult,
+    SyncRunInfo,
+    SyncRunList,
+)
 from app.schemas.demographics import DesoAreaCollection, DesoAreaFeature, DesoAreaProps
 from app.schemas.infrastructure import (
     ImpactZoneCollection,
@@ -23,6 +30,8 @@ from app.schemas.infrastructure import (
 )
 from app.schemas.planning import DetailPlanCollection, DetailPlanFeature, DetailPlanProps
 from app.schemas.property import (
+    OwnerSummary,
+    OwnerSummaryList,
     PropertyCollection,
     PropertyCreate,
     PropertyFeature,
@@ -44,6 +53,7 @@ __all__ = [
     "AffectedPropertyFeature",
     "AffectedPropertyProps",
     "AffectingProject",
+    "ChangesResponse",
     "DesoAreaCollection",
     "DesoAreaFeature",
     "DesoAreaProps",
@@ -62,6 +72,8 @@ __all__ = [
     "InfrastructureProjectProps",
     "NearbyProject",
     "NearbyProjectsResponse",
+    "OwnerSummary",
+    "OwnerSummaryList",
     "ProjectWatchEvent",
     "PropertyCollection",
     "PropertyCreate",
@@ -72,6 +84,8 @@ __all__ = [
     "ProximityScoresCollection",
     "ScoreContribution",
     "SyncResult",
+    "SyncRunInfo",
+    "SyncRunList",
     "WatchEvents",
     "WatchEventsResponse",
     "WatchedAreaCollection",

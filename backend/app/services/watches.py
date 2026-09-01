@@ -6,13 +6,10 @@ på "vad har hänt i mina områden sedan jag senast tittade?" — nya och
 med ST_Intersects i PostGIS (ren geometrioperation, inga meter).
 """
 
-from datetime import datetime
-
 from fastapi import HTTPException
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.domain import WatchEventKind
 from app.models import DetailPlan, InfrastructureProject, WatchedArea
 from app.schemas import (
     DetailPlanWatchEvent,
@@ -24,27 +21,13 @@ from app.schemas import (
     WatchEvents,
     WatchEventsResponse,
 )
+
+# classify_event bor i changes.py (regeln delas med "Nytt sedan senast")
+# och importeras hit så att befintliga anropare och tester är oförändrade.
+from app.services.changes import classify_event
 from app.services.geo import geojson_to_element, parse_geojson_column
 from app.services.infrastructure import GEOJSON_DECIMALER
 from app.services.serializers import detail_plan_feature, project_feature
-
-
-def classify_event(
-    created_at: datetime | None,
-    updated_at: datetime | None,
-    seen_at: datetime,
-) -> WatchEventKind | None:
-    """Avgör om ett objekt är en händelse sedan seen_at — och vilken sort.
-
-    Skapat efter seen_at räknas som nytt; enbart uppdaterat efter
-    seen_at räknas som ändrat. Objekt utan tidsstämplar ger ingen
-    händelse (de kan inte placeras i tiden).
-    """
-    if created_at is not None and created_at > seen_at:
-        return WatchEventKind.NYTT
-    if updated_at is not None and updated_at > seen_at:
-        return WatchEventKind.ANDRAT
-    return None
 
 
 def _watched_area_feature(watch: WatchedArea, geojson: str | None) -> WatchedAreaFeature:
