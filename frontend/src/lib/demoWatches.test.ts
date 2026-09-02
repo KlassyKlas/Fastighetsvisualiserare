@@ -55,7 +55,8 @@ describe('demoWatches', () => {
     expect(watches).toHaveLength(1);
     // Exempeldatat innehåller flera Stockholmsprojekt (Nya Slussen m.fl.)
     expect(watches[0].project_count).toBeGreaterThan(0);
-    // Statiskt demodata utan tidsstämplar → inga händelser
+    // Demodatats stämplar ligger före referensdatumet (2026-08-05) och
+    // bevakningen skapas "nu" → inga händelser
     expect(events.total_events).toBe(0);
   });
 

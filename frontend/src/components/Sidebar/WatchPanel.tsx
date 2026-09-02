@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import clsx from 'clsx';
 import { Bell, Check, MapPinPlus, Trash2, Undo2, X } from 'lucide-react';
 import { useState } from 'react';
 import {
@@ -9,86 +8,13 @@ import {
   watchesQuery,
   watchEventsQuery,
 } from '@/api/queries';
-import { STATUS_LABELS, WATCH_COLOR } from '@/config/map';
-import type { WatchedAreaCreate, WatchEventKind, WatchEvents } from '@/domain';
+import { WATCH_COLOR } from '@/config/map';
+import type { WatchedAreaCreate, WatchEvents } from '@/domain';
+import { formatDateTime } from '@/lib/format';
 import { useUiStore } from '@/store/uiStore';
-
-const dateFormat = new Intl.DateTimeFormat('sv-SE', { dateStyle: 'medium', timeStyle: 'short' });
-
-function formatSeen(value: string | null | undefined): string | null {
-  if (!value) return null;
-  const parsed = new Date(value);
-  return Number.isNaN(parsed.getTime()) ? null : dateFormat.format(parsed);
-}
-
-const EVENT_KIND_STYLES: Record<WatchEventKind, string> = {
-  nytt: 'bg-green-500/20 text-green-300',
-  ändrat: 'bg-amber-500/20 text-amber-300',
-};
-
-const EVENT_KIND_LABELS: Record<WatchEventKind, string> = {
-  nytt: 'Nytt',
-  ändrat: 'Ändrat',
-};
-
-function EventKindBadge({ kind }: { kind: WatchEventKind }) {
-  return (
-    <span
-      className={clsx(
-        'inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide',
-        EVENT_KIND_STYLES[kind],
-      )}
-    >
-      {EVENT_KIND_LABELS[kind]}
-    </span>
-  );
-}
-
-function WatchEventList({ events }: { events: WatchEvents }) {
-  // Kontraktet markerar listfälten som valfria (default_factory) —
-  // backend skickar dem alltid, men typerna kräver ?? [].
-  const projectEvents = events.project_events ?? [];
-  const planEvents = events.plan_events ?? [];
-  if (projectEvents.length === 0 && planEvents.length === 0) {
-    return <p className="text-xs text-slate-500">Inget nytt sedan du senast tittade.</p>;
-  }
-  return (
-    <div className="space-y-1.5">
-      {projectEvents.map((event) => (
-        <div
-          key={`project-${event.project.properties.id}`}
-          className="flex items-start justify-between gap-2 bg-slate-900/60 rounded p-2"
-        >
-          <div className="min-w-0">
-            <p className="text-xs text-slate-200 leading-snug">{event.project.properties.name}</p>
-            <p className="text-[11px] text-slate-500">
-              Infrastrukturprojekt
-              {event.project.properties.status
-                ? ` · ${STATUS_LABELS[event.project.properties.status] ?? event.project.properties.status}`
-                : ''}
-            </p>
-          </div>
-          <EventKindBadge kind={event.event_kind} />
-        </div>
-      ))}
-      {planEvents.map((event) => (
-        <div
-          key={`plan-${event.plan.properties.id}`}
-          className="flex items-start justify-between gap-2 bg-slate-900/60 rounded p-2"
-        >
-          <div className="min-w-0">
-            <p className="text-xs text-slate-200 leading-snug">{event.plan.properties.name}</p>
-            <p className="text-[11px] text-slate-500">
-              Detaljplan
-              {event.plan.properties.status ? ` · ${event.plan.properties.status}` : ''}
-            </p>
-          </div>
-          <EventKindBadge kind={event.event_kind} />
-        </div>
-      ))}
-    </div>
-  );
-}
+import ChangesSection from './ChangesSection';
+import EventList from './EventList';
+import { useEventSelection } from './useEventSelection';
 
 export default function WatchPanel() {
   const demoMode = useUiStore((s) => s.demoMode);
@@ -96,6 +22,7 @@ export default function WatchPanel() {
   const watchDraftPoints = useUiStore((s) => s.watchDraftPoints);
   const setWatchDrawing = useUiStore((s) => s.setWatchDrawing);
   const undoWatchDraftPoint = useUiStore((s) => s.undoWatchDraftPoint);
+  const selectEvent = useEventSelection();
 
   const [draftName, setDraftName] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -152,6 +79,12 @@ export default function WatchPanel() {
 
   return (
     <div className="p-4 space-y-5">
+      {/* Globalt först: "vad har hänt sedan sist?" — bevakningarna nedanför
+          svarar på samma fråga per ritat område. */}
+      <ChangesSection />
+
+      <div className="border-t border-slate-700" />
+
       <div>
         <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
           <Bell className="w-3.5 h-3.5" />
@@ -222,10 +155,11 @@ export default function WatchPanel() {
 
       {errorMessage && <p className="text-xs text-red-400">{errorMessage}</p>}
 
+      {/* ChangesSection ovanför förklarar redan att händelserna beräknas
+          mot exempeldatat — här bara det som är unikt för bevakningarna. */}
       {demoMode && (
         <p className="text-xs text-amber-400/80">
-          Demo-läge: bevakningarna sparas bara i din webbläsare och händelser beräknas mot
-          exempeldatat.
+          Demo-läge: bevakningarna sparas bara i din webbläsare.
         </p>
       )}
 
@@ -239,7 +173,7 @@ export default function WatchPanel() {
           const eventCount = events
             ? (events.project_events?.length ?? 0) + (events.plan_events?.length ?? 0)
             : 0;
-          const seenLabel = formatSeen(props.last_seen_at);
+          const seenLabel = formatDateTime(props.last_seen_at);
           return (
             <div key={props.id} className="bg-slate-900/50 rounded-lg p-3 space-y-2">
               <div className="flex items-start justify-between gap-2">
@@ -275,7 +209,13 @@ export default function WatchPanel() {
                 </button>
               </div>
 
-              {events && <WatchEventList events={events} />}
+              {events && (
+                <EventList
+                  projectEvents={events.project_events}
+                  planEvents={events.plan_events}
+                  onSelect={selectEvent}
+                />
+              )}
 
               {eventCount > 0 && (
                 <button

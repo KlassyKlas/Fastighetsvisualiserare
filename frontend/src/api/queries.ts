@@ -20,6 +20,7 @@ import {
   sampleProperties,
   sampleProximityScores,
 } from '@/data/sampleData';
+import { demoChanges } from '@/lib/demoChanges';
 import {
   createDemoWatch,
   deleteDemoWatch,
@@ -30,16 +31,21 @@ import {
 import { applyImpactZoneFilters, applyProjectFilters, applyPropertyFilters } from '@/lib/filters';
 import { useUiStore } from '@/store/uiStore';
 import type {
+  ChangesResponse,
   DesoAreaCollection,
   DesoAreaFeature,
   DetailPlanCollection,
+  DetailPlanFeature,
   FilterState,
   ImpactZoneCollection,
   NearbyProjectsResponse,
   ProjectCollection,
+  ProjectFeature,
   PropertyCollection,
+  PropertyFeature,
   ProximityScoresCollection,
   SyncResult,
+  SyncRunList,
   WatchedAreaCollection,
   WatchedAreaCreate,
   WatchedAreaFeature,
@@ -319,6 +325,99 @@ export function desoLookupQuery(longitude: number, latitude: number) {
   });
 }
 
+/**
+ * Enskilda objekt med full geometri — för delbara länkar (val ur URL:en)
+ * och händelselistor. I demo-läge slås id:t upp i exempeldatat, vars id
+ * är 1-baserade index; saknas det kastas ett fel så att anroparen kan
+ * rensa valet tyst. retry: false — ett 404 blir inte bättre av omförsök.
+ */
+function demoLookup<T extends { properties: { id: number } }>(
+  features: T[],
+  id: number,
+  label: string,
+): T {
+  const hit = features.find((feature) => feature.properties.id === id);
+  if (!hit) {
+    throw new Error(`${label} med id ${id} hittades inte i exempeldatat.`);
+  }
+  return hit;
+}
+
+export function propertyQuery(propertyId: number) {
+  return queryOptions({
+    queryKey: ['property', propertyId],
+    queryFn: async ({ signal }): Promise<PropertyFeature> => {
+      try {
+        const { data, error, response } = await client.GET('/api/v1/properties/{property_id}', {
+          params: { path: { property_id: propertyId } },
+          signal,
+        });
+        ensureOk(error, response);
+        markDemoMode(false);
+        return data as unknown as PropertyFeature;
+      } catch (error) {
+        if (isBackendUnreachable(error) && !signal.aborted) {
+          markDemoMode(true);
+          return demoLookup(sampleProperties.features, propertyId, 'Fastigheten');
+        }
+        throw error;
+      }
+    },
+    staleTime: 5 * 60_000,
+    retry: false,
+  });
+}
+
+export function projectQuery(projectId: number) {
+  return queryOptions({
+    queryKey: ['project', projectId],
+    queryFn: async ({ signal }): Promise<ProjectFeature> => {
+      try {
+        const { data, error, response } = await client.GET(
+          '/api/v1/infrastructure/projects/{project_id}',
+          { params: { path: { project_id: projectId } }, signal },
+        );
+        ensureOk(error, response);
+        markDemoMode(false);
+        return data as unknown as ProjectFeature;
+      } catch (error) {
+        if (isBackendUnreachable(error) && !signal.aborted) {
+          markDemoMode(true);
+          return demoLookup(sampleProjects.features, projectId, 'Projektet');
+        }
+        throw error;
+      }
+    },
+    staleTime: 5 * 60_000,
+    retry: false,
+  });
+}
+
+export function detailPlanQuery(planId: number) {
+  return queryOptions({
+    queryKey: ['detail-plan', planId],
+    queryFn: async ({ signal }): Promise<DetailPlanFeature> => {
+      try {
+        const { data, error, response } = await client.GET(
+          '/api/v1/planning/detail-plans/{plan_id}',
+          { params: { path: { plan_id: planId } }, signal },
+        );
+        ensureOk(error, response);
+        markDemoMode(false);
+        return data as unknown as DetailPlanFeature;
+      } catch (error) {
+        if (isBackendUnreachable(error) && !signal.aborted) {
+          markDemoMode(true);
+          return demoLookup(sampleDetailPlans.features, planId, 'Detaljplanen');
+        }
+        throw error;
+      }
+    },
+    staleTime: 5 * 60_000,
+    retry: false,
+  });
+}
+
 export function nearbyProjectsQuery(propertyId: number, maxDistanceM = 5000) {
   return queryOptions({
     queryKey: ['nearby-projects', propertyId, maxDistanceM],
@@ -420,6 +519,73 @@ export function watchEventsQuery() {
     // Notiser ska dyka upp utan omladdning — fråga om varje minut.
     // Intervallet täcker även demo-lägets backendomförsök.
     refetchInterval: 60_000,
+  });
+}
+
+/**
+ * "Nytt sedan senast" — globala händelser sedan en tidpunkt. `since`
+ * kommer från lib/changes.resolveSince och kan vara null (perioden
+ * "Senaste synk" utan registrerad synk); anroparen sätter då
+ * `enabled: false`. Demo-fallback beräknar mot exempeldatat.
+ */
+export function changesQuery(since: string | null, limit = 200) {
+  return queryOptions({
+    queryKey: ['changes', { since, limit }],
+    queryFn: async ({ signal }): Promise<ChangesResponse> => {
+      if (since == null) {
+        throw new Error('Ändringsfrågan kräver en since-tidpunkt.');
+      }
+      try {
+        const { data, error, response } = await client.GET('/api/v1/changes', {
+          params: { query: { since, limit } },
+          signal,
+        });
+        ensureOk(error, response);
+        markDemoMode(false);
+        return data as unknown as ChangesResponse;
+      } catch (error) {
+        if (isBackendUnreachable(error) && !signal.aborted) {
+          markDemoMode(true);
+          return demoChanges(since, limit);
+        }
+        throw error;
+      }
+    },
+    staleTime: 30_000,
+    // Som watch-events: nya händelser ska dyka upp utan omladdning, och
+    // intervallet täcker demo-lägets backendomförsök.
+    refetchInterval: 60_000,
+  });
+}
+
+/** Synkloggen — driver "Senast synkad" i lagerpanelen och tidsankaret
+ * "Senaste synk". Taket är generöst så att varje källas senaste körning
+ * hittas även när en källa synkats många gånger. */
+const SYNC_RUNS_LIMIT = 100;
+
+export function syncRunsQuery() {
+  return queryOptions({
+    queryKey: ['sync-runs'],
+    queryFn: async ({ signal }): Promise<SyncRunList> => {
+      try {
+        const { data, error, response } = await client.GET('/api/v1/infrastructure/sync/runs', {
+          params: { query: { limit: SYNC_RUNS_LIMIT } },
+          signal,
+        });
+        ensureOk(error, response);
+        markDemoMode(false);
+        return data as SyncRunList;
+      } catch (error) {
+        if (isBackendUnreachable(error) && !signal.aborted) {
+          markDemoMode(true);
+          // Synk är avstängd i demo-läge — det finns inga körningar att visa.
+          return { runs: [] };
+        }
+        throw error;
+      }
+    },
+    staleTime: 60_000,
+    refetchInterval: retryWhileDemo,
   });
 }
 

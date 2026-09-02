@@ -2,6 +2,10 @@ import { format, parseISO } from 'date-fns';
 import { sv } from 'date-fns/locale';
 
 const numberFormat = new Intl.NumberFormat('sv-SE');
+const dateTimeFormat = new Intl.DateTimeFormat('sv-SE', {
+  dateStyle: 'medium',
+  timeStyle: 'short',
+});
 
 /** "34 000 000 000" → "34,0 mdkr"; mindre belopp med tusentalsavgränsare. */
 export function formatSek(sek: number): string {
@@ -41,4 +45,11 @@ export function formatDate(dateStr?: string | null): string {
   } catch {
     return dateStr;
   }
+}
+
+/** ISO-tidpunkt → "5 aug. 2026 14:30" (sv-SE); null för saknad/ogiltig tid. */
+export function formatDateTime(value: string | null | undefined): string | null {
+  if (!value) return null;
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : dateTimeFormat.format(parsed);
 }

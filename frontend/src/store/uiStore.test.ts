@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+import { readChangesSeenAt } from '@/lib/changesSeen';
 import { useUiStore } from './uiStore';
 
 const initialState = useUiStore.getState();
@@ -108,5 +109,44 @@ describe('uiStore', () => {
     expect(state.isochronePicking).toBe(false);
     expect(state.isochroneProfile).toBe('driving');
     expect(state.isochroneMinutes).toEqual([10, 20, 30]);
+  });
+
+  it('ändringsperioden är senaste besöket som standard och kan bytas', () => {
+    expect(useUiStore.getState().changesPeriod).toBe('visit');
+    useUiStore.getState().setChangesPeriod('sync');
+    expect(useUiStore.getState().changesPeriod).toBe('sync');
+  });
+
+  it('utan localStorage (node) startar besöksmarkören som null', () => {
+    // vitest kör i node: globalThis.localStorage saknas och läsningen får inte kasta
+    expect(useUiStore.getState().changesSeenAt).toBeNull();
+  });
+
+  it('markChangesSeen sätter markören till nu och skriver localStorage', () => {
+    const store = new Map<string, string>();
+    Object.defineProperty(globalThis, 'localStorage', {
+      configurable: true,
+      value: {
+        getItem: (key: string) => store.get(key) ?? null,
+        setItem: (key: string, value: string) => void store.set(key, value),
+        removeItem: (key: string) => void store.delete(key),
+        clear: () => store.clear(),
+      },
+    });
+    try {
+      const before = Date.now();
+      useUiStore.getState().markChangesSeen();
+      const seenAt = useUiStore.getState().changesSeenAt;
+      expect(seenAt).not.toBeNull();
+      expect(Date.parse(seenAt!)).toBeGreaterThanOrEqual(before);
+      expect(readChangesSeenAt()).toBe(seenAt);
+    } finally {
+      Object.defineProperty(globalThis, 'localStorage', { configurable: true, value: undefined });
+    }
+  });
+
+  it('markChangesSeen fungerar även utan localStorage', () => {
+    useUiStore.getState().markChangesSeen();
+    expect(useUiStore.getState().changesSeenAt).not.toBeNull();
   });
 });

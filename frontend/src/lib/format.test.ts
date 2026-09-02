@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { formatArea, formatCurrency, formatDate, formatDistance, formatSek } from './format';
+import {
+  formatArea,
+  formatCurrency,
+  formatDate,
+  formatDateTime,
+  formatDistance,
+  formatSek,
+} from './format';
 
 // Intl med sv-SE använder smalt mellanslag som tusentalsavgränsare —
 // normalisera för robusta jämförelser.
@@ -55,5 +62,19 @@ describe('formatDate', () => {
 
   it('returnerar rå sträng vid ogiltigt datum', () => {
     expect(formatDate('inte-ett-datum')).toBe('inte-ett-datum');
+  });
+});
+
+describe('formatDateTime', () => {
+  it('formaterar datum och tid på svenska', () => {
+    const value = formatDateTime('2026-08-05T12:30:00Z');
+    expect(value).toContain('2026');
+    expect(value).toMatch(/\d{2}[.:]\d{2}/);
+  });
+
+  it('null för saknad eller ogiltig tid', () => {
+    expect(formatDateTime(null)).toBeNull();
+    expect(formatDateTime(undefined)).toBeNull();
+    expect(formatDateTime('inte-en-tid')).toBeNull();
   });
 });

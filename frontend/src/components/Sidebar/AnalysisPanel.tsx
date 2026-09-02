@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import { Info, Palette } from 'lucide-react';
 import { proximityScoresQuery } from '@/api/queries';
 import { formatDistance } from '@/lib/format';
+import { focusGeometry } from '@/lib/mapBridge';
 import { useUiStore } from '@/store/uiStore';
 import IsochroneControls from './IsochroneControls';
 import Toggle from '../UI/Toggle';
@@ -31,6 +32,7 @@ export default function AnalysisPanel() {
     // ProximityScoreProps är en utökning av PropertyProps —
     // detaljpanelen fungerar rakt av.
     setSelectedProperty(feature as unknown as PropertyFeature);
+    focusGeometry(feature.geometry);
   };
 
   return (

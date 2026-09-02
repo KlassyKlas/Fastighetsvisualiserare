@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import type { Map as MapboxMap, MapLayerMouseEvent } from 'mapbox-gl';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Map, {
   GeolocateControl,
   Layer,
@@ -22,6 +22,7 @@ import {
 } from '@/api/queries';
 import { INITIAL_VIEW_STATE, MAP_STYLES, MAPBOX_TOKEN } from '@/config/map';
 import type { DetailPlanFeature, ProjectFeature, PropertyFeature } from '@/domain';
+import { registerMap } from '@/lib/mapBridge';
 import { useUiStore } from '@/store/uiStore';
 import DesoLayer from './layers/DesoLayer';
 import DetailPlanLayer from './layers/DetailPlanLayer';
@@ -117,6 +118,11 @@ export default function MapContainer() {
   });
 
   const [cursor, setCursor] = useState('');
+
+  // Kartbryggan (lib/mapBridge) låter sidofältet zooma till objekt utan
+  // att kartinstansen hamnar i storen. Registreras vid load nedan,
+  // avregistreras när kartan försvinner.
+  useEffect(() => () => registerMap(null), []);
 
   const useScores = scoreColoring && scoreData != null;
   const maxScore = useMemo(
@@ -259,7 +265,10 @@ export default function MapContainer() {
       }}
       interactiveLayerIds={interactiveLayerIds}
       onClick={handleClick}
-      onLoad={(event) => updateViewportBbox(event.target)}
+      onLoad={(event) => {
+        registerMap(event.target);
+        updateViewportBbox(event.target);
+      }}
       onMoveEnd={(event) => updateViewportBbox(event.target)}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}

@@ -16,6 +16,8 @@ import type {
 import raw from './sampleData.json';
 
 interface SampleData {
+  /** Datumet (ÅÅÅÅ-MM-DD) som demodatats tidsstämplar är relativa till. */
+  referenceDate: string;
   properties: PropertyCollection;
   infrastructureProjects: ProjectCollection;
   impactZones: ImpactZoneCollection;
@@ -26,6 +28,12 @@ interface SampleData {
 
 const data = raw as unknown as SampleData;
 
+/**
+ * Demodatats "nu". Tidsstämplarna (created_at/updated_at) i exempeldatat
+ * är illustrativa och ligger strax före detta datum, så att "Nytt sedan
+ * senast" har något att visa i demo-läge.
+ */
+export const sampleReferenceDate: string = data.referenceDate;
 export const sampleProperties = data.properties;
 export const sampleProjects = data.infrastructureProjects;
 export const sampleImpactZones = data.impactZones;

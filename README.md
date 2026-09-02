@@ -115,7 +115,13 @@ annars säger CI ifrån.
    ändras där (ST_Intersects + last_seen_at i PostGIS; localStorage-bevakningar i
    demo-läge). Objektsrapport skapas från fastighetens detaljpanel och exporteras via
    Skriv ut → Spara som PDF
-7. "Nytt sedan senast": panel över projekt som tillkommit/ändrats sedan förra synken (created_at/updated_at finns redan)
+7. ~~"Nytt sedan senast"~~ — byggt: överst i Bevakning-fliken listas projekt och detaljplaner
+   som tillkommit eller ändrats i hela datamängden sedan ditt senaste besök (markör i
+   webbläsaren), de senaste 7/30 dagarna eller senaste synken; notisbadgen räknar med dem och
+   ett klick zoomar kartan till objektet. Synkkörningarna loggas i tabellen `sync_runs`
+   (`GET /api/v1/infrastructure/sync/runs`) och lagerpanelen visar senaste körning per källa
+   med knappen "Visa vad som ändrades". Demodatat har illustrativa tidsstämplar så att
+   panelen fungerar även i demo-läge
 8. Delbara länkar: filter, år, poängläge och vald fastighet i URL:en
 9. Ägarvy: gruppera fastigheter per ägare ("visa allt Vasakronan äger")
 10. Förberäknade påverkanszoner: zon-kolumn som sätts vid synk i stället för

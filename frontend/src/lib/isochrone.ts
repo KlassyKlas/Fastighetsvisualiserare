@@ -7,9 +7,10 @@
  * spatial analys görs i PostGIS: restidszoner kräver Mapbox vägnät.
  */
 import type { ExpressionSpecification } from 'mapbox-gl';
-import type { Geometry, Position } from 'geojson';
+import type { Geometry } from 'geojson';
 import { FALLBACK_COLOR, ISOCHRONE_PALETTE } from '@/config/map';
 import type { IsochroneOrigin, IsochroneProfile } from '@/domain';
+import { geometryBounds } from '@/lib/geometry';
 
 /** Mapbox tillåter högst fyra konturer per anrop. */
 export const MAX_ISOCHRONE_CONTOURS = 4;
@@ -92,48 +93,17 @@ export function contourColorExpression(minutes: number[]): ExpressionSpecificati
   return ['match', ['get', 'contour'], ...pairs, FALLBACK_COLOR] as ExpressionSpecification;
 }
 
-function collectPositions(geometry: Geometry, into: Position[]): void {
-  if (geometry.type === 'GeometryCollection') {
-    for (const member of geometry.geometries) {
-      collectPositions(member, into);
-    }
-    return;
-  }
-  const flatten = (coords: unknown): void => {
-    if (!Array.isArray(coords)) return;
-    if (typeof coords[0] === 'number') {
-      into.push(coords as Position);
-      return;
-    }
-    for (const nested of coords) {
-      flatten(nested);
-    }
-  };
-  flatten(geometry.coordinates);
-}
-
 /**
  * Representativ startpunkt för en godtycklig geometri: mittpunkten av
- * omslutande rektangel. Räcker som isokron-origo för fastigheter och
- * projekt — exakta tyngdpunkter behövs inte för restidszoner.
+ * omslutande rektangel (geometryBounds). Räcker som isokron-origo för
+ * fastigheter och projekt — exakta tyngdpunkter behövs inte för
+ * restidszoner.
  */
 export function geometryAnchor(
   geometry: Geometry | null | undefined,
 ): Pick<IsochroneOrigin, 'longitude' | 'latitude'> | null {
-  if (!geometry) return null;
-  const positions: Position[] = [];
-  collectPositions(geometry, positions);
-  if (positions.length === 0) return null;
-
-  let minLng = Infinity;
-  let maxLng = -Infinity;
-  let minLat = Infinity;
-  let maxLat = -Infinity;
-  for (const [lng, lat] of positions) {
-    minLng = Math.min(minLng, lng);
-    maxLng = Math.max(maxLng, lng);
-    minLat = Math.min(minLat, lat);
-    maxLat = Math.max(maxLat, lat);
-  }
-  return { longitude: (minLng + maxLng) / 2, latitude: (minLat + maxLat) / 2 };
+  const bounds = geometryBounds(geometry);
+  if (!bounds) return null;
+  const [west, south, east, north] = bounds;
+  return { longitude: (west + east) / 2, latitude: (south + north) / 2 };
 }

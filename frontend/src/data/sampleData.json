@@ -1,4 +1,5 @@
 {
+  "referenceDate": "2026-08-05",
   "properties": {
     "type": "FeatureCollection",
     "features": [
@@ -50,8 +51,8 @@
           "living_area_sqm": null,
           "zoning": "C",
           "metadata_json": {},
-          "created_at": null,
-          "updated_at": null
+          "created_at": "2026-06-26T08:00:00Z",
+          "updated_at": "2026-06-26T08:00:00Z"
         }
       },
       {
@@ -102,8 +103,8 @@
           "living_area_sqm": 5200.0,
           "zoning": "B",
           "metadata_json": {},
-          "created_at": null,
-          "updated_at": null
+          "created_at": "2026-06-30T08:00:00Z",
+          "updated_at": "2026-06-30T08:00:00Z"
         }
       },
       {
@@ -154,8 +155,8 @@
           "living_area_sqm": null,
           "zoning": "C",
           "metadata_json": {},
-          "created_at": null,
-          "updated_at": null
+          "created_at": "2026-07-04T08:00:00Z",
+          "updated_at": "2026-08-04T09:00:00Z"
         }
       },
       {
@@ -206,8 +207,8 @@
           "living_area_sqm": 8500.0,
           "zoning": "B",
           "metadata_json": {},
-          "created_at": null,
-          "updated_at": null
+          "created_at": "2026-07-08T08:00:00Z",
+          "updated_at": "2026-07-08T08:00:00Z"
         }
       },
       {
@@ -258,8 +259,8 @@
           "living_area_sqm": 4800.0,
           "zoning": "B",
           "metadata_json": {},
-          "created_at": null,
-          "updated_at": null
+          "created_at": "2026-07-12T08:00:00Z",
+          "updated_at": "2026-07-12T08:00:00Z"
         }
       },
       {
@@ -310,8 +311,8 @@
           "living_area_sqm": null,
           "zoning": "J",
           "metadata_json": {},
-          "created_at": null,
-          "updated_at": null
+          "created_at": "2026-07-16T08:00:00Z",
+          "updated_at": "2026-08-04T09:00:00Z"
         }
       },
       {
@@ -362,8 +363,8 @@
           "living_area_sqm": 9200.0,
           "zoning": "B",
           "metadata_json": {},
-          "created_at": null,
-          "updated_at": null
+          "created_at": "2026-07-20T08:00:00Z",
+          "updated_at": "2026-07-20T08:00:00Z"
         }
       },
       {
@@ -414,8 +415,8 @@
           "living_area_sqm": 220.0,
           "zoning": "B",
           "metadata_json": {},
-          "created_at": null,
-          "updated_at": null
+          "created_at": "2026-07-24T08:00:00Z",
+          "updated_at": "2026-07-24T08:00:00Z"
         }
       },
       {
@@ -466,8 +467,8 @@
           "living_area_sqm": null,
           "zoning": "C",
           "metadata_json": {},
-          "created_at": null,
-          "updated_at": null
+          "created_at": "2026-07-28T08:00:00Z",
+          "updated_at": "2026-08-04T09:00:00Z"
         }
       },
       {
@@ -518,8 +519,8 @@
           "living_area_sqm": null,
           "zoning": "S",
           "metadata_json": {},
-          "created_at": null,
-          "updated_at": null
+          "created_at": "2026-08-01T08:00:00Z",
+          "updated_at": "2026-08-01T08:00:00Z"
         }
       }
     ],
@@ -568,8 +569,8 @@
             "trafikverket_id": "TRV2015/1234",
             "kommun": "Stockholm, Järfälla, Sollentuna"
           },
-          "created_at": null,
-          "updated_at": null
+          "created_at": "2026-06-26T08:00:00Z",
+          "updated_at": "2026-06-26T08:00:00Z"
         }
       },
       {
@@ -607,8 +608,8 @@
             "trafikverket_id": "TRV2014/5678",
             "kommun": "Göteborg"
           },
-          "created_at": null,
-          "updated_at": null
+          "created_at": "2026-06-30T08:00:00Z",
+          "updated_at": "2026-06-30T08:00:00Z"
         }
       },
       {
@@ -646,8 +647,8 @@
             "trafikverket_id": "TRV2017/9012",
             "kommun": "Nyköping, Norrköping, Linköping"
           },
-          "created_at": null,
-          "updated_at": null
+          "created_at": "2026-07-04T08:00:00Z",
+          "updated_at": "2026-08-04T09:00:00Z"
         }
       },
       {
@@ -675,8 +676,8 @@
             "kommun": "Stockholm",
             "stadsdel": "Södermalm"
           },
-          "created_at": null,
-          "updated_at": null
+          "created_at": "2026-07-08T08:00:00Z",
+          "updated_at": "2026-07-08T08:00:00Z"
         }
       },
       {
@@ -714,8 +715,8 @@
             "trafikverket_id": "TRV2018/3456",
             "kommun": "Umeå, Skellefteå, Piteå, Luleå"
           },
-          "created_at": null,
-          "updated_at": null
+          "created_at": "2026-07-12T08:00:00Z",
+          "updated_at": "2026-07-12T08:00:00Z"
         }
       },
       {
@@ -753,8 +754,8 @@
             "trafikverket_id": "TRV2019/7890",
             "kommun": "Huddinge, Haninge"
           },
-          "created_at": null,
-          "updated_at": null
+          "created_at": "2026-07-16T08:00:00Z",
+          "updated_at": "2026-08-04T09:00:00Z"
         }
       },
       {
@@ -792,8 +793,8 @@
             "trafikverket_id": "TRV2006/0001",
             "kommun": "Stockholm, Solna"
           },
-          "created_at": null,
-          "updated_at": null
+          "created_at": "2026-07-20T08:00:00Z",
+          "updated_at": "2026-07-20T08:00:00Z"
         }
       },
       {
@@ -821,8 +822,8 @@
             "trafikverket_id": "TRV2016/4567",
             "kommun": "Göteborg"
           },
-          "created_at": null,
-          "updated_at": null
+          "created_at": "2026-07-24T08:00:00Z",
+          "updated_at": "2026-07-24T08:00:00Z"
         }
       },
       {
@@ -859,8 +860,8 @@
           "metadata_json": {
             "kommun": "Stockholm, Täby, Vallentuna"
           },
-          "created_at": null,
-          "updated_at": null
+          "created_at": "2026-07-28T08:00:00Z",
+          "updated_at": "2026-08-04T09:00:00Z"
         }
       },
       {
@@ -898,8 +899,8 @@
             "trafikverket_id": "TRV2007/8901",
             "kommun": "Sundsvall"
           },
-          "created_at": null,
-          "updated_at": null
+          "created_at": "2026-08-01T08:00:00Z",
+          "updated_at": "2026-08-01T08:00:00Z"
         }
       }
     ],
@@ -3948,8 +3949,8 @@
           "living_area_sqm": null,
           "zoning": "C",
           "metadata_json": {},
-          "created_at": null,
-          "updated_at": null,
+          "created_at": "2026-06-26T08:00:00Z",
+          "updated_at": "2026-06-26T08:00:00Z",
           "score": 76.8,
           "rank": 1,
           "contributions": [
@@ -4028,8 +4029,8 @@
           "living_area_sqm": 5200.0,
           "zoning": "B",
           "metadata_json": {},
-          "created_at": null,
-          "updated_at": null,
+          "created_at": "2026-06-30T08:00:00Z",
+          "updated_at": "2026-06-30T08:00:00Z",
           "score": 56.0,
           "rank": 2,
           "contributions": [
@@ -4108,8 +4109,8 @@
           "living_area_sqm": null,
           "zoning": "S",
           "metadata_json": {},
-          "created_at": null,
-          "updated_at": null,
+          "created_at": "2026-08-01T08:00:00Z",
+          "updated_at": "2026-08-01T08:00:00Z",
           "score": 36.7,
           "rank": 3,
           "contributions": [
@@ -4172,8 +4173,8 @@
           "living_area_sqm": 9200.0,
           "zoning": "B",
           "metadata_json": {},
-          "created_at": null,
-          "updated_at": null,
+          "created_at": "2026-07-20T08:00:00Z",
+          "updated_at": "2026-07-20T08:00:00Z",
           "score": 28.6,
           "rank": 4,
           "contributions": [
@@ -4244,8 +4245,8 @@
           "living_area_sqm": null,
           "zoning": "C",
           "metadata_json": {},
-          "created_at": null,
-          "updated_at": null,
+          "created_at": "2026-07-04T08:00:00Z",
+          "updated_at": "2026-08-04T09:00:00Z",
           "score": 24.9,
           "rank": 5,
           "contributions": [
@@ -4316,8 +4317,8 @@
           "living_area_sqm": 8500.0,
           "zoning": "B",
           "metadata_json": {},
-          "created_at": null,
-          "updated_at": null,
+          "created_at": "2026-07-08T08:00:00Z",
+          "updated_at": "2026-07-08T08:00:00Z",
           "score": 12.5,
           "rank": 6,
           "contributions": [
@@ -4388,8 +4389,8 @@
           "living_area_sqm": null,
           "zoning": "J",
           "metadata_json": {},
-          "created_at": null,
-          "updated_at": null,
+          "created_at": "2026-07-16T08:00:00Z",
+          "updated_at": "2026-08-04T09:00:00Z",
           "score": 7.9,
           "rank": 7,
           "contributions": [
@@ -4452,8 +4453,8 @@
           "living_area_sqm": 220.0,
           "zoning": "B",
           "metadata_json": {},
-          "created_at": null,
-          "updated_at": null,
+          "created_at": "2026-07-24T08:00:00Z",
+          "updated_at": "2026-07-24T08:00:00Z",
           "score": 3.5,
           "rank": 8,
           "contributions": [
@@ -4516,8 +4517,8 @@
           "living_area_sqm": 4800.0,
           "zoning": "B",
           "metadata_json": {},
-          "created_at": null,
-          "updated_at": null,
+          "created_at": "2026-07-12T08:00:00Z",
+          "updated_at": "2026-07-12T08:00:00Z",
           "score": 3.4,
           "rank": 9,
           "contributions": [
@@ -4585,8 +4586,8 @@
             "plantyp": "detaljplan",
             "kommunkod": "0180"
           },
-          "created_at": null,
-          "updated_at": null
+          "created_at": "2026-07-16T08:00:00Z",
+          "updated_at": "2026-07-16T08:00:00Z"
         }
       },
       {
@@ -4634,8 +4635,8 @@
             "plantyp": "detaljplan",
             "kommunkod": "0180"
           },
-          "created_at": null,
-          "updated_at": null
+          "created_at": "2026-07-20T08:00:00Z",
+          "updated_at": "2026-07-20T08:00:00Z"
         }
       },
       {
@@ -4683,8 +4684,8 @@
             "plantyp": "detaljplan",
             "kommunkod": "0160"
           },
-          "created_at": null,
-          "updated_at": null
+          "created_at": "2026-07-24T08:00:00Z",
+          "updated_at": "2026-08-04T09:00:00Z"
         }
       },
       {
@@ -4732,8 +4733,8 @@
             "plantyp": "detaljplan",
             "kommunkod": "0182"
           },
-          "created_at": null,
-          "updated_at": null
+          "created_at": "2026-07-28T08:00:00Z",
+          "updated_at": "2026-07-28T08:00:00Z"
         }
       },
       {
@@ -4781,8 +4782,8 @@
             "plantyp": "detaljplan",
             "kommunkod": "0180"
           },
-          "created_at": null,
-          "updated_at": null
+          "created_at": "2026-08-01T08:00:00Z",
+          "updated_at": "2026-08-01T08:00:00Z"
         }
       }
     ],

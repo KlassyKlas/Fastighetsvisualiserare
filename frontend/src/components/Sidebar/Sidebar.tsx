@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { Bell, ChevronLeft, ChevronRight, Info, Layers, Search, TrendingUp } from 'lucide-react';
-import { watchEventsQuery } from '@/api/queries';
+import { changesQuery, watchEventsQuery } from '@/api/queries';
+import { changesNow, resolveSince } from '@/lib/changes';
 import { useUiStore, type SidebarTab } from '@/store/uiStore';
 import AnalysisPanel from './AnalysisPanel';
 import DetailPlanDetails from './DetailPlanDetails';
@@ -27,10 +28,20 @@ export default function Sidebar() {
   const selectedDetailPlan = useUiStore((s) => s.selectedDetailPlan);
   const setSidebarOpen = useUiStore((s) => s.setSidebarOpen);
   const setSidebarTab = useUiStore((s) => s.setSidebarTab);
+  const demoMode = useUiStore((s) => s.demoMode);
+  const changesSeenAt = useUiStore((s) => s.changesSeenAt);
 
-  // Osedda händelser i bevakade områden — badgen syns oavsett aktiv flik.
+  // Badgen syns oavsett aktiv flik: osedda händelser i bevakade områden
+  // plus globala ändringar sedan senaste besöket. Globala delen räknas
+  // alltid mot besöksmarkören, oavsett vilken periodchip som är vald i
+  // panelen — det är "sedan sist" badgen ska svara på.
   const { data: eventData } = useQuery(watchEventsQuery());
-  const eventCount = eventData?.total_events ?? 0;
+  const visitSince = resolveSince('visit', changesSeenAt, null, changesNow(demoMode));
+  const { data: changesData } = useQuery({
+    ...changesQuery(visitSince),
+    enabled: visitSince != null,
+  });
+  const eventCount = (eventData?.total_events ?? 0) + (changesData?.total_events ?? 0);
 
   const renderContent = () => {
     switch (sidebarTab) {

@@ -9,21 +9,35 @@
 import { describe, expect, it } from 'vitest';
 import openapi from '../../../backend/openapi.json';
 import {
+  sampleDetailPlans,
   sampleImpactZones,
   sampleProjects,
   sampleProperties,
   sampleProximityScores,
+  sampleReferenceDate,
 } from '@/data/sampleData';
 
 const USED_PATHS = [
   '/api/v1/health',
   '/api/v1/infrastructure/projects',
+  '/api/v1/infrastructure/projects/{project_id}',
   '/api/v1/infrastructure/impact-zones',
   '/api/v1/infrastructure/sources',
   '/api/v1/infrastructure/sync/{source_name}',
+  '/api/v1/infrastructure/sync/runs',
   '/api/v1/properties',
+  '/api/v1/properties/{property_id}',
   '/api/v1/properties/{property_id}/nearby-projects',
   '/api/v1/analysis/proximity-scores',
+  '/api/v1/planning/detail-plans',
+  '/api/v1/planning/detail-plans/{plan_id}',
+  '/api/v1/demographics/deso-areas',
+  '/api/v1/demographics/deso-areas/lookup',
+  '/api/v1/watches',
+  '/api/v1/watches/events',
+  '/api/v1/watches/{watch_id}',
+  '/api/v1/watches/{watch_id}/mark-seen',
+  '/api/v1/changes',
 ] as const;
 
 describe('API-kontraktet', () => {
@@ -77,5 +91,21 @@ describe('demodatat (genererat från backendens seed-fixturer)', () => {
       const sum = contributions.reduce((acc, c) => acc + c.points, 0);
       expect(feature.properties.score).toBeCloseTo(sum, 1);
     });
+  });
+
+  it('har tidsstämplar före referensdatumet (driver "Nytt sedan senast" i demo-läge)', () => {
+    expect(sampleReferenceDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    const reference = Date.parse(`${sampleReferenceDate}T00:00:00Z`);
+    for (const collection of [sampleProjects, sampleDetailPlans, sampleProperties]) {
+      for (const feature of collection.features) {
+        const created = Date.parse(feature.properties.created_at ?? '');
+        const updated = Date.parse(feature.properties.updated_at ?? '');
+        expect(Number.isNaN(created)).toBe(false);
+        expect(Number.isNaN(updated)).toBe(false);
+        expect(created).toBeLessThanOrEqual(updated);
+        // Strikt före: en demo-bevakning skapad "nu" får aldrig se dem som händelser
+        expect(updated).toBeLessThan(reference);
+      }
+    }
   });
 });
