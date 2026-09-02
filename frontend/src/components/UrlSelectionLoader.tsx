@@ -9,9 +9,10 @@ import { useUiStore } from '@/store/uiStore';
 
 /**
  * Gemensam upplösning: när objektet hämtats väljs det, fliken återställs
- * och kartan zoomas dit; misslyckas hämtningen släpps valet. Effekten
- * reagerar på data/fel, inte på montering — StrictModes dubbla
- * monteringseffekt kan därför inte dubbelvälja.
+ * och kartan zoomas dit; misslyckas hämtningen släpps valet. Med ett
+ * cachelagrat svar finns data redan vid monteringen och StrictMode kör
+ * då effekten två gånger — ofarligt, eftersom setSelectedX och
+ * focusGeometry är idempotenta (samma objekt, samma rektangel).
  */
 function useResolveSelection<TFeature extends { geometry: Geometry | null }>(
   data: TFeature | undefined,
@@ -87,7 +88,10 @@ export default function UrlSelectionLoader() {
 
   // Fanns en kartvy i länken ska den gälla — då zoomas inte till objektet.
   // Läses under första renderingen, som sker före alla effekter och därmed
-  // innan Mapbox (skapad i en effekt) hunnit skriva sin egen hash.
+  // innan Mapbox (skapad i en effekt) hunnit skriva sin egen hash. Det är
+  // en ögonblicksbild per sidladdning: ett senare popstate till en post
+  // med både annat val och egen hash (kräver manuell hashredigering, appen
+  // gör aldrig pushState) zoomar därför till objektet — accepterat kantfall.
   const [hadMapHash] = useState(() => window.location.hash.includes(`${MAP_HASH_NAME}=`));
 
   if (!pending) return null;

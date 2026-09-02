@@ -33,7 +33,10 @@ export default function FilterBar() {
   const activeTypeCount = filters.projectTypes.length;
 
   return (
-    <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 bg-slate-800/90 backdrop-blur-sm border border-slate-700 rounded-xl px-4 py-2 shadow-lg">
+    // Raden är centrerad över kartan och kan bli bred (ägarchip + Dela) —
+    // den bryts hellre på två rader än kolliderar med sidofältet och
+    // Mapbox-kontrollerna på smala fönster.
+    <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex flex-wrap justify-center items-center gap-2 max-w-[calc(100%-7rem)] bg-slate-800/90 backdrop-blur-sm border border-slate-700 rounded-xl px-4 py-2 shadow-lg">
       {PROJECT_STATUSES.map((status) => {
         const active = filters.statuses.includes(status);
         const color = STATUS_COLORS[status];
@@ -130,7 +133,7 @@ export default function FilterBar() {
             className="flex items-center gap-1.5 pl-3 pr-1.5 py-1.5 rounded-lg text-xs font-medium bg-slate-700 text-slate-100"
             title={`Ägare: ${filters.owner}`}
           >
-            <span className="truncate max-w-44">Ägare: {filters.owner}</span>
+            <span className="truncate max-w-36">Ägare: {filters.owner}</span>
             <button
               onClick={() => setOwnerFilter(null)}
               className="p-0.5 rounded hover:bg-slate-600 text-slate-300 hover:text-slate-100 transition-colors"

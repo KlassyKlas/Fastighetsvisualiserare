@@ -11,6 +11,7 @@ import {
 import { WATCH_COLOR } from '@/config/map';
 import type { WatchedAreaCreate, WatchEvents } from '@/domain';
 import { formatDateTime } from '@/lib/format';
+import { planCountLabel } from '@/lib/changes';
 import { useUiStore } from '@/store/uiStore';
 import ChangesSection from './ChangesSection';
 import EventList from './EventList';
@@ -192,7 +193,7 @@ export default function WatchPanel() {
                   </p>
                   {events && (
                     <p className="text-[11px] text-slate-500 mt-0.5">
-                      {events.project_count} projekt · {events.plan_count} detaljplaner i området
+                      {events.project_count} projekt · {planCountLabel(events.plan_count)} i området
                     </p>
                   )}
                   {seenLabel && (

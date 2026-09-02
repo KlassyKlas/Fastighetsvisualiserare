@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import {
-  Building2,
+  Briefcase,
   Calendar,
   FileText,
   Grid3X3,
@@ -257,7 +257,7 @@ export default function PropertyDetails() {
                 onClick={() => showOwnerHoldings(ownerName)}
                 className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg text-xs transition-colors"
               >
-                <Building2 className="w-3.5 h-3.5" />
+                <Briefcase className="w-3.5 h-3.5" />
                 Visa allt ägaren äger
               </button>
             )}

@@ -1,4 +1,13 @@
 import { describe, expect, it } from 'vitest';
+import { planCountLabel } from './changes';
+
+describe('planCountLabel', () => {
+  it('böjer detaljplan efter antalet', () => {
+    expect(planCountLabel(1)).toBe('1 detaljplan');
+    expect(planCountLabel(0)).toBe('0 detaljplaner');
+    expect(planCountLabel(5)).toBe('5 detaljplaner');
+  });
+});
 import { sampleReferenceDate } from '@/data/sampleData';
 import {
   CHANGES_PERIOD_LABELS,

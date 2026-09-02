@@ -135,6 +135,11 @@ export function projectsQuery(filters: FilterState) {
     },
     staleTime: 60_000,
     refetchInterval: retryWhileDemo,
+    // Behåll förra svaret medan nästa filter hämtas — annars avmonteras
+    // lagret (data blir undefined) och kartan blinkar vid varje ägar-,
+    // status- eller årsbyte. Anropare som visar laddning läser
+    // isPlaceholderData.
+    placeholderData: keepPreviousData,
   });
 }
 
@@ -176,6 +181,11 @@ export function propertiesQuery(filters: FilterState) {
     },
     staleTime: 60_000,
     refetchInterval: retryWhileDemo,
+    // Behåll förra svaret medan nästa filter hämtas — annars avmonteras
+    // lagret (data blir undefined) och kartan blinkar vid varje ägar-,
+    // status- eller årsbyte. Anropare som visar laddning läser
+    // isPlaceholderData.
+    placeholderData: keepPreviousData,
   });
 }
 
@@ -244,14 +254,39 @@ export function impactZonesQuery(filters: FilterState) {
     },
     staleTime: 60_000,
     refetchInterval: retryWhileDemo,
+    // Behåll förra svaret medan nästa filter hämtas — annars avmonteras
+    // lagret (data blir undefined) och kartan blinkar vid varje ägar-,
+    // status- eller årsbyte. Anropare som visar laddning läser
+    // isPlaceholderData.
+    placeholderData: keepPreviousData,
   });
+}
+
+/** Demo-läge: begränsa de förberäknade poängen till ägarvyns fastigheter. */
+function applyOwnerToScores(
+  collection: ProximityScoresCollection,
+  owner: string | null,
+): ProximityScoresCollection {
+  if (owner == null) return collection;
+  const features = collection.features.filter((f) => f.properties.owner_name === owner);
+  return {
+    ...collection,
+    features,
+    numberMatched: features.length,
+    numberReturned: features.length,
+  };
 }
 
 export function proximityScoresQuery(filters: FilterState) {
   return queryOptions({
     queryKey: [
       'proximity-scores',
-      { statuses: filters.statuses, projectTypes: filters.projectTypes, year: filters.year },
+      {
+        statuses: filters.statuses,
+        projectTypes: filters.projectTypes,
+        year: filters.year,
+        owner: filters.owner,
+      },
     ],
     queryFn: async ({ signal }): Promise<ProximityScoresCollection> => {
       try {
@@ -261,6 +296,7 @@ export function proximityScoresQuery(filters: FilterState) {
               status: nonEmpty(filters.statuses),
               project_type: nonEmpty(filters.projectTypes),
               year: filters.year ?? undefined,
+              owner: filters.owner ?? undefined,
               limit: LIST_LIMIT,
             },
           },
@@ -273,8 +309,10 @@ export function proximityScoresQuery(filters: FilterState) {
         if (isBackendUnreachable(error) && !signal.aborted) {
           markDemoMode(true);
           // Demo-poängen är förberäknade för hela projektmängden —
-          // filter påverkar dem inte (illustrativt läge).
-          return sampleProximityScores;
+          // projektfiltren påverkar dem inte (illustrativt läge). Ägarvyn
+          // speglas dock: rankningen ska gälla samma fastigheter som kartan
+          // visar. Rangnumren behålls (de är relativa hela mängden).
+          return applyOwnerToScores(sampleProximityScores, filters.owner);
         }
         throw error;
       }
@@ -600,14 +638,21 @@ export function changesQuery(since: string | null, limit = 200) {
  * "Senaste synk". Taket är generöst så att varje källas senaste körning
  * hittas även när en källa synkats många gånger. */
 const SYNC_RUNS_LIMIT = 100;
+const SYNC_RUNS_PER_SOURCE_LIMIT = 50;
 
-export function syncRunsQuery() {
+export function syncRunsQuery(source?: string) {
   return queryOptions({
-    queryKey: ['sync-runs'],
+    // Nyckeln delar prefixet ['sync-runs'] så att LayerPanels invalidering
+    // träffar både den globala listan (tidsankaret) och listorna per källa.
+    queryKey: ['sync-runs', source ?? null],
     queryFn: async ({ signal }): Promise<SyncRunList> => {
       try {
         const { data, error, response } = await client.GET('/api/v1/infrastructure/sync/runs', {
-          params: { query: { limit: SYNC_RUNS_LIMIT } },
+          // Per källa räcker ett mindre fönster: den senaste lyckade
+          // körningen ligger nästan alltid bland källans 50 senaste.
+          params: {
+            query: { source, limit: source ? SYNC_RUNS_PER_SOURCE_LIMIT : SYNC_RUNS_LIMIT },
+          },
           signal,
         });
         ensureOk(error, response);

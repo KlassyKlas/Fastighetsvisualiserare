@@ -2755,6 +2755,24 @@
             }
           },
           {
+            "description": "Ranka bara fastigheter med exakt denna ägare (owner_name)",
+            "in": "query",
+            "name": "owner",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Ranka bara fastigheter med exakt denna ägare (owner_name)",
+              "title": "Owner"
+            }
+          },
+          {
             "description": "Sökradie i meter",
             "in": "query",
             "name": "max_distance_m",
@@ -2827,15 +2845,15 @@
             }
           },
           {
-            "description": "Högsta antal händelser i svaret",
+            "description": "Högsta antal händelser i svaret — 0 ger bara räkningarna (notisbadgen)",
             "in": "query",
             "name": "limit",
             "required": false,
             "schema": {
               "default": 200,
-              "description": "Högsta antal händelser i svaret",
+              "description": "Högsta antal händelser i svaret — 0 ger bara räkningarna (notisbadgen)",
               "maximum": 500,
-              "minimum": 1,
+              "minimum": 0,
               "title": "Limit",
               "type": "integer"
             }
@@ -3424,6 +3442,25 @@
         "description": "Synkloggen: senaste körningarna per anrop av POST /sync/{källa}.\n\nLyckade som misslyckade (error satt). Senaste körningens started_at\när tidsankaret \"sedan senaste synk\" i panelen Nytt sedan senast.",
         "operationId": "list_sync_runs_api_v1_infrastructure_sync_runs_get",
         "parameters": [
+          {
+            "description": "Visa bara körningar för denna källa",
+            "in": "query",
+            "name": "source",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Visa bara körningar för denna källa",
+              "title": "Source"
+            }
+          },
           {
             "description": "Antal körningar, nyast först",
             "in": "query",

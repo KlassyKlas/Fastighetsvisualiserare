@@ -119,14 +119,15 @@ annars säger CI ifrån.
    som tillkommit eller ändrats i hela datamängden sedan ditt senaste besök (markör i
    webbläsaren), de senaste 7/30 dagarna eller senaste synken; notisbadgen räknar med dem och
    ett klick zoomar kartan till objektet. Synkkörningarna loggas i tabellen `sync_runs`
-   (`GET /api/v1/infrastructure/sync/runs`) och lagerpanelen visar senaste körning per källa
-   med knappen "Visa vad som ändrades". Demodatat har illustrativa tidsstämplar så att
-   panelen fungerar även i demo-läge
+   (`GET /api/v1/infrastructure/sync/runs`); lagerpanelen visar senaste lyckade synk per
+   källa och erbjuder "Visa vad som ändrades" direkt efter en synk. Demodatat har
+   illustrativa tidsstämplar så att panelen fungerar även i demo-läge
 8. ~~Delbara länkar~~ — byggt: filter, år, ägare, poängläge, lager, kartstil, flik, valt
    objekt och restidsanalys ligger i query-strängen (`?status=planerad&ar=2030&fastighet=12`),
    kartvyn i hashen (`#karta=zoom/lat/lng/bearing/pitch`, Mapbox). "Dela" i filterraden
-   kopierar länken; en öppnad länk hämtar objektet med full geometri och zoomar dit.
-   Standardvärden utelämnas så en orörd vy ger en ren adress; trasiga parametrar ignoreras
+   kopierar länken; en öppnad länk hämtar objektet med full geometri och öppnar exakt den
+   delade kartvyn (saknar länken kartvy zoomas kartan till objektet). Standardvärden
+   utelämnas så en orörd vy ger en ren adress; trasiga parametrar ignoreras
 9. ~~Ägarvy~~ — byggt: Sök-flikens tomvy listar ägare med antal fastigheter, taxeringsvärde
    och kommuner (GROUP BY + ST_Extent i PostGIS via `GET /api/v1/properties/owners`); klick
    filtrerar kartan på ägaren och zoomar till innehavet, fastighetspanelen har "Visa allt

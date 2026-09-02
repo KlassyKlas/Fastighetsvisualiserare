@@ -48,6 +48,10 @@ async def proximity_scores(
         int | None,
         Query(ge=1900, le=2100, description="Räkna bara projekt aktiva under detta år"),
     ] = None,
+    owner: Annotated[
+        str | None,
+        Query(description="Ranka bara fastigheter med exakt denna ägare (owner_name)"),
+    ] = None,
     max_distance_m: Annotated[
         float, Query(gt=0, le=50_000, description="Sökradie i meter")
     ] = DEFAULT_MAX_DISTANCE_M,
@@ -64,6 +68,7 @@ async def proximity_scores(
         statuses=status,
         project_types=project_type,
         year=year,
+        owner=owner,
         max_distance_m=max_distance_m,
         limit=limit,
     )

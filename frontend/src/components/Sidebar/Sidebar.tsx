@@ -38,8 +38,10 @@ export default function Sidebar() {
   // panelen — det är "sedan sist" badgen ska svara på.
   const { data: eventData } = useQuery(watchEventsQuery());
   const visitSince = resolveSince('visit', changesSeenAt, null, changesNow(demoMode));
+  // limit 0: bara räkningarna — badgen behöver inga händelser (och inga
+  // geometrier) i svaret, och den pollar var 60:e sekund.
   const { data: changesData } = useQuery({
-    ...changesQuery(visitSince),
+    ...changesQuery(visitSince, 0),
     enabled: visitSince != null,
   });
   const eventCount = (eventData?.total_events ?? 0) + (changesData?.total_events ?? 0);
@@ -103,7 +105,11 @@ export default function Sidebar() {
               sidebarTab === tab.id ? 'text-blue-400' : 'text-slate-400 hover:text-slate-200',
               sidebarOpen ? 'flex-1' : 'w-12',
             )}
-            title={tab.label}
+            title={
+              tab.id === 'watches' && eventCount > 0
+                ? `${tab.label} (${eventCount} osedda händelser)`
+                : tab.label
+            }
           >
             <span className="relative">
               <tab.icon className="w-4 h-4 flex-shrink-0" />

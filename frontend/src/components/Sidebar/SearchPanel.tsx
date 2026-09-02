@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
-import { Building2, MapPin, Search, TrainFront, Users, X } from 'lucide-react';
+import { Briefcase, Building2, MapPin, Search, TrainFront, X } from 'lucide-react';
 import { useMemo } from 'react';
 import { ownersQuery, projectsQuery, propertiesQuery } from '@/api/queries';
 import type { OwnerSummary, ProjectFeature, PropertyCollection, PropertyFeature } from '@/domain';
@@ -55,7 +55,7 @@ function OwnerCard({
     <div className="bg-slate-900/50 rounded-lg p-3 mb-4">
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-start gap-3 min-w-0">
-          <Users className="w-4 h-4 text-slate-500 flex-shrink-0 mt-0.5" />
+          <Briefcase className="w-4 h-4 text-slate-500 flex-shrink-0 mt-0.5" />
           <div className="min-w-0">
             <p className="text-sm font-medium text-slate-200 leading-snug">
               Visar allt {owner} äger
@@ -147,7 +147,7 @@ function OwnerList({ onSelect }: { onSelect: (owner: OwnerSummary) => void }) {
   // Smal selector: ägarfrågan nycklar bara på kommunerna, så årsreglaget
   // och statusklick ska inte rendera om topplistan.
   const municipalities = useUiStore((s) => s.filters.municipalities);
-  const demoMode = useUiStore((s) => s.demoMode);
+  // Ingen egen demo-notis: DemoBanner på kartan säger redan att exempeldata visas.
   const { data, isPending, isError } = useQuery(ownersQuery({ municipalities }));
   const owners = data?.owners ?? [];
 
@@ -156,15 +156,9 @@ function OwnerList({ onSelect }: { onSelect: (owner: OwnerSummary) => void }) {
       <p className="text-xs text-slate-600 mb-4">Ange minst 2 tecken för att söka</p>
 
       <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-        <Users className="w-3.5 h-3.5" />
+        <Briefcase className="w-3.5 h-3.5" />
         Ägare
       </h3>
-
-      {demoMode && (
-        <p className="text-xs text-amber-400/80 mb-2">
-          Demo-läge: ägarlistan beräknas ur exempeldatat.
-        </p>
-      )}
 
       {isPending && <p className="text-xs text-slate-500">Hämtar ägare…</p>}
       {isError && <p className="text-xs text-red-400">Kunde inte hämta ägarlistan från backend.</p>}
@@ -184,7 +178,7 @@ function OwnerList({ onSelect }: { onSelect: (owner: OwnerSummary) => void }) {
                 title={`Visa allt ${owner.owner_name} äger`}
               >
                 <div className="mt-0.5 p-1.5 rounded bg-violet-500/20 text-violet-400">
-                  <Users className="w-3.5 h-3.5" />
+                  <Briefcase className="w-3.5 h-3.5" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-slate-200 truncate">{owner.owner_name}</p>
@@ -192,7 +186,7 @@ function OwnerList({ onSelect }: { onSelect: (owner: OwnerSummary) => void }) {
                     {holdingsLabel(owner.property_count, owner.total_assessed_value_sek)}
                   </p>
                   {municipalities.length > 0 && (
-                    <p className="text-[11px] text-slate-600 truncate">
+                    <p className="text-[11px] text-slate-500 truncate">
                       {municipalities.join(', ')}
                     </p>
                   )}
@@ -230,8 +224,12 @@ export default function SearchPanel() {
   const {
     data: propertyData,
     isPending: propertiesPending,
+    isPlaceholderData: propertiesPlaceholder,
     isError: propertiesError,
   } = useQuery(propertiesQuery(filters));
+  // keepPreviousData låter kartan behålla förra listan under bytet — men
+  // ägarvyn får inte visa förra ägarens innehav under den nya rubriken.
+  const ownerPropertyData = propertiesPlaceholder ? undefined : propertyData;
   const { data: ownerData } = useQuery({ ...ownersQuery(filters), enabled: owner != null });
   const ownerSummary = ownerData?.owners?.find((o) => o.owner_name === owner);
 
@@ -313,8 +311,8 @@ export default function SearchPanel() {
       {owner != null && (
         <OwnerCard
           owner={owner}
-          propertyData={propertyData}
-          isPending={propertiesPending}
+          propertyData={ownerPropertyData}
+          isPending={propertiesPending || propertiesPlaceholder}
           isError={propertiesError}
           summary={ownerSummary}
           searching={searching}
@@ -360,7 +358,7 @@ export default function SearchPanel() {
       )}
 
       {!searching && owner != null && (
-        <OwnerHoldings propertyData={propertyData} onSelect={handleSelectProperty} />
+        <OwnerHoldings propertyData={ownerPropertyData} onSelect={handleSelectProperty} />
       )}
 
       {!searching && owner == null && <OwnerList onSelect={handleSelectOwner} />}

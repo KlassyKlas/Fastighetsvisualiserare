@@ -7,6 +7,11 @@ const dateTimeFormat = new Intl.DateTimeFormat('sv-SE', {
   timeStyle: 'short',
 });
 
+/** Versal först — planstatusar och plantyper kommer gement från Boverkets modell. */
+export function capitalizeFirst(value: string): string {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
 /** Tal med svensk tusentalsavgränsare, utan enhet — "12 500". */
 export function formatNumber(value: number): string {
   return numberFormat.format(value);

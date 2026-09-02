@@ -1543,6 +1543,8 @@ export interface operations {
                 project_type?: components["schemas"]["ProjectType"][] | null;
                 /** @description Räkna bara projekt aktiva under detta år */
                 year?: number | null;
+                /** @description Ranka bara fastigheter med exakt denna ägare (owner_name) */
+                owner?: string | null;
                 /** @description Sökradie i meter */
                 max_distance_m?: number;
                 limit?: number;
@@ -1578,7 +1580,7 @@ export interface operations {
             query: {
                 /** @description Visa det som skapats eller ändrats efter denna tidpunkt (ISO 8601; naiv tid tolkas som UTC) */
                 since: string;
-                /** @description Högsta antal händelser i svaret */
+                /** @description Högsta antal händelser i svaret — 0 ger bara räkningarna (notisbadgen) */
                 limit?: number;
             };
             header?: never;
@@ -1864,6 +1866,8 @@ export interface operations {
     list_sync_runs_api_v1_infrastructure_sync_runs_get: {
         parameters: {
             query?: {
+                /** @description Visa bara körningar för denna källa */
+                source?: string | null;
                 /** @description Antal körningar, nyast först */
                 limit?: number;
             };

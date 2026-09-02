@@ -324,15 +324,15 @@ async def sync_source(
         detail_plans = await datasource.fetch_detail_plans(bbox)
         deso_areas = await datasource.fetch_deso_areas(bbox)
     except DataSourceError as exc:
-        await _finish_failed_run(session, run_id, exc)
+        await _finish_failed_run(session, run_id, str(exc))
         raise HTTPException(status_code=502, detail=str(exc)) from exc
     except NotImplementedError as exc:
-        await _finish_failed_run(session, run_id, exc)
+        await _finish_failed_run(session, run_id, str(exc))
         raise HTTPException(status_code=501, detail=str(exc)) from exc
     except Exception as exc:
         # Oväntat fel (bugg, oinpackat nätverksfel) blir 500 som förut, men
         # loggraden stängs ändå — annars ser körningen ut att pågå för evigt.
-        await _finish_failed_run(session, run_id, exc)
+        await _finish_failed_run(session, run_id, _unexpected_error_message(exc))
         raise
 
     try:
@@ -362,7 +362,7 @@ async def sync_source(
         # Databasfel som savepoint-logiken i upserterna inte fångar (tappad
         # anslutning, fel vid commit) rullar tillbaka datat — då ska
         # loggraden stängas med felet, inte stå kvar som "pågår".
-        await _finish_failed_run(session, run_id, exc)
+        await _finish_failed_run(session, run_id, _unexpected_error_message(exc))
         raise
 
     return SyncResult(
@@ -377,30 +377,55 @@ async def sync_source(
     )
 
 
-async def _finish_failed_run(session: AsyncSession, run_id: int, exc: BaseException) -> None:
+def _unexpected_error_message(exc: BaseException) -> str:
+    """Kurerad text för synkloggen vid oväntade fel.
+
+    Synkloggen läses utan skrivnyckel och visas ordagrant i lagerpanelen.
+    SQLAlchemys felsträngar innehåller hela SQL-satsen med parametrar —
+    det hör hemma i backendloggen, inte i ett öppet API. Datakällornas
+    egna fel (DataSourceError) är handskrivna och sparas som de är.
+    """
+    logger.exception("Oväntat fel under synkronisering")
+    return f"Oväntat fel ({type(exc).__name__}) — se backendloggen"
+
+
+async def _finish_failed_run(session: AsyncSession, run_id: int, message: str) -> None:
     """Stäng loggraden med felet.
 
     Rullar tillbaka först: efter en misslyckad commit eller tappad
     anslutning vägrar sessionen allt annat tills dess (utan öppen
     transaktion är rollbacken ett no-op). Stängningen är en fristående
     UPDATE på id — raden är redan committad, så den fungerar oavsett vad
-    rollbacken gjort med ORM-objektet (allt expireras).
+    rollbacken gjort med ORM-objektet (allt expireras). Misslyckas även
+    stängningen (databasen borta) loggas det, och anroparen kastar sitt
+    ursprungliga fel — ett databasfel får inte maskera källans 502.
     """
-    await session.rollback()
-    await session.execute(
-        update(SyncRun)
-        .where(SyncRun.id == run_id)
-        .values(error=(str(exc) or type(exc).__name__)[:500], finished_at=func.now())
-        # Ingen läser ORM-objektet efteråt — hoppa över synkroniseringen av
-        # identitetskartan (den skulle annars kosta en extra fråga).
-        .execution_options(synchronize_session=False)
-    )
-    await session.commit()
+    try:
+        await session.rollback()
+        await session.execute(
+            update(SyncRun)
+            .where(SyncRun.id == run_id)
+            .values(error=(message or "Okänt fel")[:500], finished_at=func.now())
+            # Ingen läser ORM-objektet efteråt — hoppa över synkroniseringen av
+            # identitetskartan (den skulle annars kosta en extra fråga).
+            .execution_options(synchronize_session=False)
+        )
+        await session.commit()
+    except Exception:
+        logger.exception("Kunde inte stänga synkloggrad %s", run_id)
 
 
-async def list_sync_runs(session: AsyncSession, *, limit: int = 20) -> SyncRunList:
-    """Senaste synkkörningarna, nyast först (id som tiebreak vid lika starttid)."""
-    rows = await session.execute(
-        select(SyncRun).order_by(SyncRun.started_at.desc(), SyncRun.id.desc()).limit(limit)
-    )
+async def list_sync_runs(
+    session: AsyncSession, *, source: str | None = None, limit: int = 20
+) -> SyncRunList:
+    """Senaste synkkörningarna, nyast först (id som tiebreak vid lika starttid).
+
+    Med source hämtas bara den källans körningar — lagerpanelen frågar per
+    källa, annars kan en flitigt synkad källa trycka ut en annans senaste
+    körning ur fönstret.
+    """
+    stmt = select(SyncRun).order_by(SyncRun.started_at.desc(), SyncRun.id.desc()).limit(limit)
+    if source is not None:
+        stmt = stmt.where(SyncRun.source == source)
+    rows = await session.execute(stmt)
     return SyncRunList(runs=[SyncRunInfo.model_validate(run) for run in rows.scalars()])

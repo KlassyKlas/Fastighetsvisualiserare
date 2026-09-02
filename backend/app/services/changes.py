@@ -9,7 +9,8 @@ eller senaste synk. Räkningarna görs i SQL så att total_events stämmer
 from collections.abc import Sequence
 from datetime import UTC, datetime
 
-from sqlalchemy import Select, and_, func, not_, or_, select
+from fastapi import HTTPException
+from sqlalchemy import Select, and_, func, not_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain import WatchEventKind
@@ -32,7 +33,12 @@ def ensure_utc(value: datetime) -> datetime:
     """
     if value.tzinfo is None:
         return value.replace(tzinfo=UTC)
-    return value.astimezone(UTC)
+    try:
+        return value.astimezone(UTC)
+    except OverflowError as exc:
+        # År 1 eller 9999 med en offset som lämnar datetime-intervallet —
+        # giltig ISO-text som ändå inte kan uttryckas i UTC.
+        raise ValueError("Tidpunkten ligger utanför den tidsrymd som stöds") from exc
 
 
 def classify_event(
@@ -65,10 +71,17 @@ def take_with_overflow[T](rows: Sequence[T], budget: int) -> tuple[list[T], bool
 
 
 def _event_rows(model: EventModel, since: datetime) -> Select[tuple[object, str | None]]:
-    """Nya eller ändrade rader sedan since, senast ändrade först."""
+    """Nya eller ändrade rader sedan since, senast ändrade först.
+
+    Villkoret behöver bara updated_at: en rad har alltid updated_at >=
+    created_at (båda får samma now() vid INSERT, och upserterna flyttar
+    bara updated_at framåt), så "skapad efter since" ingår i "uppdaterad
+    efter since". En enkel jämförelse kan dessutom använda ett framtida
+    index på updated_at, vilket ett OR-villkor inte kan.
+    """
     return (
         select(model, func.ST_AsGeoJSON(model.geometry, GEOJSON_DECIMALER))
-        .where(or_(model.created_at > since, model.updated_at > since))
+        .where(model.updated_at > since)
         .order_by(model.updated_at.desc(), model.id.desc())
     )
 
@@ -102,7 +115,10 @@ async def changes(session: AsyncSession, *, since: datetime, limit: int = 200) -
     är lättare att förklara i gränssnittet än en proportionell
     fördelning. Räkningarna påverkas inte av limit.
     """
-    since = ensure_utc(since)
+    try:
+        since = ensure_utc(since)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
     project_new, project_changed = await _count_events(session, InfrastructureProject, since)
     plan_new, plan_changed = await _count_events(session, DetailPlan, since)
