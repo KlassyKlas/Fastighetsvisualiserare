@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { DEFAULT_LAYER_VISIBILITY } from '@/config/map';
 import type {
   DemographicsMetric,
   DetailPlanFeature,
@@ -6,18 +7,23 @@ import type {
   IsochroneOrigin,
   IsochroneProfile,
   LayerVisibility,
+  MapStyleId,
   ProjectFeature,
   ProjectStatus,
   ProjectType,
   PropertyFeature,
+  SidebarTab,
 } from '@/domain';
 import { EMPTY_FILTERS } from '@/domain';
 import type { ChangesPeriod } from '@/lib/changes';
 import { readChangesSeenAt, writeChangesSeenAt } from '@/lib/changesSeen';
 import { toggleMinute } from '@/lib/isochrone';
+import { sameIsochronePoint, sameSelection, selectedUrlSelection } from '@/lib/urlState';
+import type { UrlSelection, UrlState } from '@/lib/urlState';
 
-export type SidebarTab = 'search' | 'layers' | 'analysis' | 'watches' | 'details';
-export type MapStyleId = 'dark' | 'satellite';
+// Typerna bor i domain.ts (URL-tolkningen behöver dem utan storen) men
+// exporteras även härifrån för befintliga importer.
+export type { MapStyleId, SidebarTab } from '@/domain';
 
 interface UiState {
   layers: LayerVisibility;
@@ -52,6 +58,8 @@ interface UiState {
   changesPeriod: ChangesPeriod;
   /** När användaren senast markerade ändringarna som sedda (ISO, localStorage) */
   changesSeenAt: string | null;
+  /** Val ur en öppnad länk som ännu inte hämtats (UrlSelectionLoader löser upp det) */
+  pendingSelection: UrlSelection | null;
 
   toggleLayer: (layer: keyof LayerVisibility) => void;
   setSelectedProject: (feature: ProjectFeature | null) => void;
@@ -81,21 +89,13 @@ interface UiState {
   setChangesPeriod: (period: ChangesPeriod) => void;
   markChangesSeen: () => void;
   clearSelection: () => void;
+  /** Delbara länkar: tillämpa hela URL-tillståndet i ett svep (lib/urlSync). */
+  applyUrlState: (state: UrlState) => void;
+  setPendingSelection: (selection: UrlSelection | null) => void;
 }
 
 export const useUiStore = create<UiState>((set) => ({
-  layers: {
-    infrastructure: true,
-    properties: true,
-    impactZones: true,
-    // Nya nationella lager är avstängda tills användaren slår på dem —
-    // de hämtas per kartvy och ska inte belasta förstaladdningen.
-    detailPlans: false,
-    demographics: false,
-    watches: true,
-    buildings3d: true,
-    terrain: true,
-  },
+  layers: DEFAULT_LAYER_VISIBILITY,
 
   selectedProject: null,
   selectedProperty: null,
@@ -117,18 +117,24 @@ export const useUiStore = create<UiState>((set) => ({
   reportProperty: null,
   changesPeriod: 'visit',
   changesSeenAt: readChangesSeenAt(),
+  pendingSelection: null,
 
   toggleLayer: (layer) =>
     set((state) => ({
       layers: { ...state.layers, [layer]: !state.layers[layer] },
     })),
 
+  // Ett val användaren gör medan en länks objekt hämtas vinner: det
+  // väntande släpps så att UrlSelectionLoader inte skriver över valet när
+  // hämtningen blir klar. Att avmarkera (null) släpper inget — länkens
+  // objekt får då fortfarande visas.
   setSelectedProject: (feature) =>
     set({
       selectedProject: feature,
       selectedProperty: null,
       selectedDetailPlan: null,
       sidebarTab: feature ? 'details' : 'search',
+      ...(feature ? { pendingSelection: null } : {}),
     }),
 
   setSelectedProperty: (feature) =>
@@ -137,6 +143,7 @@ export const useUiStore = create<UiState>((set) => ({
       selectedProject: null,
       selectedDetailPlan: null,
       sidebarTab: feature ? 'details' : 'search',
+      ...(feature ? { pendingSelection: null } : {}),
     }),
 
   setSelectedDetailPlan: (feature) =>
@@ -145,6 +152,7 @@ export const useUiStore = create<UiState>((set) => ({
       selectedProject: null,
       selectedProperty: null,
       sidebarTab: feature ? 'details' : 'search',
+      ...(feature ? { pendingSelection: null } : {}),
     }),
 
   setDemographicsMetric: (metric) => set({ demographicsMetric: metric }),
@@ -227,4 +235,41 @@ export const useUiStore = create<UiState>((set) => ({
       selectedDetailPlan: null,
       sidebarTab: 'search',
     }),
+
+  // Filter och lager ERSÄTTS, inte slås ihop: det länken inte nämner är
+  // standard, inte "oförändrat" — utan `agare` finns inget ägarfilter,
+  // utan `lager` gäller standardlagren. Restidsprofil och minuter behålls
+  // när länken saknar restid (som clearIsochrone). Bara URL-fält rörs —
+  // transient state som väljar- och ritläge lämnas som det är.
+  //
+  // Startpunkten: avser länken samma punkt som redan är vald behålls den —
+  // länkens kopia är avrundad och har en generisk etikett, och ett byte
+  // skulle både tappa objektets namn i panelen och hämta om isokronerna.
+  //
+  // Valet: länken är sanning även här. Saknar den val, eller avser den ett
+  // annat objekt, släpps det valda (lib/urlSync lägger länkens som
+  // pendingSelection så att UrlSelectionLoader hämtar det). Samma objekt
+  // behålls — annars skulle detaljpanelen blinka vid varje popstate.
+  applyUrlState: (url) =>
+    set((state) => ({
+      filters: url.filters,
+      scoreColoring: url.scoreColoring,
+      layers: url.layers,
+      demographicsMetric: url.demographicsMetric,
+      mapStyle: url.mapStyle,
+      sidebarTab: url.sidebarTab,
+      isochroneOrigin: url.isochrone
+        ? state.isochroneOrigin && sameIsochronePoint(state.isochroneOrigin, url.isochrone.origin)
+          ? state.isochroneOrigin
+          : url.isochrone.origin
+        : null,
+      ...(url.isochrone
+        ? { isochroneProfile: url.isochrone.profile, isochroneMinutes: url.isochrone.minutes }
+        : {}),
+      ...(sameSelection(url.selection, selectedUrlSelection(state))
+        ? {}
+        : { selectedProject: null, selectedProperty: null, selectedDetailPlan: null }),
+    })),
+
+  setPendingSelection: (selection) => set({ pendingSelection: selection }),
 }));

@@ -6,6 +6,7 @@ import ErrorBanner from './components/UI/ErrorBanner';
 import FilterBar from './components/UI/FilterBar';
 import Legend from './components/UI/Legend';
 import TimelineBar from './components/UI/TimelineBar';
+import UrlSelectionLoader from './components/UrlSelectionLoader';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Legend />
         <DemoBanner />
         <ErrorBanner />
+        <UrlSelectionLoader />
       </div>
       <PropertyReport />
     </div>

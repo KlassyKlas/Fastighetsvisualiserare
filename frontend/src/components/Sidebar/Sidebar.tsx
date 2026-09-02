@@ -26,6 +26,7 @@ export default function Sidebar() {
   const selectedProject = useUiStore((s) => s.selectedProject);
   const selectedProperty = useUiStore((s) => s.selectedProperty);
   const selectedDetailPlan = useUiStore((s) => s.selectedDetailPlan);
+  const pendingSelection = useUiStore((s) => s.pendingSelection);
   const setSidebarOpen = useUiStore((s) => s.setSidebarOpen);
   const setSidebarTab = useUiStore((s) => s.setSidebarTab);
   const demoMode = useUiStore((s) => s.demoMode);
@@ -57,9 +58,14 @@ export default function Sidebar() {
         if (selectedProject) return <ProjectDetails />;
         if (selectedProperty) return <PropertyDetails />;
         if (selectedDetailPlan) return <DetailPlanDetails />;
+        // Detaljfliken öppnas redan när en länk med val tillämpas — medan
+        // objektet hämtas ska det synas att något är på väg, inte kartklicks-
+        // uppmaningen.
         return (
           <div className="p-4 text-slate-500 text-sm">
-            Klicka på ett projekt, en fastighet eller en detaljplan på kartan för att se detaljer.
+            {pendingSelection
+              ? 'Hämtar objektet ur länken…'
+              : 'Klicka på ett projekt, en fastighet eller en detaljplan på kartan för att se detaljer.'}
           </div>
         );
     }

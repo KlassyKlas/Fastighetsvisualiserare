@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
+import { startUrlSync } from './lib/urlSync';
 import { useUiStore } from './store/uiStore';
 import './index.css';
 
@@ -25,6 +26,12 @@ useUiStore.subscribe((state, prevState) => {
     queryClient.invalidateQueries();
   }
 });
+
+// Delbara länkar: URL:en tillämpas SYNKRONT före första renderingen —
+// gjordes det i en effekt skulle varje query först köras med standard-
+// filtren och sedan en gång till med länkens. Därefter speglas storen
+// tillbaka till adressfältet (replaceState, debouncat).
+startUrlSync();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

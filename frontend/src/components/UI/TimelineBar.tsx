@@ -1,10 +1,8 @@
 import { CalendarClock, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { DEFAULT_YEAR, YEAR_MAX, YEAR_MIN } from '@/config/map';
 import { useUiStore } from '@/store/uiStore';
 
-const YEAR_MIN = 2005;
-const YEAR_MAX = 2040;
-const DEFAULT_YEAR = 2026;
 /** Varje årssteg avfyrar tre serverfrågor (projekt, zoner, poäng) —
  * zonfrågan buffrar dessutom korridorgeometrier i databasen. Filtret
  * uppdateras därför först när draget vilat en stund. */
