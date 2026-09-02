@@ -22,7 +22,14 @@ async def list_changes(
             )
         ),
     ],
-    limit: Annotated[int, Query(ge=1, le=500, description="Högsta antal händelser i svaret")] = 200,
+    limit: Annotated[
+        int,
+        Query(
+            ge=0,
+            le=500,
+            description="Högsta antal händelser i svaret — 0 ger bara räkningarna (notisbadgen)",
+        ),
+    ] = 200,
 ) -> ChangesResponse:
     """Nytt sedan senast: nya och ändrade projekt och detaljplaner i hela datamängden.
 

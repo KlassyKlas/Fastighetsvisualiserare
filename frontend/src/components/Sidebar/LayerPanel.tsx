@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import clsx from 'clsx';
 import {
   Bell,
@@ -18,7 +18,7 @@ import { useState } from 'react';
 import { FALLBACK_SOURCES, sourcesQuery, syncRunsQuery, syncSource } from '@/api/queries';
 import { DEMOGRAPHICS_METRICS } from '@/config/map';
 import type { DemographicsMetric, LayerVisibility } from '@/domain';
-import { formatDateTime } from '@/lib/format';
+import { formatDateTime, formatNumber } from '@/lib/format';
 import { latestRunBySource, latestSuccessfulRunBySource } from '@/lib/syncRuns';
 import { useUiStore } from '@/store/uiStore';
 import Toggle from '../UI/Toggle';
@@ -54,9 +54,13 @@ export default function LayerPanel() {
   const queryClient = useQueryClient();
   const [syncMessage, setSyncMessage] = useState<string | null>(null);
   const { data: sources } = useQuery(sourcesQuery());
-  const { data: syncRuns } = useQuery(syncRunsQuery());
-  const latestRuns = latestRunBySource(syncRuns?.runs);
-  const latestSuccessfulRuns = latestSuccessfulRunBySource(syncRuns?.runs);
+  // Synkloggen hämtas per källa: en global lista med tak kan låta en
+  // flitigt synkad källa trycka ut en annans senaste körning ur fönstret.
+  const sourceNames = Object.keys(sources ?? FALLBACK_SOURCES);
+  const runQueries = useQueries({ queries: sourceNames.map((name) => syncRunsQuery(name)) });
+  const allRuns = runQueries.flatMap((query) => query.data?.runs ?? []);
+  const latestRuns = latestRunBySource(allRuns);
+  const latestSuccessfulRuns = latestSuccessfulRunBySource(allRuns);
 
   const syncMutation = useMutation({
     mutationFn: syncSource,
@@ -201,7 +205,8 @@ export default function LayerPanel() {
                     allra senaste misslyckades. */}
                 {lastSuccess && lastSuccessLabel && (
                   <p className="text-[11px] text-slate-500 mt-1 px-1">
-                    Senast synkad {lastSuccessLabel} · {lastSuccess.upserted} ändrade
+                    Senast synkad {lastSuccessLabel} · {formatNumber(lastSuccess.upserted)} nya
+                    eller ändrade
                   </p>
                 )}
                 {lastRun?.error && (

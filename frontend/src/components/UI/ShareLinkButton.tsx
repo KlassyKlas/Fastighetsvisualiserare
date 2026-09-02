@@ -44,7 +44,9 @@ export default function ShareLinkButton() {
   return (
     <button
       onClick={copyLink}
-      className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap ${
+      // Fast minsta bredd: "Länk kopierad" är bredare än "Dela" och skulle
+      // annars flytta hela den centrerade filterraden i två sekunder.
+      className={`flex items-center justify-center gap-2 min-w-[7.5rem] px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap ${
         copied ? 'text-green-300' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/50'
       }`}
       title="Kopiera länk till den här vyn"

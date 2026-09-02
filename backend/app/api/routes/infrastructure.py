@@ -98,6 +98,9 @@ async def create_project(
 @router.get("/sync/runs", response_model=SyncRunList)
 async def list_sync_runs(
     session: SessionDep,
+    source: Annotated[
+        str | None, Query(min_length=1, description="Visa bara körningar för denna källa")
+    ] = None,
     limit: Annotated[int, Query(ge=1, le=200, description="Antal körningar, nyast först")] = 20,
 ) -> SyncRunList:
     """Synkloggen: senaste körningarna per anrop av POST /sync/{källa}.
@@ -105,7 +108,7 @@ async def list_sync_runs(
     Lyckade som misslyckade (error satt). Senaste körningens started_at
     är tidsankaret "sedan senaste synk" i panelen Nytt sedan senast.
     """
-    return await infrastructure_service.list_sync_runs(session, limit=limit)
+    return await infrastructure_service.list_sync_runs(session, source=source, limit=limit)
 
 
 @router.post("/sync/{source_name}", response_model=SyncResult, dependencies=[WriteAccess])

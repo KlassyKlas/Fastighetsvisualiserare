@@ -1,4 +1,13 @@
 import { describe, expect, it } from 'vitest';
+import { capitalizeFirst } from './format';
+
+describe('capitalizeFirst', () => {
+  it('versaliserar första tecknet och lämnar resten', () => {
+    expect(capitalizeFirst('laga kraft')).toBe('Laga kraft');
+    expect(capitalizeFirst('överklagad')).toBe('Överklagad');
+    expect(capitalizeFirst('')).toBe('');
+  });
+});
 import {
   formatArea,
   formatCurrency,

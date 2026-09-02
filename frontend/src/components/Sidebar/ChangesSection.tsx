@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 import clsx from 'clsx';
 import { Check, Sparkles } from 'lucide-react';
 import { changesQuery, syncRunsQuery } from '@/api/queries';
@@ -19,6 +20,9 @@ import { useUiStore } from '@/store/uiStore';
 import EventList from './EventList';
 import { useEventSelection } from './useEventSelection';
 
+/** Rader som visas innan "Visa alla" — resten fälls ut på begäran. */
+const VISIBLE_EVENTS = 20;
+
 /**
  * "Nytt sedan senast": vad har hänt GLOBALT sedan senaste besöket,
  * de senaste 7/30 dagarna eller senaste synken. Bevakningarna nedanför
@@ -32,8 +36,12 @@ export default function ChangesSection() {
   const markChangesSeen = useUiStore((s) => s.markChangesSeen);
   const selectEvent = useEventSelection();
 
-  const { data: syncRuns } = useQuery(syncRunsQuery());
+  const { data: syncRuns, isError: syncRunsError } = useQuery(syncRunsQuery());
   const latestSync = latestSyncStartedAt(syncRuns?.runs);
+
+  // Listan kan vara lång (upp till 200 rader) och ligger ovanför
+  // bevakningarna — visa ett utdrag och låt användaren fälla ut resten.
+  const [showAll, setShowAll] = useState(false);
 
   // I demo-läge räknas perioderna mot exempeldatats referensdatum (se
   // changesNow) — annars vore panelen alltid tom i demon.
@@ -44,7 +52,14 @@ export default function ChangesSection() {
   });
 
   const totalEvents = data?.total_events ?? 0;
-  const shownEvents = (data?.project_events?.length ?? 0) + (data?.plan_events?.length ?? 0);
+  const projectEvents = data?.project_events ?? [];
+  const planEvents = data?.plan_events ?? [];
+  const shownEvents = projectEvents.length + planEvents.length;
+  const visibleProjects = showAll ? projectEvents : projectEvents.slice(0, VISIBLE_EVENTS);
+  const visiblePlans = showAll
+    ? planEvents
+    : planEvents.slice(0, Math.max(0, VISIBLE_EVENTS - visibleProjects.length));
+  const hiddenEvents = shownEvents - visibleProjects.length - visiblePlans.length;
   const firstVisit = changesPeriod === 'visit' && isFirstVisit(changesSeenAt);
   const sinceLabel = formatDateTime(since);
 
@@ -56,8 +71,14 @@ export default function ChangesSection() {
         <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
           <Sparkles className="w-3.5 h-3.5" />
           Nytt sedan senast
+          {/* Neutral ton — flikens röda badge räknar osedda sedan senaste
+              besöket, den här räknar vald period; de ska inte se ut som
+              samma tal. */}
           {totalEvents > 0 && (
-            <span className="inline-flex items-center justify-center min-w-4 h-4 px-1 rounded-full bg-red-500 text-white text-[10px] font-bold normal-case tracking-normal">
+            <span
+              className="inline-flex items-center justify-center min-w-4 h-4 px-1 rounded-full bg-slate-600 text-slate-100 text-[10px] font-bold normal-case tracking-normal"
+              title="Händelser i vald period"
+            >
               {totalEvents > 99 ? '99+' : totalEvents}
             </span>
           )}
@@ -74,6 +95,7 @@ export default function ChangesSection() {
             <button
               key={period}
               onClick={() => setChangesPeriod(period)}
+              aria-pressed={changesPeriod === period}
               disabled={disabled}
               title={disabled ? 'Ingen synk registrerad' : undefined}
               className={clsx(
@@ -92,7 +114,11 @@ export default function ChangesSection() {
 
       {since == null ? (
         <p className="text-[11px] text-slate-500">
-          Ingen synk registrerad ännu — synkronisera en källa under Lager.
+          {demoMode
+            ? 'Synkloggen kräver att backend körs (demo-läge).'
+            : syncRunsError
+              ? 'Kunde inte hämta synkloggen från backend.'
+              : 'Ingen synk registrerad ännu — synkronisera en källa under Lager.'}
         </p>
       ) : firstVisit ? (
         <p className="text-[11px] text-slate-500">
@@ -119,8 +145,8 @@ export default function ChangesSection() {
         </p>
       )}
 
-      {since != null && isPending && <p className="text-xs text-slate-500">Hämtar ändringar…</p>}
-      {isError && <p className="text-xs text-red-400">Kunde inte hämta ändringar från backend.</p>}
+      {since != null && isPending && <p className="text-xs text-slate-500">Hämtar händelser…</p>}
+      {isError && <p className="text-xs text-red-400">Kunde inte hämta händelser från backend.</p>}
 
       {data && (
         <>
@@ -131,10 +157,19 @@ export default function ChangesSection() {
 
           {shownEvents > 0 && (
             <EventList
-              projectEvents={data.project_events}
-              planEvents={data.plan_events}
+              projectEvents={visibleProjects}
+              planEvents={visiblePlans}
               onSelect={selectEvent}
             />
+          )}
+
+          {(hiddenEvents > 0 || showAll) && shownEvents > VISIBLE_EVENTS && (
+            <button
+              onClick={() => setShowAll((value) => !value)}
+              className="text-[11px] text-blue-400 hover:text-blue-300 transition-colors"
+            >
+              {showAll ? 'Visa färre' : `Visa alla ${shownEvents} händelser`}
+            </button>
           )}
 
           {data.truncated && (

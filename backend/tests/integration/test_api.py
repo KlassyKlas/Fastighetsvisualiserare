@@ -428,9 +428,16 @@ async def test_changes_accepts_naive_since_as_utc(client):
 
 async def test_changes_requires_since(client):
     assert (await client.get("/api/v1/changes")).status_code == 422
-    assert (
-        await client.get("/api/v1/changes", params={"since": LONG_AGO, "limit": 0})
-    ).status_code == 422
+
+
+async def test_changes_limit_zero_gives_only_counts(client):
+    """limit=0 är notisbadgens läge: räkningarna utan en enda geometri i svaret."""
+    response = await client.get("/api/v1/changes", params={"since": LONG_AGO, "limit": 0})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["project_events"] == [] and data["plan_events"] == []
+    assert data["total_events"] >= len(INFRASTRUCTURE_PROJECTS)
+    assert data["truncated"] is True
 
 
 async def test_changes_reports_modified_project_as_changed(client):
@@ -482,6 +489,12 @@ async def test_sync_runs_are_listed_latest_first(client):
 
     bad = await client.get("/api/v1/infrastructure/sync/runs", params={"limit": 0})
     assert bad.status_code == 422
+
+    filtered = await client.get(
+        "/api/v1/infrastructure/sync/runs", params={"source": "testkälla", "limit": 200}
+    )
+    assert {r["source"] for r in filtered.json()["runs"]} == {"testkälla"}
+    assert filtered.json()["runs"][0]["id"] == run_id
 
 
 class _FailingSource(DataSource):
@@ -564,7 +577,9 @@ async def test_sync_crash_after_fetch_closes_run_with_error(client, monkeypatch)
     runs = (await client.get("/api/v1/infrastructure/sync/runs")).json()["runs"]
     run = next(r for r in runs if r["source"] == _CrashSource.name)
     assert run["finished_at"] is not None
-    assert "tabell_som_inte_finns" in run["error"]
+    # Kurerad text: klassnamnet, aldrig SQL-satsen (loggen läses utan nyckel)
+    assert run["error"].startswith("Oväntat fel (")
+    assert "tabell_som_inte_finns" not in run["error"]
     # Inget hann skrivas — räkningarna står kvar på sina defaultvärden
     assert (run["fetched"], run["upserted"], run["unchanged"], run["skipped"]) == (0, 0, 0, 0)
 

@@ -160,6 +160,7 @@ async def proximity_scores(
     statuses: list[ProjectStatus] | None = None,
     project_types: list[ProjectType] | None = None,
     year: int | None = None,
+    owner: str | None = None,
     max_distance_m: float = scoring.DEFAULT_MAX_DISTANCE_M,
     limit: int = 500,
     today: date | None = None,
@@ -182,6 +183,9 @@ async def proximity_scores(
         conditions.append(InfrastructureProject.status.in_(statuses))
     if project_types:
         conditions.append(InfrastructureProject.project_type.in_(project_types))
+    if owner is not None:
+        # Ägarvyn: rankningen ska gälla samma fastigheter som kartan visar.
+        conditions.append(Property.owner_name == owner)
     if year is not None:
         # Samma semantik som projektlistans year-filter — tidsreglaget
         # ska påverka poängen och lagren likadant

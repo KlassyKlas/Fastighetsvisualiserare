@@ -7,6 +7,8 @@ limit-fördelningen.
 
 from datetime import UTC, datetime, timedelta, timezone
 
+import pytest
+
 from app.domain import WatchEventKind
 from app.services import watches
 from app.services.changes import classify_event, ensure_utc, take_with_overflow
@@ -31,6 +33,19 @@ def test_ensure_utc_keeps_utc_value():
     value = datetime(2026, 9, 1, 12, 0, tzinfo=UTC)
     assert ensure_utc(value) == value
     assert ensure_utc(value).tzinfo is UTC
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        datetime(1, 1, 1, 0, 0, tzinfo=timezone(timedelta(hours=5))),
+        datetime(9999, 12, 31, 23, 0, tzinfo=timezone(-timedelta(hours=5))),
+    ],
+)
+def test_ensure_utc_rejects_values_outside_datetime_range(value):
+    """Giltig ISO-text vars UTC-form lämnar år 1–9999 ska ge ValueError (→ 422), inte 500."""
+    with pytest.raises(ValueError, match="tidsrymd"):
+        ensure_utc(value)
 
 
 def test_classify_event_is_shared_with_watches():

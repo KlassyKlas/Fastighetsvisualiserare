@@ -90,6 +90,11 @@ function planNoun(count: number): string {
   return count === 1 ? 'detaljplan' : 'detaljplaner';
 }
 
+/** "1 detaljplan" / "5 detaljplaner" — delas med bevakningarnas innehållsrad. */
+export function planCountLabel(count: number): string {
+  return `${count} ${planNoun(count)}`;
+}
+
 /**
  * Räkneraden, t.ex. "3 nya · 1 ändrat projekt · 1 ny detaljplan".
  * Nollor utelämnas, böjningen följer antalet, och utan händelser

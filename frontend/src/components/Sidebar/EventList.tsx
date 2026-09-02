@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import { STATUS_LABELS } from '@/config/map';
+import { capitalizeFirst } from '@/lib/format';
 import type {
   DetailPlanFeature,
   DetailPlanWatchEvent,
@@ -52,7 +53,7 @@ function EventRow({ title, subtitle, kind, hasGeometry, onClick }: EventRowProps
           {subtitle}
           {/* /changes kräver ingen geometri (till skillnad från bevakningarna) —
               raden är klickbar ändå, men kartan kan inte zooma dit. */}
-          {!hasGeometry && <span className="text-slate-600"> · saknar geometri</span>}
+          {!hasGeometry && <span> · saknar geometri</span>}
         </p>
       </div>
       <EventKindBadge kind={kind} />
@@ -120,7 +121,7 @@ export default function EventList({
           <EventRow
             key={`plan-${props.id}`}
             title={props.name}
-            subtitle={`Detaljplan${props.status ? ` · ${props.status}` : ''}`}
+            subtitle={`Detaljplan${props.status ? ` · ${capitalizeFirst(props.status)}` : ''}`}
             kind={event.event_kind}
             hasGeometry={feature.geometry != null}
             onClick={onSelect ? () => onSelect({ kind: 'plan', feature }) : undefined}

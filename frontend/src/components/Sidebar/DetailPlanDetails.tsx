@@ -1,13 +1,8 @@
 import { Calendar, FileText, Landmark, MapPin, Tag, Timer, X } from 'lucide-react';
 import { FALLBACK_COLOR, PLAN_STATUS_COLORS, SOURCE_LABELS } from '@/config/map';
-import { formatDate } from '@/lib/format';
+import { capitalizeFirst, formatDate } from '@/lib/format';
 import { geometryAnchor } from '@/lib/isochrone';
 import { useUiStore } from '@/store/uiStore';
-
-/** Versal först — statusvärdena kommer gement från Boverkets modell. */
-function statusLabel(status: string): string {
-  return status.charAt(0).toUpperCase() + status.slice(1);
-}
 
 export default function DetailPlanDetails() {
   const selectedDetailPlan = useUiStore((s) => s.selectedDetailPlan);
@@ -36,7 +31,7 @@ export default function DetailPlanDetails() {
                 className="w-1.5 h-1.5 rounded-full mr-1.5"
                 style={{ backgroundColor: statusColor }}
               />
-              {props.status ? statusLabel(props.status) : 'Okänd status'}
+              {props.status ? capitalizeFirst(props.status) : 'Okänd status'}
             </span>
           </div>
         </div>
@@ -93,7 +88,7 @@ export default function DetailPlanDetails() {
             <Landmark className="w-4 h-4 text-slate-500 flex-shrink-0" />
             <div>
               <p className="text-xs text-slate-500">Plantyp</p>
-              <p className="text-sm text-slate-200">{statusLabel(metadata.plantyp)}</p>
+              <p className="text-sm text-slate-200">{capitalizeFirst(metadata.plantyp)}</p>
             </div>
           </div>
         )}
