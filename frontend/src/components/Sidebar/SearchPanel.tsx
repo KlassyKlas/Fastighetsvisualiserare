@@ -4,6 +4,7 @@ import { Building2, MapPin, Search, TrainFront } from 'lucide-react';
 import { useMemo } from 'react';
 import { projectsQuery, propertiesQuery } from '@/api/queries';
 import type { ProjectFeature, PropertyFeature } from '@/domain';
+import { focusGeometry } from '@/lib/mapBridge';
 import { useUiStore } from '@/store/uiStore';
 
 type SearchHit =
@@ -69,6 +70,7 @@ export default function SearchPanel() {
     } else {
       setSelectedProperty(hit.feature);
     }
+    focusGeometry(hit.feature.geometry);
   };
 
   return (

@@ -9,7 +9,7 @@ påverkanszoner). Demo-läget kan därmed aldrig glida ifrån kontraktet.
 
 import json
 import math
-from datetime import date
+from datetime import UTC, date, datetime, time, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -47,7 +47,36 @@ M_PER_DEG_LAT = 111_320.0
 # Fast referensdatum så att exporten är deterministisk — CI regenererar
 # och diffar filen, och poängmodellens tidsfaktor får inte glida med
 # dagens datum. Uppdatera medvetet vid behov (och committa om filen).
+# Frontenden läser samma datum (toppnyckeln "referenceDate") och använder
+# det som "nu" i demo-lägets "Nytt sedan senast".
 REFERENCE_DATE = date(2026, 8, 5)
+
+# Avstånd mellan objektens skapandestämplar och offset för "nyligen ändrat".
+_CREATED_STEP = timedelta(days=4)
+_UPDATED_OFFSET = timedelta(days=1)
+
+
+def _timestamps(index: int, total: int) -> tuple[datetime, datetime]:
+    """Illustrativa created_at/updated_at för objekt `index` (1-baserat) av `total`.
+
+    Databasen sätter stämplarna vid synk; seed-fixturerna har inga. För
+    att demo-läget ändå ska kunna visa "Nytt sedan senast" får objekten
+    deterministiska stämplar utspridda bakåt i tiden: det sista objektet
+    skapades fyra dagar före referensdatumet, det första (total × 4) dagar
+    före. Vart tredje objekt räknas dessutom som ändrat dagen före
+    referensdatumet. ALLA stämplar ligger strikt före REFERENCE_DATE — en
+    demo-bevakning som skapas "nu" får därför aldrig exempelobjekten som
+    händelser, medan ändringspanelen (som räknar mot referensdatumet)
+    visar dem.
+    """
+    created = datetime.combine(
+        REFERENCE_DATE - _CREATED_STEP * (total - index + 1), time(8, 0), tzinfo=UTC
+    )
+    if index % 3 == 0:
+        updated = datetime.combine(REFERENCE_DATE - _UPDATED_OFFSET, time(9, 0), tzinfo=UTC)
+    else:
+        updated = created
+    return created, updated
 
 
 def _buffer_wgs84(geometry: dict[str, Any], meters: float) -> dict[str, Any]:
@@ -129,19 +158,24 @@ def _build_proximity_scores() -> ProximityScoresCollection:
 
     scored.sort(key=lambda entry: scoring.total_score([c.points for c in entry[2]]), reverse=True)
 
-    features = [
-        ProximityScoreFeature(
-            geometry=_to_multipolygon(prop.geometry) if prop.geometry else None,
-            properties=ProximityScoreProps(
-                id=prop_index,
-                **prop.model_dump(exclude={"geometry"}),
-                score=scoring.total_score([c.points for c in contributions]),
-                rank=rank,
-                contributions=contributions,
-            ),
+    features = []
+    for rank, (prop_index, prop, contributions) in enumerate(scored, start=1):
+        # Samma stämplar som fastigheten har i properties-samlingen.
+        created_at, updated_at = _timestamps(prop_index, len(PROPERTIES))
+        features.append(
+            ProximityScoreFeature(
+                geometry=_to_multipolygon(prop.geometry) if prop.geometry else None,
+                properties=ProximityScoreProps(
+                    id=prop_index,
+                    **prop.model_dump(exclude={"geometry"}),
+                    created_at=created_at,
+                    updated_at=updated_at,
+                    score=scoring.total_score([c.points for c in contributions]),
+                    rank=rank,
+                    contributions=contributions,
+                ),
+            )
         )
-        for rank, (prop_index, prop, contributions) in enumerate(scored, start=1)
-    ]
 
     return ProximityScoresCollection(
         features=features,
@@ -165,16 +199,20 @@ def _area_km2(geometry: dict[str, Any]) -> float:
 
 
 def _build_detail_plans() -> DetailPlanCollection:
-    features = [
-        DetailPlanFeature(
-            geometry=_to_multipolygon(item.geometry) if item.geometry else None,
-            properties=DetailPlanProps(
-                id=index,
-                **item.model_dump(exclude={"geometry"}),
-            ),
+    features = []
+    for index, item in enumerate(DETAIL_PLANS, start=1):
+        created_at, updated_at = _timestamps(index, len(DETAIL_PLANS))
+        features.append(
+            DetailPlanFeature(
+                geometry=_to_multipolygon(item.geometry) if item.geometry else None,
+                properties=DetailPlanProps(
+                    id=index,
+                    **item.model_dump(exclude={"geometry"}),
+                    created_at=created_at,
+                    updated_at=updated_at,
+                ),
+            )
         )
-        for index, item in enumerate(DETAIL_PLANS, start=1)
-    ]
     return DetailPlanCollection(
         features=features, numberMatched=len(features), numberReturned=len(features)
     )
@@ -204,27 +242,35 @@ def _build_deso_areas() -> DesoAreaCollection:
 
 
 def build_sample_data() -> dict[str, Any]:
-    property_features = [
-        PropertyFeature(
-            geometry=_to_multipolygon(item.geometry) if item.geometry else None,
-            properties=PropertyProps(
-                id=index,
-                **item.model_dump(exclude={"geometry"}),
-            ),
+    property_features = []
+    for index, item in enumerate(PROPERTIES, start=1):
+        created_at, updated_at = _timestamps(index, len(PROPERTIES))
+        property_features.append(
+            PropertyFeature(
+                geometry=_to_multipolygon(item.geometry) if item.geometry else None,
+                properties=PropertyProps(
+                    id=index,
+                    **item.model_dump(exclude={"geometry"}),
+                    created_at=created_at,
+                    updated_at=updated_at,
+                ),
+            )
         )
-        for index, item in enumerate(PROPERTIES, start=1)
-    ]
 
-    project_features = [
-        InfrastructureProjectFeature(
-            geometry=item.geometry,
-            properties=InfrastructureProjectProps(
-                id=index,
-                **item.model_dump(exclude={"geometry"}),
-            ),
+    project_features = []
+    for index, item in enumerate(INFRASTRUCTURE_PROJECTS, start=1):
+        created_at, updated_at = _timestamps(index, len(INFRASTRUCTURE_PROJECTS))
+        project_features.append(
+            InfrastructureProjectFeature(
+                geometry=item.geometry,
+                properties=InfrastructureProjectProps(
+                    id=index,
+                    **item.model_dump(exclude={"geometry"}),
+                    created_at=created_at,
+                    updated_at=updated_at,
+                ),
+            )
         )
-        for index, item in enumerate(INFRASTRUCTURE_PROJECTS, start=1)
-    ]
 
     zone_features = [
         ImpactZoneFeature(
@@ -244,6 +290,8 @@ def build_sample_data() -> dict[str, Any]:
     ]
 
     return {
+        # Demodatats "nu": stämplarna ovan är relativa till detta datum.
+        "referenceDate": REFERENCE_DATE.isoformat(),
         "properties": PropertyCollection(
             features=property_features,
             numberMatched=len(property_features),

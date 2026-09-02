@@ -10,13 +10,16 @@ import {
   Mountain,
   RefreshCw,
   Satellite,
+  Sparkles,
   TrainFront,
   Users,
 } from 'lucide-react';
 import { useState } from 'react';
-import { FALLBACK_SOURCES, sourcesQuery, syncSource } from '@/api/queries';
+import { FALLBACK_SOURCES, sourcesQuery, syncRunsQuery, syncSource } from '@/api/queries';
 import { DEMOGRAPHICS_METRICS } from '@/config/map';
 import type { DemographicsMetric, LayerVisibility } from '@/domain';
+import { formatDateTime } from '@/lib/format';
+import { latestRunBySource, latestSuccessfulRunBySource } from '@/lib/syncRuns';
 import { useUiStore } from '@/store/uiStore';
 import Toggle from '../UI/Toggle';
 
@@ -45,10 +48,15 @@ export default function LayerPanel() {
   const demoMode = useUiStore((s) => s.demoMode);
   const demographicsMetric = useUiStore((s) => s.demographicsMetric);
   const setDemographicsMetric = useUiStore((s) => s.setDemographicsMetric);
+  const setChangesPeriod = useUiStore((s) => s.setChangesPeriod);
+  const setSidebarTab = useUiStore((s) => s.setSidebarTab);
 
   const queryClient = useQueryClient();
   const [syncMessage, setSyncMessage] = useState<string | null>(null);
   const { data: sources } = useQuery(sourcesQuery());
+  const { data: syncRuns } = useQuery(syncRunsQuery());
+  const latestRuns = latestRunBySource(syncRuns?.runs);
+  const latestSuccessfulRuns = latestSuccessfulRunBySource(syncRuns?.runs);
 
   const syncMutation = useMutation({
     mutationFn: syncSource,
@@ -67,6 +75,10 @@ export default function LayerPanel() {
       queryClient.invalidateQueries({ queryKey: ['detail-plans'] });
       queryClient.invalidateQueries({ queryKey: ['deso-areas'] });
       queryClient.invalidateQueries({ queryKey: ['deso-lookup'] });
+      // "Nytt sedan senast" (globalt och per bevakning) ändras bara av
+      // en körning som faktiskt skrev något.
+      queryClient.invalidateQueries({ queryKey: ['changes'] });
+      queryClient.invalidateQueries({ queryKey: ['watch-events'] });
     },
     onError: (error) => {
       const detail =
@@ -74,6 +86,12 @@ export default function LayerPanel() {
           ? String((error as { detail: unknown }).detail)
           : 'Kunde inte synkronisera. Kontrollera att backend körs.';
       setSyncMessage(detail);
+    },
+    onSettled: () => {
+      // Backend loggar även misslyckade körningar i sync_runs — raden
+      // "Senaste synk misslyckades" ska synas direkt, inte efter nästa
+      // refetch.
+      queryClient.invalidateQueries({ queryKey: ['sync-runs'] });
     },
   });
 
@@ -158,24 +176,40 @@ export default function LayerPanel() {
               backend ger då sitt eget felmeddelande nedanför. */}
           {Object.entries(sources ?? FALLBACK_SOURCES).map(([sourceName, label]) => {
             const isSyncing = syncMutation.isPending && syncMutation.variables === sourceName;
+            const lastSuccess = latestSuccessfulRuns[sourceName];
+            const lastRun = latestRuns[sourceName];
+            const lastSuccessLabel = formatDateTime(lastSuccess?.finished_at);
             return (
-              <button
-                key={sourceName}
-                onClick={() => {
-                  setSyncMessage(null);
-                  syncMutation.mutate(sourceName);
-                }}
-                disabled={syncMutation.isPending || demoMode}
-                className={clsx(
-                  'w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors',
-                  syncMutation.isPending || demoMode
-                    ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
-                    : 'bg-blue-600 hover:bg-blue-500 text-white',
+              <div key={sourceName}>
+                <button
+                  onClick={() => {
+                    setSyncMessage(null);
+                    syncMutation.mutate(sourceName);
+                  }}
+                  disabled={syncMutation.isPending || demoMode}
+                  className={clsx(
+                    'w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                    syncMutation.isPending || demoMode
+                      ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                      : 'bg-blue-600 hover:bg-blue-500 text-white',
+                  )}
+                >
+                  <RefreshCw className={clsx('w-4 h-4', isSyncing && 'animate-spin')} />
+                  {isSyncing ? 'Synkroniserar…' : label}
+                </button>
+                {/* Synkloggen: senaste lyckade körningen, och felet om den
+                    allra senaste misslyckades. */}
+                {lastSuccess && lastSuccessLabel && (
+                  <p className="text-[11px] text-slate-500 mt-1 px-1">
+                    Senast synkad {lastSuccessLabel} · {lastSuccess.upserted} ändrade
+                  </p>
                 )}
-              >
-                <RefreshCw className={clsx('w-4 h-4', isSyncing && 'animate-spin')} />
-                {isSyncing ? 'Synkroniserar…' : label}
-              </button>
+                {lastRun?.error && (
+                  <p className="text-[11px] text-red-400 mt-1 px-1">
+                    Senaste synk misslyckades: {lastRun.error}
+                  </p>
+                )}
+              </div>
             );
           })}
         </div>
@@ -185,6 +219,20 @@ export default function LayerPanel() {
           </p>
         )}
         {syncMessage && <p className="text-xs text-slate-400 mt-2 text-center">{syncMessage}</p>}
+        {syncMutation.isSuccess && (
+          <button
+            onClick={() => {
+              // "Senaste synk" räknar från körningens starttid — precis
+              // det som den här synken skapade eller ändrade.
+              setChangesPeriod('sync');
+              setSidebarTab('watches');
+            }}
+            className="w-full mt-2 flex items-center justify-center gap-1.5 px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg text-xs transition-colors"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            Visa vad som ändrades
+          </button>
+        )}
       </div>
     </div>
   );

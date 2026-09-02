@@ -25,6 +25,11 @@ export type WatchedAreaCreate = components['schemas']['WatchedAreaCreate'];
 export type WatchEventKind = components['schemas']['WatchEventKind'];
 export type WatchEvents = components['schemas']['WatchEvents'];
 export type WatchEventsResponse = components['schemas']['WatchEventsResponse'];
+export type ProjectWatchEvent = components['schemas']['ProjectWatchEvent'];
+export type DetailPlanWatchEvent = components['schemas']['DetailPlanWatchEvent'];
+export type ChangesResponse = components['schemas']['ChangesResponse'];
+export type SyncRunInfo = components['schemas']['SyncRunInfo'];
+export type SyncRunList = components['schemas']['SyncRunList'];
 
 /**
  * API:t serialiserar geometrier som generisk GeoJSON. För kartlagren

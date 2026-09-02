@@ -116,8 +116,11 @@ export function classifyDemoEvent(
 
 /**
  * Händelser och innehållsräkning för demobevakningarna, beräknat mot
- * exempeldatat. Demodatat är statiskt (tidsstämplar saknas), så i
- * praktiken visas räkningarna medan händelselistorna förblir tomma.
+ * exempeldatat. Demodatats tidsstämplar är illustrativa och ligger före
+ * referensdatumet (sampleReferenceDate); en bevakning skapas med
+ * last_seen_at = nu, så i praktiken visas räkningarna medan
+ * händelselistorna förblir tomma. Panelen "Nytt sedan senast" räknar i
+ * stället mot referensdatumet (lib/demoChanges) och visar dem.
  */
 export function demoWatchEvents(): WatchEventsResponse {
   const watches: WatchEvents[] = readStore().map((watch) => {

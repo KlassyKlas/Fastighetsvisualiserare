@@ -12,6 +12,8 @@ import type {
   PropertyFeature,
 } from '@/domain';
 import { EMPTY_FILTERS } from '@/domain';
+import type { ChangesPeriod } from '@/lib/changes';
+import { readChangesSeenAt, writeChangesSeenAt } from '@/lib/changesSeen';
 import { toggleMinute } from '@/lib/isochrone';
 
 export type SidebarTab = 'search' | 'layers' | 'analysis' | 'watches' | 'details';
@@ -46,6 +48,10 @@ interface UiState {
   watchDraftPoints: [number, number][];
   /** Fastighet som objektsrapporten visas för (null = ingen rapport) */
   reportProperty: PropertyFeature | null;
+  /** Vald period i panelen "Nytt sedan senast" */
+  changesPeriod: ChangesPeriod;
+  /** När användaren senast markerade ändringarna som sedda (ISO, localStorage) */
+  changesSeenAt: string | null;
 
   toggleLayer: (layer: keyof LayerVisibility) => void;
   setSelectedProject: (feature: ProjectFeature | null) => void;
@@ -70,6 +76,8 @@ interface UiState {
   addWatchDraftPoint: (point: [number, number]) => void;
   undoWatchDraftPoint: () => void;
   setReportProperty: (feature: PropertyFeature | null) => void;
+  setChangesPeriod: (period: ChangesPeriod) => void;
+  markChangesSeen: () => void;
   clearSelection: () => void;
 }
 
@@ -105,6 +113,8 @@ export const useUiStore = create<UiState>((set) => ({
   watchDrawing: false,
   watchDraftPoints: [],
   reportProperty: null,
+  changesPeriod: 'visit',
+  changesSeenAt: readChangesSeenAt(),
 
   toggleLayer: (layer) =>
     set((state) => ({
@@ -195,6 +205,16 @@ export const useUiStore = create<UiState>((set) => ({
     set((state) => ({ watchDraftPoints: state.watchDraftPoints.slice(0, -1) })),
 
   setReportProperty: (feature) => set({ reportProperty: feature }),
+
+  setChangesPeriod: (period) => set({ changesPeriod: period }),
+
+  // Markören skrivs till localStorage OCH storen: storen driver
+  // renderingen direkt, localStorage överlever omladdningen.
+  markChangesSeen: () => {
+    const now = new Date().toISOString();
+    writeChangesSeenAt(now);
+    set({ changesSeenAt: now });
+  },
 
   clearSelection: () =>
     set({
