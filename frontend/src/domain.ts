@@ -30,6 +30,8 @@ export type DetailPlanWatchEvent = components['schemas']['DetailPlanWatchEvent']
 export type ChangesResponse = components['schemas']['ChangesResponse'];
 export type SyncRunInfo = components['schemas']['SyncRunInfo'];
 export type SyncRunList = components['schemas']['SyncRunList'];
+export type OwnerSummary = components['schemas']['OwnerSummary'];
+export type OwnerSummaryList = components['schemas']['OwnerSummaryList'];
 
 /**
  * API:t serialiserar geometrier som generisk GeoJSON. För kartlagren
@@ -101,6 +103,8 @@ export interface FilterState {
   maxValue: number | null;
   /** Visa bara projekt som är aktiva under detta år (null = alla år) */
   year: number | null;
+  /** Ägarvyn: visa bara fastigheter med exakt detta owner_name (null = alla ägare) */
+  owner: string | null;
 }
 
 export const EMPTY_FILTERS: FilterState = {
@@ -110,4 +114,5 @@ export const EMPTY_FILTERS: FilterState = {
   minValue: null,
   maxValue: null,
   year: null,
+  owner: null,
 };

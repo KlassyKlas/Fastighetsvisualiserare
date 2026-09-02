@@ -51,6 +51,23 @@ describe('uiStore', () => {
     expect(state.sidebarTab).toBe('search');
   });
 
+  it('setOwnerFilter sätter bara ägarfiltret och lämnar övriga filter orörda', () => {
+    useUiStore.getState().toggleStatus('planerad');
+    useUiStore.getState().setFilters({ municipalities: ['Solna'], year: 2030 });
+
+    useUiStore.getState().setOwnerFilter('Vasakronan AB');
+    expect(useUiStore.getState().filters).toMatchObject({
+      owner: 'Vasakronan AB',
+      statuses: ['planerad'],
+      municipalities: ['Solna'],
+      year: 2030,
+    });
+
+    useUiStore.getState().setOwnerFilter(null);
+    expect(useUiStore.getState().filters.owner).toBeNull();
+    expect(useUiStore.getState().filters.municipalities).toEqual(['Solna']);
+  });
+
   it('demoMode kan sättas och läsas', () => {
     expect(useUiStore.getState().demoMode).toBe(false);
     useUiStore.getState().setDemoMode(true);

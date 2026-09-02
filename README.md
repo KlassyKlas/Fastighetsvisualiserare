@@ -123,6 +123,10 @@ annars säger CI ifrån.
    med knappen "Visa vad som ändrades". Demodatat har illustrativa tidsstämplar så att
    panelen fungerar även i demo-läge
 8. Delbara länkar: filter, år, poängläge och vald fastighet i URL:en
-9. Ägarvy: gruppera fastigheter per ägare ("visa allt Vasakronan äger")
+9. ~~Ägarvy~~ — byggt: Sök-flikens tomvy listar ägare med antal fastigheter, taxeringsvärde
+   och kommuner (GROUP BY + ST_Extent i PostGIS via `GET /api/v1/properties/owners`); klick
+   filtrerar kartan på ägaren och zoomar till innehavet, fastighetspanelen har "Visa allt
+   ägaren äger" och filterraden visar det aktiva ägarfiltret. I demo-läge speglas
+   aggregeringen klientsidigt
 10. Förberäknade påverkanszoner: zon-kolumn som sätts vid synk i stället för
     ST_Buffer per anrop — korridorgeometrierna gör zonfrågan tung (~1,4 s)

@@ -115,6 +115,11 @@ export function applyPropertyFilters(
         f.properties.assessed_value_sek <= (filters.maxValue ?? Infinity),
     );
   }
+  // Exakt match som backendens `owner_name == owner` — ägarvyn utgår från
+  // ett namn ur ägarlistan, inte fritext, så ingen normalisering görs.
+  if (filters.owner != null) {
+    features = features.filter((f) => f.properties.owner_name === filters.owner);
+  }
 
   return {
     ...collection,

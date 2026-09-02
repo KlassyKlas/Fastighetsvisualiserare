@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import {
+  Building2,
   Calendar,
   FileText,
   Grid3X3,
@@ -13,7 +14,7 @@ import {
   Users,
   X,
 } from 'lucide-react';
-import { desoLookupQuery, nearbyProjectsQuery } from '@/api/queries';
+import { desoLookupQuery, nearbyProjectsQuery, ownersQuery } from '@/api/queries';
 import {
   FALLBACK_COLOR,
   PROPERTY_TYPE_COLORS,
@@ -21,11 +22,17 @@ import {
   STATUS_COLORS,
   STATUS_LABELS,
 } from '@/config/map';
-import { formatArea, formatCurrency, formatDistance, formatPercent } from '@/lib/format';
+import {
+  formatArea,
+  formatCurrency,
+  formatDistance,
+  formatNumber,
+  formatPercent,
+} from '@/lib/format';
 import { geometryAnchor } from '@/lib/isochrone';
+import { focusBounds } from '@/lib/mapBridge';
+import { toBounds } from '@/lib/owners';
 import { useUiStore } from '@/store/uiStore';
-
-const numberFormat = new Intl.NumberFormat('sv-SE');
 
 function DesoStats({ longitude, latitude }: { longitude: number; latitude: number }) {
   const demoMode = useUiStore((s) => s.demoMode);
@@ -57,13 +64,13 @@ function DesoStats({ longitude, latitude }: { longitude: number; latitude: numbe
   if (props.population != null) {
     rows.push({
       label: `Befolkning${props.population_year ? ` (${props.population_year})` : ''}`,
-      value: numberFormat.format(props.population),
+      value: formatNumber(props.population),
     });
   }
   if (props.population_density != null) {
     rows.push({
       label: 'Befolkningstäthet',
-      value: `${numberFormat.format(Math.round(props.population_density))} inv/km²`,
+      value: `${formatNumber(Math.round(props.population_density))} inv/km²`,
     });
   }
   if (props.mean_income_sek != null) {
@@ -164,14 +171,35 @@ export default function PropertyDetails() {
   const setIsochroneOrigin = useUiStore((s) => s.setIsochroneOrigin);
   const setSidebarTab = useUiStore((s) => s.setSidebarTab);
   const setReportProperty = useUiStore((s) => s.setReportProperty);
+  const setOwnerFilter = useUiStore((s) => s.setOwnerFilter);
+  const setSearchQuery = useUiStore((s) => s.setSearchQuery);
+  // Smal selector: ägarfrågan nycklar bara på kommunerna — hela `filters`
+  // skulle rendera om panelen vid varje drag i årsreglaget.
+  const municipalities = useUiStore((s) => s.filters.municipalities);
+
+  // Ägarens utbredning för kartfokus när ägarvyn öppnas härifrån. Listan
+  // är normalt redan i cachen (Sök-fliken); saknas ägaren i den (utanför
+  // topplistan) öppnas vyn utan att kartan flyttas.
+  const { data: ownerData } = useQuery(ownersQuery({ municipalities }));
 
   if (!selectedProperty) return null;
 
   const props = selectedProperty.properties;
+  const ownerName = props.owner_name;
   const isochroneAnchor = geometryAnchor(selectedProperty.geometry);
   const typeColor =
     (props.property_type && PROPERTY_TYPE_COLORS[props.property_type]) || FALLBACK_COLOR;
   const propertyId = Number(props.id);
+
+  const showOwnerHoldings = (owner: string) => {
+    // Sök-fliken visar sökträffar i stället för innehavslistan så länge en
+    // sökterm står kvar — töm fältet så att "visa allt" verkligen visar allt.
+    setSearchQuery('');
+    setOwnerFilter(owner);
+    setSidebarTab('search');
+    const summary = ownerData?.owners?.find((o) => o.owner_name === owner);
+    focusBounds(toBounds(summary?.extent));
+  };
 
   return (
     <div className="p-4">
@@ -218,12 +246,21 @@ export default function PropertyDetails() {
             <div className="flex items-center gap-3">
               <User className="w-4 h-4 text-slate-500 flex-shrink-0" />
               <div>
-                <p className="text-sm text-slate-200">{props.owner_name ?? 'Okänd'}</p>
+                <p className="text-sm text-slate-200">{ownerName ?? 'Okänd'}</p>
                 {props.owner_org_number && (
                   <p className="text-xs text-slate-500">Org.nr: {props.owner_org_number}</p>
                 )}
               </div>
             </div>
+            {ownerName && (
+              <button
+                onClick={() => showOwnerHoldings(ownerName)}
+                className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg text-xs transition-colors"
+              >
+                <Building2 className="w-3.5 h-3.5" />
+                Visa allt ägaren äger
+              </button>
+            )}
           </div>
         </div>
 

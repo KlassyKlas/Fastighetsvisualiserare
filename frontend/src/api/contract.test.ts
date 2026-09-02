@@ -26,6 +26,7 @@ const USED_PATHS = [
   '/api/v1/infrastructure/sync/{source_name}',
   '/api/v1/infrastructure/sync/runs',
   '/api/v1/properties',
+  '/api/v1/properties/owners',
   '/api/v1/properties/{property_id}',
   '/api/v1/properties/{property_id}/nearby-projects',
   '/api/v1/analysis/proximity-scores',

@@ -29,6 +29,7 @@ import {
   markDemoWatchSeen,
 } from '@/lib/demoWatches';
 import { applyImpactZoneFilters, applyProjectFilters, applyPropertyFilters } from '@/lib/filters';
+import { OWNERS_LIMIT, summarizeOwners } from '@/lib/owners';
 import { useUiStore } from '@/store/uiStore';
 import type {
   ChangesResponse,
@@ -39,6 +40,7 @@ import type {
   FilterState,
   ImpactZoneCollection,
   NearbyProjectsResponse,
+  OwnerSummaryList,
   ProjectCollection,
   ProjectFeature,
   PropertyCollection,
@@ -144,6 +146,7 @@ export function propertiesQuery(filters: FilterState) {
         municipalities: filters.municipalities,
         minValue: filters.minValue,
         maxValue: filters.maxValue,
+        owner: filters.owner,
       },
     ],
     queryFn: async ({ signal }): Promise<PropertyCollection> => {
@@ -154,6 +157,7 @@ export function propertiesQuery(filters: FilterState) {
               municipality: nonEmpty(filters.municipalities),
               min_value: filters.minValue ?? undefined,
               max_value: filters.maxValue ?? undefined,
+              owner: filters.owner ?? undefined,
               limit: LIST_LIMIT,
             },
           },
@@ -166,6 +170,40 @@ export function propertiesQuery(filters: FilterState) {
         if (isBackendUnreachable(error) && !signal.aborted) {
           markDemoMode(true);
           return applyPropertyFilters(sampleProperties, filters);
+        }
+        throw error;
+      }
+    },
+    staleTime: 60_000,
+    refetchInterval: retryWhileDemo,
+  });
+}
+
+/**
+ * Ägarlistan (ägarvyn). Aggregeringen görs i PostGIS över samma
+ * kommunfilter som fastighetslistan — värdefiltret ingår inte i
+ * endpointen, så nyckeln bär bara kommunerna och parametern är smal:
+ * anropare kan prenumerera på enbart `filters.municipalities` i stället
+ * för hela filterobjektet. Demo-fallback speglar SQL-semantiken i lib/owners.
+ */
+export function ownersQuery(filters: Pick<FilterState, 'municipalities'>) {
+  return queryOptions({
+    queryKey: ['owners', { municipalities: filters.municipalities }],
+    queryFn: async ({ signal }): Promise<OwnerSummaryList> => {
+      try {
+        const { data, error, response } = await client.GET('/api/v1/properties/owners', {
+          params: {
+            query: { municipality: nonEmpty(filters.municipalities), limit: OWNERS_LIMIT },
+          },
+          signal,
+        });
+        ensureOk(error, response);
+        markDemoMode(false);
+        return data as OwnerSummaryList;
+      } catch (error) {
+        if (isBackendUnreachable(error) && !signal.aborted) {
+          markDemoMode(true);
+          return summarizeOwners(sampleProperties, filters);
         }
         throw error;
       }

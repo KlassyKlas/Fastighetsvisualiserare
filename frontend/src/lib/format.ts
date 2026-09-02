@@ -7,6 +7,11 @@ const dateTimeFormat = new Intl.DateTimeFormat('sv-SE', {
   timeStyle: 'short',
 });
 
+/** Tal med svensk tusentalsavgränsare, utan enhet — "12 500". */
+export function formatNumber(value: number): string {
+  return numberFormat.format(value);
+}
+
 /** "34 000 000 000" → "34,0 mdkr"; mindre belopp med tusentalsavgränsare. */
 export function formatSek(sek: number): string {
   if (sek >= 1e9) {
