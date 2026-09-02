@@ -9,6 +9,7 @@ import {
   STATUS_LABELS,
 } from '@/config/map';
 import { useUiStore } from '@/store/uiStore';
+import ShareLinkButton from './ShareLinkButton';
 
 export default function FilterBar() {
   const filters = useUiStore((s) => s.filters);
@@ -140,6 +141,9 @@ export default function FilterBar() {
           </div>
         </>
       )}
+
+      <div className="w-px h-6 bg-slate-600 mx-1" />
+      <ShareLinkButton />
     </div>
   );
 }

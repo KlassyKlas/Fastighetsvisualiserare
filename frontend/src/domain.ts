@@ -65,6 +65,14 @@ export type WatchedAreaCollection = FeatureCollection<Geometry, WatchedAreaProps
 export type DemographicsMetric = 'population' | 'density' | 'income' | 'education';
 
 /**
+ * Sidofältets flikar och kartans stilar. Bor här (inte i storen) för att
+ * URL-tolkningen i lib/ ska kunna räkna upp de giltiga värdena utan att
+ * bero på storen.
+ */
+export type SidebarTab = 'search' | 'layers' | 'analysis' | 'watches' | 'details';
+export type MapStyleId = 'dark' | 'satellite';
+
+/**
  * Restidsanalys (isokroner). Datat kommer från Mapbox Isochrone API,
  * inte från backendens kontrakt — därför definieras typerna här.
  */

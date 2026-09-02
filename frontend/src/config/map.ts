@@ -2,6 +2,7 @@ import type { ExpressionSpecification } from 'mapbox-gl';
 import type {
   DemographicsMetric,
   IsochroneProfile,
+  LayerVisibility,
   ProjectStatus,
   ProjectType,
   PropertyType,
@@ -21,6 +22,43 @@ export const INITIAL_VIEW_STATE = {
   pitch: 45,
   bearing: -17,
 };
+
+/**
+ * Namnet på kartvyns hash i adressfältet (`#karta=zoom/lat/lng/bearing/pitch`).
+ * Mapbox skriver och läser den (`hash`-prop:en på kartan); UrlSelectionLoader
+ * läser den för att avgöra om en öppnad länk redan bär en kartvy. Delad
+ * konstant så att de två inte kan glida isär.
+ */
+export const MAP_HASH_NAME = 'karta';
+
+/**
+ * Tidsreglagets gränser och startår. Delas av TimelineBar och
+ * URL-tolkningen (lib/urlState) så att ett år i en delad länk valideras
+ * mot samma intervall som reglaget kan visa.
+ */
+export const YEAR_MIN = 2005;
+export const YEAR_MAX = 2040;
+export const DEFAULT_YEAR = 2026;
+
+/**
+ * Lagrens startläge — enda källan för både storen och URL-tolkningen
+ * (`lager=` skrivs bara när synligheten avviker härifrån). Nyckelordningen
+ * styr ordningen i URL:en.
+ */
+export const DEFAULT_LAYER_VISIBILITY: LayerVisibility = {
+  infrastructure: true,
+  properties: true,
+  impactZones: true,
+  // Nya nationella lager är avstängda tills användaren slår på dem —
+  // de hämtas per kartvy och ska inte belasta förstaladdningen.
+  detailPlans: false,
+  demographics: false,
+  watches: true,
+  buildings3d: true,
+  terrain: true,
+};
+
+export const LAYER_KEYS = Object.keys(DEFAULT_LAYER_VISIBILITY) as (keyof LayerVisibility)[];
 
 export const FALLBACK_COLOR = '#6b7280';
 

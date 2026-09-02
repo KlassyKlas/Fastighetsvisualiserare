@@ -8,7 +8,16 @@ import type { Geometry } from 'geojson';
 import type { Map as MapboxMap } from 'mapbox-gl';
 import { geometryBounds, type Bounds } from '@/lib/geometry';
 
+export interface FocusOptions {
+  maxZoom?: number;
+}
+
 let instance: MapboxMap | null = null;
+
+/** Fokus begärt innan kartan laddats (t.ex. valet ur en öppnad länk, som
+ * ofta hämtas snabbare än kartstilen) — utförs, med sina options, när
+ * kartan registreras. Bara det senaste begärda fokuset sparas. */
+let pendingFocus: { bounds: Bounds; options?: FocusOptions } | null = null;
 
 /** Zoomtak vid fokus — en enskild fastighet ska synas med omgivning,
  * och en punktgeometri (degenererad bbox) får inte zooma in i oändlighet. */
@@ -20,17 +29,24 @@ const FOCUS_PADDING = { top: 120, bottom: 80, left: 60, right: 60 };
 
 export function registerMap(map: MapboxMap | null): void {
   instance = map;
+  if (map && pendingFocus) {
+    const { bounds, options } = pendingFocus;
+    pendingFocus = null;
+    focusBounds(bounds, options);
+  }
 }
 
-/** fitBounds till [väst, syd, öst, norr]. Ingen effekt om kartan inte
- * laddats eller rektangeln saknas. */
-export function focusBounds(
-  bounds: Bounds | null | undefined,
-  options?: { maxZoom?: number },
-): void {
-  if (!instance || !bounds) return;
+/** fitBounds till [väst, syd, öst, norr]. Ingen effekt om rektangeln
+ * saknas; har kartan inte laddats ännu utförs fokuset när den registreras. */
+export function focusBounds(bounds: Bounds | null | undefined, options?: FocusOptions): void {
+  if (!bounds) return;
   const [west, south, east, north] = bounds;
   if (![west, south, east, north].every(Number.isFinite)) return;
+  if (!instance) {
+    pendingFocus = { bounds, options };
+    return;
+  }
+
   instance.fitBounds(
     [
       [west, south],
@@ -45,13 +61,10 @@ export function focusBounds(
 }
 
 /**
- * Zooma/panorera kartan till en GeoJSON-geometri. Ingen effekt om kartan
- * inte laddats eller geometri saknas — objekt utan geometri (t.ex. från
- * /changes) ska ändå kunna väljas i sidofältet.
+ * Zooma/panorera kartan till en GeoJSON-geometri. Ingen effekt om geometri
+ * saknas — objekt utan geometri (t.ex. från /changes) ska ändå kunna väljas
+ * i sidofältet. Har kartan inte laddats ännu köas fokuset (se focusBounds).
  */
-export function focusGeometry(
-  geometry: Geometry | null | undefined,
-  options?: { maxZoom?: number },
-): void {
+export function focusGeometry(geometry: Geometry | null | undefined, options?: FocusOptions): void {
   focusBounds(geometryBounds(geometry), options);
 }

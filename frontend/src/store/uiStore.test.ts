@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+import { DEFAULT_LAYER_VISIBILITY } from '@/config/map';
+import { EMPTY_FILTERS } from '@/domain';
 import { readChangesSeenAt } from '@/lib/changesSeen';
+import { ISOCHRONE_URL_LABEL, parseUrlState } from '@/lib/urlState';
 import { useUiStore } from './uiStore';
 
 const initialState = useUiStore.getState();
@@ -165,5 +168,114 @@ describe('uiStore', () => {
   it('markChangesSeen fungerar även utan localStorage', () => {
     useUiStore.getState().markChangesSeen();
     expect(useUiStore.getState().changesSeenAt).not.toBeNull();
+  });
+
+  it('applyUrlState ersätter filter och lager helt — det länken inte nämner blir standard', () => {
+    useUiStore.getState().toggleStatus('planerad');
+    useUiStore.getState().setOwnerFilter('Vasakronan AB');
+    useUiStore.getState().toggleLayer('terrain');
+    useUiStore.getState().setScoreColoring(true);
+
+    useUiStore.getState().applyUrlState(parseUrlState('?ar=2030&flik=watches').state);
+
+    const state = useUiStore.getState();
+    expect(state.filters).toEqual({ ...EMPTY_FILTERS, year: 2030 });
+    expect(state.filters.owner).toBeNull();
+    expect(state.layers).toEqual(DEFAULT_LAYER_VISIBILITY);
+    expect(state.scoreColoring).toBe(false);
+    expect(state.sidebarTab).toBe('watches');
+  });
+
+  it('applyUrlState sätter restidsanalysen ur länken men rör inte väljarläget', () => {
+    useUiStore.getState().setIsochronePicking(true);
+    useUiStore.getState().applyUrlState(parseUrlState('?restid=18.07,59.33,driving,15-45').state);
+
+    const state = useUiStore.getState();
+    expect(state.isochroneOrigin).toMatchObject({ longitude: 18.07, latitude: 59.33 });
+    expect(state.isochroneProfile).toBe('driving');
+    expect(state.isochroneMinutes).toEqual([15, 45]);
+    // Transient state utanför länken lämnas som det är
+    expect(state.isochronePicking).toBe(true);
+
+    // Utan restid i länken stängs analysen men profil och minuter behålls (som clearIsochrone)
+    useUiStore.getState().applyUrlState(parseUrlState('').state);
+    expect(useUiStore.getState().isochroneOrigin).toBeNull();
+    expect(useUiStore.getState().isochroneProfile).toBe('driving');
+    expect(useUiStore.getState().isochroneMinutes).toEqual([15, 45]);
+  });
+
+  it('applyUrlState behåller startpunkten och dess etikett när länken avser samma punkt', () => {
+    const origin = { longitude: 18.0712345678, latitude: 59.33, label: 'Kungsträdgården' };
+    useUiStore.getState().setIsochroneOrigin(origin);
+
+    // Länkens sex decimaler är samma punkt — objektet (och namnet) behålls,
+    // profil och minuter följer länken
+    useUiStore.getState().applyUrlState(parseUrlState('?restid=18.071235,59.33,cycling,10').state);
+    let state = useUiStore.getState();
+    expect(state.isochroneOrigin).toBe(origin);
+    expect(state.isochroneProfile).toBe('cycling');
+    expect(state.isochroneMinutes).toEqual([10]);
+
+    // En annan punkt ersätter — med länkens generiska etikett
+    useUiStore.getState().applyUrlState(parseUrlState('?restid=18.08,59.33,cycling,10').state);
+    state = useUiStore.getState();
+    expect(state.isochroneOrigin).toEqual({
+      longitude: 18.08,
+      latitude: 59.33,
+      label: ISOCHRONE_URL_LABEL,
+    });
+  });
+
+  it('applyUrlState släpper valet när länken saknar det eller avser ett annat objekt', () => {
+    const property = {
+      type: 'Feature',
+      geometry: null,
+      properties: { id: 12, designation: 'Test 1:1' },
+    } as never;
+
+    // Samma objekt i länken: valet och detaljfliken behålls
+    useUiStore.getState().setSelectedProperty(property);
+    useUiStore.getState().applyUrlState(parseUrlState('?fastighet=12').state);
+    expect(useUiStore.getState().selectedProperty).toBe(property);
+    expect(useUiStore.getState().sidebarTab).toBe('details');
+
+    // Ett annat objekt: det valda släpps (UrlSelectionLoader hämtar länkens)
+    useUiStore.getState().applyUrlState(parseUrlState('?projekt=3').state);
+    expect(useUiStore.getState().selectedProperty).toBeNull();
+    expect(useUiStore.getState().sidebarTab).toBe('details');
+
+    // Inget val i länken: allt valt släpps och fliken följer länken
+    useUiStore.getState().setSelectedProperty(property);
+    useUiStore.getState().applyUrlState(parseUrlState('').state);
+    const state = useUiStore.getState();
+    expect(state.selectedProperty).toBeNull();
+    expect(state.selectedProject).toBeNull();
+    expect(state.selectedDetailPlan).toBeNull();
+    expect(state.sidebarTab).toBe('search');
+  });
+
+  it('pendingSelection sätts och rensas', () => {
+    expect(useUiStore.getState().pendingSelection).toBeNull();
+    useUiStore.getState().setPendingSelection({ kind: 'project', id: 3 });
+    expect(useUiStore.getState().pendingSelection).toEqual({ kind: 'project', id: 3 });
+    useUiStore.getState().setPendingSelection(null);
+    expect(useUiStore.getState().pendingSelection).toBeNull();
+  });
+
+  it('ett val användaren gör släpper det som väntar ur länken', () => {
+    const property = {
+      type: 'Feature',
+      geometry: null,
+      properties: { id: 12, designation: 'Test 1:1' },
+    } as never;
+
+    useUiStore.getState().setPendingSelection({ kind: 'project', id: 3 });
+    useUiStore.getState().setSelectedProperty(property);
+    expect(useUiStore.getState().pendingSelection).toBeNull();
+
+    // Att avmarkera släpper inget — länkens objekt får fortfarande visas
+    useUiStore.getState().setPendingSelection({ kind: 'project', id: 3 });
+    useUiStore.getState().setSelectedProperty(null);
+    expect(useUiStore.getState().pendingSelection).toEqual({ kind: 'project', id: 3 });
   });
 });

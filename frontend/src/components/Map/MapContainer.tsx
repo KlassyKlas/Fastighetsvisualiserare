@@ -20,7 +20,7 @@ import {
   proximityScoresQuery,
   watchesQuery,
 } from '@/api/queries';
-import { INITIAL_VIEW_STATE, MAP_STYLES, MAPBOX_TOKEN } from '@/config/map';
+import { INITIAL_VIEW_STATE, MAP_HASH_NAME, MAP_STYLES, MAPBOX_TOKEN } from '@/config/map';
 import type { DetailPlanFeature, ProjectFeature, PropertyFeature } from '@/domain';
 import { registerMap } from '@/lib/mapBridge';
 import { useUiStore } from '@/store/uiStore';
@@ -252,6 +252,10 @@ export default function MapContainer() {
   return (
     <Map
       initialViewState={INITIAL_VIEW_STATE}
+      // Kartvyn i adressfältets hash (#karta=zoom/lat/lng/bearing/pitch) —
+      // Mapbox läser den vid start (annars gäller initialViewState) och
+      // skriver den vid rörelse. Query-strängen (app-state) ägs av lib/urlSync.
+      hash={MAP_HASH_NAME}
       mapboxAccessToken={MAPBOX_TOKEN}
       mapStyle={MAP_STYLES[mapStyle]}
       style={{ width: '100%', height: '100%' }}

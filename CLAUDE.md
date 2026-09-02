@@ -55,4 +55,8 @@ Frontend (från `frontend/`):
   `domain.py` (enums = enda sanningskälla, exponeras via OpenAPI)
 - `frontend/src/` — `api/` (genererade typer + openapi-fetch + TanStack
   Query-fabriker), `components/Map/layers/`, `components/Sidebar/`,
-  `store/uiStore.ts` (endast UI-state), `lib/` (rena hjälpfunktioner)
+  `store/uiStore.ts` (endast UI-state), `lib/` (rena hjälpfunktioner;
+  `urlState.ts`/`urlSync.ts` speglar storen i query-strängen — nytt delbart
+  UI-state läggs i `UrlState` med parameter i båda riktningarna;
+  `mapBridge.ts` låter sidofältet styra kartan utan att kartinstansen
+  hamnar i storen)

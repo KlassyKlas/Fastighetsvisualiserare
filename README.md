@@ -122,7 +122,11 @@ annars säger CI ifrån.
    (`GET /api/v1/infrastructure/sync/runs`) och lagerpanelen visar senaste körning per källa
    med knappen "Visa vad som ändrades". Demodatat har illustrativa tidsstämplar så att
    panelen fungerar även i demo-läge
-8. Delbara länkar: filter, år, poängläge och vald fastighet i URL:en
+8. ~~Delbara länkar~~ — byggt: filter, år, ägare, poängläge, lager, kartstil, flik, valt
+   objekt och restidsanalys ligger i query-strängen (`?status=planerad&ar=2030&fastighet=12`),
+   kartvyn i hashen (`#karta=zoom/lat/lng/bearing/pitch`, Mapbox). "Dela" i filterraden
+   kopierar länken; en öppnad länk hämtar objektet med full geometri och zoomar dit.
+   Standardvärden utelämnas så en orörd vy ger en ren adress; trasiga parametrar ignoreras
 9. ~~Ägarvy~~ — byggt: Sök-flikens tomvy listar ägare med antal fastigheter, taxeringsvärde
    och kommuner (GROUP BY + ST_Extent i PostGIS via `GET /api/v1/properties/owners`); klick
    filtrerar kartan på ägaren och zoomar till innehavet, fastighetspanelen har "Visa allt
