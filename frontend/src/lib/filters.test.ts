@@ -54,6 +54,36 @@ describe('applyPropertyFilters', () => {
     expect(result.features[0].properties.designation).toBe('Solna Centrum 2:1');
   });
 
+  it('filtrerar på exakt ägarnamn — samma semantik som backend', () => {
+    const result = applyPropertyFilters(sampleProperties, {
+      ...EMPTY_FILTERS,
+      owner: 'Unibail-Rodamco-Westfield',
+    });
+    expect(result.features).toHaveLength(2);
+    expect(result.numberMatched).toBe(2);
+    expect(
+      result.features.every((f) => f.properties.owner_name === 'Unibail-Rodamco-Westfield'),
+    ).toBe(true);
+
+    // Ingen fritext eller normalisering: delsträng och annan skiftning matchar inte
+    expect(
+      applyPropertyFilters(sampleProperties, { ...EMPTY_FILTERS, owner: 'Unibail' }).features,
+    ).toHaveLength(0);
+    expect(
+      applyPropertyFilters(sampleProperties, { ...EMPTY_FILTERS, owner: 'vasakronan ab' }).features,
+    ).toHaveLength(0);
+  });
+
+  it('ägarfiltret kombineras med kommunfiltret', () => {
+    const result = applyPropertyFilters(sampleProperties, {
+      ...EMPTY_FILTERS,
+      owner: 'Unibail-Rodamco-Westfield',
+      municipalities: ['Täby'],
+    });
+    expect(result.features).toHaveLength(1);
+    expect(result.features[0].properties.municipality).toBe('Täby');
+  });
+
   it('filtrerar på värdeintervall', () => {
     const result = applyPropertyFilters(sampleProperties, {
       ...EMPTY_FILTERS,

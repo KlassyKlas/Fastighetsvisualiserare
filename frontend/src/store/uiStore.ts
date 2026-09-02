@@ -61,6 +61,8 @@ interface UiState {
   setFilters: (filters: Partial<FilterState>) => void;
   toggleStatus: (status: ProjectStatus) => void;
   toggleProjectType: (projectType: ProjectType) => void;
+  /** Ägarvyn: null stänger den. Övriga filter lämnas orörda. */
+  setOwnerFilter: (owner: string | null) => void;
   setSidebarOpen: (open: boolean) => void;
   setSidebarTab: (tab: SidebarTab) => void;
   setMapStyle: (style: MapStyleId) => void;
@@ -167,6 +169,8 @@ export const useUiStore = create<UiState>((set) => ({
         : [...state.filters.projectTypes, projectType];
       return { filters: { ...state.filters, projectTypes } };
     }),
+
+  setOwnerFilter: (owner) => set((state) => ({ filters: { ...state.filters, owner } })),
 
   setSidebarOpen: (open) => set({ sidebarOpen: open }),
   setSidebarTab: (tab) => set({ sidebarTab: tab }),

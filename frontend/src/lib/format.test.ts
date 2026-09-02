@@ -5,6 +5,7 @@ import {
   formatDate,
   formatDateTime,
   formatDistance,
+  formatNumber,
   formatSek,
 } from './format';
 
@@ -13,6 +14,13 @@ import {
 function normalize(value: string): string {
   return value.replace(/[\s\u00a0\u202f]/g, ' ');
 }
+
+describe('formatNumber', () => {
+  it('formaterar med tusentalsavgränsare utan enhet', () => {
+    expect(normalize(formatNumber(12_500))).toBe('12 500');
+    expect(formatNumber(7)).toBe('7');
+  });
+});
 
 describe('formatSek', () => {
   it('formaterar miljarder som mdkr', () => {

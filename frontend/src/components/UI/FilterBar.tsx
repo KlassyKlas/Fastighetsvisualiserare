@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import {
   PROJECT_STATUSES,
@@ -14,6 +14,7 @@ export default function FilterBar() {
   const filters = useUiStore((s) => s.filters);
   const toggleStatus = useUiStore((s) => s.toggleStatus);
   const toggleProjectType = useUiStore((s) => s.toggleProjectType);
+  const setOwnerFilter = useUiStore((s) => s.setOwnerFilter);
 
   const [typeDropdownOpen, setTypeDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -118,6 +119,27 @@ export default function FilterBar() {
           </div>
         )}
       </div>
+
+      {filters.owner != null && (
+        <>
+          <div className="w-px h-6 bg-slate-600 mx-1" />
+          {/* Ägarvyn sätts från Sök-fliken eller detaljpanelen — chippen
+              gör filtret synligt och avstängbart där de andra filtren bor. */}
+          <div
+            className="flex items-center gap-1.5 pl-3 pr-1.5 py-1.5 rounded-lg text-xs font-medium bg-slate-700 text-slate-100"
+            title={`Ägare: ${filters.owner}`}
+          >
+            <span className="truncate max-w-44">Ägare: {filters.owner}</span>
+            <button
+              onClick={() => setOwnerFilter(null)}
+              className="p-0.5 rounded hover:bg-slate-600 text-slate-300 hover:text-slate-100 transition-colors"
+              title="Rensa ägarfiltret"
+            >
+              <X className="w-3 h-3" />
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
