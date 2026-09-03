@@ -8,18 +8,19 @@ kör `alembic upgrade head` först). Lokalt:
     INTEGRATION_TESTS=1 uv run pytest tests/integration
 """
 
+import asyncio
 import os
 from datetime import UTC, datetime
 
 import pytest
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy import func, select, text
+from sqlalchemy import delete, func, select, text
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.datasources import Bbox, DataSource, DataSourceError, InfrastructureProjectIngest
 from app.datasources.base import _registry
 from app.db import SessionFactory
-from app.models import SyncRun
+from app.models import Property, SyncRun
 from app.seed_data import DETAIL_PLANS, INFRASTRUCTURE_PROJECTS, PROPERTIES
 from app.services import infrastructure as infrastructure_service
 from app.services.infrastructure import upsert_projects
@@ -666,3 +667,69 @@ async def test_owners_municipality_filter(client):
     assert urw["property_count"] == 1
     assert urw["municipalities"] == ["Täby"]
     assert all(o["municipalities"] == ["Täby"] for o in owners)
+
+
+# --- Import av fastigheter från fil ------------------------------------------
+
+IMPORT_OWNER = "Importbolaget AB"
+_IMPORT_POLYGONS = (
+    "POLYGON((18.05 59.33, 18.06 59.33, 18.06 59.34, 18.05 59.34, 18.05 59.33))",
+    "POLYGON((18.07 59.33, 18.08 59.33, 18.08 59.34, 18.07 59.34, 18.07 59.33))",
+)
+IMPORT_CSV = "\n".join(
+    [
+        "Beteckning;Kommun;Ägare;Org.nr;Taxeringsvärde (kr);Typ;Geometri",
+        f"Importtest 1:1;Stockholm;{IMPORT_OWNER};556000-0001;1 250 000 kr;kontor;"
+        + _IMPORT_POLYGONS[0],
+        f"Importtest 1:2;Stockholm;{IMPORT_OWNER};556000-0001;2 000 000;bostad;"
+        + _IMPORT_POLYGONS[1],
+        "",
+    ]
+)
+
+
+async def _delete_imported_rows() -> None:
+    async with SessionFactory() as session:
+        await session.execute(delete(Property).where(Property.designation.like("Importtest %")))
+        await session.commit()
+
+
+async def test_import_properties_cli_writes_and_is_idempotent(client, tmp_path, capsys):
+    from scripts.import_properties import main
+
+    # Rester från en tidigare körning mot samma databas ska inte påverka räkningen …
+    await _delete_imported_rows()
+    try:
+        path = tmp_path / "fastigheter.csv"
+        path.write_text(IMPORT_CSV, encoding="utf-8")
+
+        # main() kör sin egen event-loop (asyncio.run) — därför i en tråd
+        assert await asyncio.to_thread(main, [str(path)]) == 0
+        out = capsys.readouterr().out
+        assert "Fastigheter: 2 inskrivna, 0 oförändrade, 0 överhoppade" in out
+
+        params = {"owner": IMPORT_OWNER}
+        listed = (await client.get("/api/v1/properties", params=params)).json()
+        assert listed["numberMatched"] == 2
+        by_designation = {f["properties"]["designation"]: f for f in listed["features"]}
+        first = by_designation["Importtest 1:1"]
+        assert first["properties"]["owner_org_number"] == "556000-0001"
+        assert first["properties"]["assessed_value_sek"] == 1_250_000
+        assert first["properties"]["property_type"] == "kontor"
+        assert first["geometry"]["type"] == "MultiPolygon"
+        assert by_designation["Importtest 1:2"]["properties"]["property_type"] == "bostad"
+
+        owners = (await client.get("/api/v1/properties/owners")).json()["owners"]
+        importer = next(o for o in owners if o["owner_name"] == IMPORT_OWNER)
+        assert importer["property_count"] == 2
+        assert importer["total_assessed_value_sek"] == 1_250_000 + 2_000_000
+
+        # Omkörning: upserten skriver bara faktiska ändringar
+        assert await asyncio.to_thread(main, [str(path)]) == 0
+        out = capsys.readouterr().out
+        assert "Fastigheter: 0 inskrivna, 2 oförändrade, 0 överhoppade" in out
+    finally:
+        # … och raderna får inte ligga kvar efteråt: mot en beständig databas
+        # skulle Importbolaget annars dela förstaplatsen (två fastigheter) med
+        # URW i test_owners_grouped_and_sorted vid nästa körning.
+        await _delete_imported_rows()

@@ -1,0 +1,4 @@
+Beteckning;Kommun;Län;Ägare;Org.nr;Typ;Taxeringsvärde (kr);Area (m²);Byggår;Adress;Postnummer;Ort;Geometri;Lng;Lat;Anteckning
+Norrmalm 1:5;Stockholm;Stockholms län;Exempelfastigheter AB;556000-0001;kontor;125 000 000;4 250,5;1962;Drottninggatan 10;111 51;Stockholm;POLYGON((18.0630 59.3320, 18.0650 59.3320, 18.0650 59.3335, 18.0630 59.3335, 18.0630 59.3320));;;Ombyggd 2018
+Vasastan 2:8;Stockholm;Stockholms län;Exempelfastigheter AB;556000-0001;bostad;48 500 000;1 120;1928;Odengatan 45;113 51;Stockholm;POLYGON((18.0540 59.3440, 18.0555 59.3440, 18.0555 59.3450, 18.0540 59.3450, 18.0540 59.3440));;;
+Sundbyberg 3:12;Sundbyberg;Stockholms län;Anna Andersson;;villa;6 200 000;850;1975;Tulegatan 3;172 32;Sundbyberg;;17,9710;59,3615;Endast punktkoordinat — ge den en yta med --point-buffer-m
