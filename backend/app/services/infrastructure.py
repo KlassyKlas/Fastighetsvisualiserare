@@ -26,7 +26,7 @@ from app.schemas import (
     SyncRunList,
 )
 from app.services import properties as property_service
-from app.services.geo import WGS84_SRID, geojson_to_element
+from app.services.geo import geojson_to_element, intersects_bbox
 from app.services.serializers import impact_zone_feature, project_feature
 from app.services.upsert import SyncCounts, upsert_rows
 
@@ -43,13 +43,13 @@ def _filter_conditions(
     project_types: list[ProjectType] | None,
     bbox: Bbox | None,
     year: int | None = None,
-    bbox_column: ColumnElement | None = None,
+    bbox_column: ColumnElement = InfrastructureProject.geometry,
 ) -> list[ColumnElement[bool]]:
     """Gemensamma filter för projektlistan och påverkanszonerna.
 
     bbox_column: vilken geometri bbox-filtret går mot — projektgeometrin
-    (standard) eller den lagrade zonen (påverkanszonsfrågan: en zon kan
-    nudda kartvyn fast projektet ligger utanför).
+    eller den lagrade zonen (påverkanszonsfrågan: en zon kan nudda
+    kartvyn fast projektet ligger utanför).
     """
     conditions: list[ColumnElement[bool]] = []
     if statuses:
@@ -72,11 +72,7 @@ def _filter_conditions(
             )
         )
     if bbox is not None:
-        west, south, east, north = bbox
-        column = InfrastructureProject.geometry if bbox_column is None else bbox_column
-        conditions.append(
-            func.ST_Intersects(column, func.ST_MakeEnvelope(west, south, east, north, WGS84_SRID))
-        )
+        conditions.append(intersects_bbox(bbox_column, bbox))
     return conditions
 
 
@@ -138,16 +134,19 @@ async def create_project(
     session: AsyncSession, data: InfrastructureProjectCreate
 ) -> InfrastructureProjectFeature:
     values = data.model_dump(exclude={"geometry"})
-    project = InfrastructureProject(**values)
-
     if data.geometry is not None:
         try:
-            project.geometry = geojson_to_element(data.geometry)
+            values["geometry"] = geojson_to_element(data.geometry)
         except ValueError as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
 
-    session.add(project)
+    # Core-INSERT med RETURNING id, inte session.add(): ORM-flushen hämtar
+    # alla serverdefaults via RETURNING — även den genererade
+    # påverkanszonen, som för en korridor är megabytestor och som ingen
+    # läser här. Svaret läses sedan via get_project, samma väg som GET.
+    stmt = insert(InfrastructureProject).values(**values).returning(InfrastructureProject.id)
     try:
+        project_id = (await session.execute(stmt)).scalar_one()
         await session.commit()
     except IntegrityError as exc:
         await session.rollback()
@@ -155,14 +154,12 @@ async def create_project(
             status_code=409,
             detail=f"Ett projekt med externt id '{data.external_id}' finns redan",
         ) from exc
-    await session.refresh(project)
 
-    geojson = await session.scalar(
-        select(func.ST_AsGeoJSON(InfrastructureProject.geometry)).where(
-            InfrastructureProject.id == project.id
-        )
-    )
-    return project_feature(project, geojson)
+    feature = await get_project(session, project_id)
+    if feature is None:
+        # Raden är nyss committad — kan bara hända om någon raderar den samtidigt
+        raise HTTPException(status_code=500, detail="Projektet kunde inte läsas tillbaka")
+    return feature
 
 
 async def impact_zones(

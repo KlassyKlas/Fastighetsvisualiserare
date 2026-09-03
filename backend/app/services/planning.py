@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.datasources import Bbox, DetailPlanIngest
 from app.models import DetailPlan
 from app.schemas import DetailPlanCollection, DetailPlanFeature
-from app.services.geo import WGS84_SRID
+from app.services.geo import intersects_bbox
 from app.services.infrastructure import GEOJSON_DECIMALER
 from app.services.serializers import detail_plan_feature
 from app.services.upsert import SyncCounts, upsert_rows
@@ -24,13 +24,7 @@ def _filter_conditions(
     if municipalities:
         conditions.append(DetailPlan.municipality.in_(municipalities))
     if bbox is not None:
-        west, south, east, north = bbox
-        conditions.append(
-            func.ST_Intersects(
-                DetailPlan.geometry,
-                func.ST_MakeEnvelope(west, south, east, north, WGS84_SRID),
-            )
-        )
+        conditions.append(intersects_bbox(DetailPlan.geometry, bbox))
     return conditions
 
 

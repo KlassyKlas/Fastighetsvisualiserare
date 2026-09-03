@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.datasources import Bbox, DesoAreaIngest
 from app.models import DesoArea
 from app.schemas import DesoAreaCollection, DesoAreaFeature
-from app.services.geo import WGS84_SRID
+from app.services.geo import WGS84_SRID, intersects_bbox
 from app.services.infrastructure import GEOJSON_DECIMALER
 from app.services.serializers import deso_area_feature
 from app.services.upsert import SyncCounts, upsert_rows
@@ -36,13 +36,7 @@ def _filter_conditions(
     if municipality_codes:
         conditions.append(DesoArea.municipality_code.in_(municipality_codes))
     if bbox is not None:
-        west, south, east, north = bbox
-        conditions.append(
-            func.ST_Intersects(
-                DesoArea.geometry,
-                func.ST_MakeEnvelope(west, south, east, north, WGS84_SRID),
-            )
-        )
+        conditions.append(intersects_bbox(DesoArea.geometry, bbox))
     return conditions
 
 
