@@ -30,6 +30,7 @@ from app.services.property_import import (
     parse_rows,
     read_file,
 )
+from app.services.upsert import SyncCounts
 
 MAX_LISTED_PROBLEMS = 20
 MAX_LISTED_ITEMS = 20
@@ -191,7 +192,7 @@ def _print_items(items: list[PropertyCreate]) -> None:
         print(f"  … och {len(items) - MAX_LISTED_ITEMS} till")
 
 
-async def _write(items: list[PropertyCreate]) -> tuple[int, int, int]:
+async def _write(items: list[PropertyCreate]) -> SyncCounts:
     """Skriv in raderna med samma upsert som seed.py.
 
     app.db importeras först här: modulen skapar motorn vid import och
@@ -245,17 +246,20 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     try:
-        upserted, unchanged, skipped = asyncio.run(_write(result.items))
+        counts = asyncio.run(_write(result.items))
     except DATABASE_ERRORS as exc:
         print(
             f"Fel: kunde inte skriva till databasen ({type(exc).__name__}): {exc}", file=sys.stderr
         )
         return 1
-    print(f"Fastigheter: {upserted} inskrivna, {unchanged} oförändrade, {skipped} överhoppade")
-    if args.strict and skipped:
+    print(
+        f"Fastigheter: {counts.upserted} inskrivna, {counts.unchanged} oförändrade, "
+        f"{counts.skipped} överhoppade"
+    )
+    if args.strict and counts.skipped:
         # Skrivningen är redan committad — det som gick in ligger kvar.
         print(
-            f"Fel (--strict): databasen hoppade över {_rader(skipped)} (se loggen) — "
+            f"Fel (--strict): databasen hoppade över {_rader(counts.skipped)} (se loggen) — "
             "övriga rader är inskrivna.",
             file=sys.stderr,
         )

@@ -1,9 +1,8 @@
-import logging
 from typing import Any
 
 from fastapi import HTTPException
 from sqlalchemy import ColumnElement, Row, distinct, func, or_, select
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.datasources import PropertyIngest
@@ -18,9 +17,7 @@ from app.schemas import (
 )
 from app.services.geo import WGS84_SRID, geojson_to_element
 from app.services.serializers import property_feature
-from app.services.upsert import changed_where
-
-logger = logging.getLogger(__name__)
+from app.services.upsert import SyncCounts, upsert_rows
 
 
 def _filter_conditions(
@@ -246,63 +243,14 @@ async def create_property(session: AsyncSession, data: PropertyCreate) -> Proper
     return property_feature(prop, geojson)
 
 
-async def upsert_properties(
-    session: AsyncSession, items: list[PropertyIngest]
-) -> tuple[int, int, int]:
-    """Skriv in fastigheter från en datakälla. Returnerar (upserted, unchanged, skipped).
-
-    Konflikthantering sker på fastighetsbeteckning (designation). Varje rad
-    skrivs i en savepoint så att ett enskilt trasigt objekt räknas som
-    skipped i stället för att fälla hela synkroniseringen. Oförändrade
-    rader rörs inte alls — updated_at ska bara flyttas fram vid faktiska
-    ändringar (bevakningsnotiserna bygger på det).
-    """
-    from sqlalchemy.dialects.postgresql import insert as pg_insert
-
-    upserted = 0
-    unchanged = 0
-    skipped = 0
-
-    for item in items:
-        values = item.model_dump(exclude={"geometry"})
-        if item.geometry is not None:
-            try:
-                values["geometry"] = geojson_to_element(
-                    item.geometry, allowed_types=("MultiPolygon",)
-                )
-            except ValueError:
-                logger.warning("Hoppar över fastighet %s: ogiltig geometri", item.designation)
-                skipped += 1
-                continue
-        else:
-            values["geometry"] = None
-
-        stmt = pg_insert(Property).values(**values)
-        update_columns = {
-            key: getattr(stmt.excluded, key) for key in values if key != "designation"
-        }
-        update_columns["updated_at"] = func.now()
-        # Skriv aldrig över en befintlig geometri med NULL — källor kan
-        # tillfälligt sakna geometri för ett objekt de tidigare levererat.
-        update_columns["geometry"] = func.coalesce(stmt.excluded.geometry, Property.geometry)
-        stmt = stmt.on_conflict_do_update(
-            index_elements=[Property.designation],
-            set_=update_columns,
-            where=changed_where(stmt, Property, values, conflict_key="designation"),
-        )
-        try:
-            async with session.begin_nested():
-                result = await session.execute(stmt)
-            if result.rowcount:
-                upserted += 1
-            else:
-                unchanged += 1
-        except SQLAlchemyError:
-            logger.warning(
-                "Hoppar över fastighet %s: databasfel vid upsert",
-                item.designation,
-                exc_info=True,
-            )
-            skipped += 1
-
-    return upserted, unchanged, skipped
+async def upsert_properties(session: AsyncSession, items: list[PropertyIngest]) -> SyncCounts:
+    """Skriv in fastigheter från en datakälla (konflikt på fastighetsbeteckning)
+    — se services.upsert."""
+    return await upsert_rows(
+        session,
+        Property,
+        items,
+        conflict_key="designation",
+        label="fastighet",
+        allowed_geometry_types=("MultiPolygon",),
+    )

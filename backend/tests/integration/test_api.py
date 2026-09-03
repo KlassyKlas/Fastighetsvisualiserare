@@ -27,6 +27,7 @@ from app.services import infrastructure as infrastructure_service
 from app.services.infrastructure import upsert_projects
 from app.services.planning import upsert_detail_plans
 from app.services.properties import upsert_properties
+from app.services.upsert import SyncCounts
 
 pytestmark = [
     pytest.mark.integration,
@@ -371,11 +372,9 @@ async def test_watch_lifecycle(client):
     # Oförändrad omsynkning får INTE flytta updated_at och tända notiser —
     # ändringsdetekteringen i upserten lämnar identiska rader orörda
     async with SessionFactory() as session:
-        upserted, unchanged, skipped = await upsert_projects(session, INFRASTRUCTURE_PROJECTS)
+        counts = await upsert_projects(session, INFRASTRUCTURE_PROJECTS)
         await session.commit()
-    assert upserted == 0
-    assert unchanged == len(INFRASTRUCTURE_PROJECTS)
-    assert skipped == 0
+    assert counts == SyncCounts(upserted=0, unchanged=len(INFRASTRUCTURE_PROJECTS), skipped=0)
 
     events = (await client.get("/api/v1/watches/events")).json()
     entry = next(w for w in events["watches"] if w["watch_id"] == watch_id)
@@ -385,9 +384,9 @@ async def test_watch_lifecycle(client):
     slussen = next(p for p in INFRASTRUCTURE_PROJECTS if p.name == "Nya Slussen")
     modified = slussen.model_copy(update={"budget_sek": (slussen.budget_sek or 0) + 1})
     async with SessionFactory() as session:
-        upserted, unchanged, _ = await upsert_projects(session, [modified])
+        counts = await upsert_projects(session, [modified])
         await session.commit()
-    assert (upserted, unchanged) == (1, 0)
+    assert (counts.upserted, counts.unchanged) == (1, 0)
 
     events = (await client.get("/api/v1/watches/events")).json()
     entry = next(w for w in events["watches"] if w["watch_id"] == watch_id)
@@ -543,9 +542,9 @@ async def test_changes_reports_modified_project_as_changed(client):
     ostlanken = next(p for p in INFRASTRUCTURE_PROJECTS if p.external_id == "seed-ostlanken")
     modified = ostlanken.model_copy(update={"budget_sek": (ostlanken.budget_sek or 0) + 1})
     async with SessionFactory() as session:
-        upserted, _, _ = await upsert_projects(session, [modified])
+        counts = await upsert_projects(session, [modified])
         await session.commit()
-    assert upserted == 1
+    assert counts.upserted == 1
 
     data = (await client.get("/api/v1/changes", params={"since": before.isoformat()})).json()
     kinds = {e["project"]["properties"]["name"]: e["event_kind"] for e in data["project_events"]}
