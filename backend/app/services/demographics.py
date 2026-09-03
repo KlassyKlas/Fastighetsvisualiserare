@@ -4,23 +4,17 @@ Ytan (och därmed befolkningstätheten) beräknas per rad med
 ST_Area över geography — meterriktigt oavsett latitud.
 """
 
-import logging
-
 from geoalchemy2 import Geography
 from sqlalchemy import ColumnElement, cast, func, select
-from sqlalchemy.dialects.postgresql import insert as pg_insert
-from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.datasources import Bbox, DesoAreaIngest
 from app.models import DesoArea
 from app.schemas import DesoAreaCollection, DesoAreaFeature
-from app.services.geo import WGS84_SRID, geojson_to_element
+from app.services.geo import WGS84_SRID
 from app.services.infrastructure import GEOJSON_DECIMALER
 from app.services.serializers import deso_area_feature
-from app.services.upsert import changed_where
-
-logger = logging.getLogger(__name__)
+from app.services.upsert import SyncCounts, upsert_rows
 
 # DeSO-polygonerna är detaljerade — förenkla för kartlagret (~10 m
 # tolerans). Gränserna är statistikytor, inte juridiska gränser.
@@ -104,48 +98,13 @@ async def lookup_deso_area(
     return deso_area_feature(area, None, area_m2)
 
 
-async def upsert_deso_areas(
-    session: AsyncSession, items: list[DesoAreaIngest]
-) -> tuple[int, int, int]:
-    """Skriv in DeSO-områden från en datakälla. Returnerar (upserted, unchanged, skipped)."""
-    upserted = 0
-    unchanged = 0
-    skipped = 0
-
-    for item in items:
-        values = item.model_dump(exclude={"geometry"})
-        if item.geometry is not None:
-            try:
-                values["geometry"] = geojson_to_element(
-                    item.geometry, allowed_types=("MultiPolygon",)
-                )
-            except ValueError:
-                logger.warning("Hoppar över DeSO %s: ogiltig geometri", item.deso_code)
-                skipped += 1
-                continue
-        else:
-            values["geometry"] = None
-
-        stmt = pg_insert(DesoArea).values(**values)
-        update_columns = {key: getattr(stmt.excluded, key) for key in values if key != "deso_code"}
-        update_columns["updated_at"] = func.now()
-        update_columns["geometry"] = func.coalesce(stmt.excluded.geometry, DesoArea.geometry)
-        stmt = stmt.on_conflict_do_update(
-            index_elements=[DesoArea.deso_code],
-            set_=update_columns,
-            where=changed_where(stmt, DesoArea, values, conflict_key="deso_code"),
-        )
-        try:
-            async with session.begin_nested():
-                result = await session.execute(stmt)
-            if result.rowcount:
-                upserted += 1
-            else:
-                unchanged += 1
-        except SQLAlchemyError:
-            logger.warning(
-                "Hoppar över DeSO %s: databasfel vid upsert", item.deso_code, exc_info=True
-            )
-            skipped += 1
-
-    return upserted, unchanged, skipped
+async def upsert_deso_areas(session: AsyncSession, items: list[DesoAreaIngest]) -> SyncCounts:
+    """Skriv in DeSO-områden från en datakälla (konflikt på deso_code) — se services.upsert."""
+    return await upsert_rows(
+        session,
+        DesoArea,
+        items,
+        conflict_key="deso_code",
+        label="DeSO",
+        allowed_geometry_types=("MultiPolygon",),
+    )

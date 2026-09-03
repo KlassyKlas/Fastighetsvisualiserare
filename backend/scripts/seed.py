@@ -11,11 +11,14 @@ from app.services.demographics import upsert_deso_areas
 from app.services.infrastructure import upsert_projects
 from app.services.planning import upsert_detail_plans
 from app.services.properties import upsert_properties
+from app.services.upsert import SyncCounts
 
 
-def _report(label: str, counts: tuple[int, int, int]) -> None:
-    upserted, unchanged, skipped = counts
-    print(f"{label}: {upserted} inskrivna, {unchanged} oförändrade, {skipped} överhoppade")
+def _report(label: str, counts: SyncCounts) -> None:
+    print(
+        f"{label}: {counts.upserted} inskrivna, {counts.unchanged} oförändrade, "
+        f"{counts.skipped} överhoppade"
+    )
 
 
 async def main() -> None:

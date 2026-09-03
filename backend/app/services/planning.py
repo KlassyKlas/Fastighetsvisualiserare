@@ -1,21 +1,15 @@
 """Detaljplaner: listning med filter och upsert från datakällor."""
 
-import logging
-
 from sqlalchemy import ColumnElement, func, select
-from sqlalchemy.dialects.postgresql import insert as pg_insert
-from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.datasources import Bbox, DetailPlanIngest
 from app.models import DetailPlan
 from app.schemas import DetailPlanCollection, DetailPlanFeature
-from app.services.geo import WGS84_SRID, geojson_to_element
+from app.services.geo import WGS84_SRID
 from app.services.infrastructure import GEOJSON_DECIMALER
 from app.services.serializers import detail_plan_feature
-from app.services.upsert import changed_where
-
-logger = logging.getLogger(__name__)
+from app.services.upsert import SyncCounts, upsert_rows
 
 
 def _filter_conditions(
@@ -83,57 +77,13 @@ async def get_detail_plan(session: AsyncSession, plan_id: int) -> DetailPlanFeat
     return detail_plan_feature(plan, geojson)
 
 
-async def upsert_detail_plans(
-    session: AsyncSession, items: list[DetailPlanIngest]
-) -> tuple[int, int, int]:
-    """Skriv in detaljplaner från en datakälla. Returnerar (upserted, unchanged, skipped).
-
-    Samma mönster som projektupserten: konflikt på external_id, en
-    savepoint per rad så att ett trasigt objekt inte fäller hela synken,
-    och oförändrade rader lämnas orörda (updated_at driver notiserna).
-    """
-    upserted = 0
-    unchanged = 0
-    skipped = 0
-
-    for item in items:
-        values = item.model_dump(exclude={"geometry"})
-        if item.geometry is not None:
-            try:
-                values["geometry"] = geojson_to_element(
-                    item.geometry, allowed_types=("MultiPolygon",)
-                )
-            except ValueError:
-                logger.warning("Hoppar över detaljplan %s: ogiltig geometri", item.external_id)
-                skipped += 1
-                continue
-        else:
-            values["geometry"] = None
-
-        stmt = pg_insert(DetailPlan).values(**values)
-        update_columns = {
-            key: getattr(stmt.excluded, key) for key in values if key != "external_id"
-        }
-        update_columns["updated_at"] = func.now()
-        update_columns["geometry"] = func.coalesce(stmt.excluded.geometry, DetailPlan.geometry)
-        stmt = stmt.on_conflict_do_update(
-            index_elements=[DetailPlan.external_id],
-            set_=update_columns,
-            where=changed_where(stmt, DetailPlan, values, conflict_key="external_id"),
-        )
-        try:
-            async with session.begin_nested():
-                result = await session.execute(stmt)
-            if result.rowcount:
-                upserted += 1
-            else:
-                unchanged += 1
-        except SQLAlchemyError:
-            logger.warning(
-                "Hoppar över detaljplan %s: databasfel vid upsert",
-                item.external_id,
-                exc_info=True,
-            )
-            skipped += 1
-
-    return upserted, unchanged, skipped
+async def upsert_detail_plans(session: AsyncSession, items: list[DetailPlanIngest]) -> SyncCounts:
+    """Skriv in detaljplaner från en datakälla (konflikt på external_id) — se services.upsert."""
+    return await upsert_rows(
+        session,
+        DetailPlan,
+        items,
+        conflict_key="external_id",
+        label="detaljplan",
+        allowed_geometry_types=("MultiPolygon",),
+    )
