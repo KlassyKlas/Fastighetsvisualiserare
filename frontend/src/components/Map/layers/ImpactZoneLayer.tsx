@@ -13,9 +13,10 @@ const statusColor = matchColorExpression('status', STATUS_COLORS);
 
 /**
  * Påverkanszonerna kommer färdigbuffrade från backend (PostGIS ST_Buffer
- * över geography i meter — korrekt för punkter, linjer och ytor). I
- * demo-läget kommer motsvarande förberäknade zoner ur exempeldatat.
- * Ingen klientsidig buffring förekommer längre.
+ * över geography i meter — korrekt för punkter, linjer och ytor; lagrade
+ * i databasen och omräknade när projektet skrivs). I demo-läget kommer
+ * motsvarande förberäknade zoner ur exempeldatat. Ingen klientsidig
+ * buffring förekommer längre.
  */
 const fillLayer: LayerProps = {
   id: 'impact-zone-fills',

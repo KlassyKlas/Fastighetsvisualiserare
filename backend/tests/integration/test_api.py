@@ -13,14 +13,15 @@ import os
 from datetime import UTC, datetime
 
 import pytest
+from geoalchemy2 import Geography
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy import delete, func, select, text
+from sqlalchemy import cast, delete, func, select, text
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.datasources import Bbox, DataSource, DataSourceError, InfrastructureProjectIngest
 from app.datasources.base import _registry
 from app.db import SessionFactory
-from app.models import Property, SyncRun
+from app.models import InfrastructureProject, Property, SyncRun
 from app.seed_data import DETAIL_PLANS, INFRASTRUCTURE_PROJECTS, PROPERTIES
 from app.services import infrastructure as infrastructure_service
 from app.services.infrastructure import upsert_projects
@@ -121,6 +122,98 @@ async def test_impact_zones_include_line_projects(client):
     zone = by_name["Förbifart Stockholm"]
     assert zone["geometry"]["type"] in ("Polygon", "MultiPolygon")
     assert zone["properties"]["impact_radius_m"] == 3000
+
+
+async def test_impact_zone_bbox_filters_on_the_zone_not_the_project(client):
+    """bbox går mot den lagrade zonen: en kartvy som ligger inne i zonen men
+    inte innehåller själva projektet ska ändå få zonen — projektlistan
+    filtrerar däremot på projektgeometrin och ger inget."""
+    slussen = next(p for p in INFRASTRUCTURE_PROJECTS if p.name == "Nya Slussen")
+    lng, lat = slussen.geometry["coordinates"]
+    # 280–570 m öster om punkten (0,001° longitud ≈ 57 m på 59,3° N):
+    # helt inne i zonen (radie 1 000 m) men utan punkten
+    bbox = f"{lng + 0.005},{lat - 0.001},{lng + 0.010},{lat + 0.001}"
+
+    zones = await client.get("/api/v1/infrastructure/impact-zones", params={"bbox": bbox})
+    assert "Nya Slussen" in {z["properties"]["name"] for z in zones.json()["features"]}
+
+    projects = await client.get("/api/v1/infrastructure/projects", params={"bbox": bbox})
+    assert "Nya Slussen" not in {p["properties"]["name"] for p in projects.json()["features"]}
+
+
+async def test_impact_zone_follows_radius_changes(client):
+    """Zonen är en generated column: skrivs en ny radie vid synk räknar
+    databasen om zonen — ingen appkod behöver komma ihåg det."""
+    slussen = next(p for p in INFRASTRUCTURE_PROJECTS if p.name == "Nya Slussen")
+    zone_area = select(
+        func.ST_Area(cast(InfrastructureProject.impact_zone, Geography(srid=4326)))
+    ).where(InfrastructureProject.external_id == slussen.external_id)
+    async with SessionFactory() as session:
+        before = await session.scalar(zone_area)
+    assert before is not None and before > 0
+
+    doubled = slussen.model_copy(update={"impact_radius_m": slussen.impact_radius_m * 2})
+    try:
+        async with SessionFactory() as session:
+            await upsert_projects(session, [doubled])
+            await session.commit()
+            after = await session.scalar(zone_area)
+        # Punktprojekt: dubbel radie ⇒ fyrdubbel yta (förenklingen ger någon procent)
+        assert after is not None
+        assert after / before == pytest.approx(4, rel=0.05)
+
+        zones = (await client.get("/api/v1/infrastructure/impact-zones")).json()["features"]
+        by_name = {z["properties"]["name"]: z for z in zones}
+        assert by_name["Nya Slussen"]["properties"]["impact_radius_m"] == doubled.impact_radius_m
+    finally:
+        # Återställ — nearby-testet räknar med seed-radien
+        async with SessionFactory() as session:
+            await upsert_projects(session, [slussen])
+            await session.commit()
+
+
+async def test_stored_impact_zone_matches_live_buffer():
+    """Den lagrade zonen ska vara samma yta som buffring per anrop gav
+    (förenklingen på ~20 m ändrar arean marginellt) — kontrollerat på en
+    linje, där geography-buffringen gör mest skillnad."""
+    project_geog = cast(InfrastructureProject.geometry, Geography(srid=4326))
+    zone_geog = cast(InfrastructureProject.impact_zone, Geography(srid=4326))
+    async with SessionFactory() as session:
+        stored, live = (
+            await session.execute(
+                select(
+                    func.ST_Area(zone_geog),
+                    func.ST_Area(
+                        func.ST_Buffer(project_geog, InfrastructureProject.impact_radius_m)
+                    ),
+                ).where(InfrastructureProject.name == "Förbifart Stockholm")
+            )
+        ).one()
+    assert stored == pytest.approx(live, rel=0.02)
+
+
+async def test_impact_zone_is_a_stored_generated_column():
+    """Zonen ska räknas av databasen (attgenerated = 's'), inte av appkoden —
+    annars kan en skrivväg glömma den. bbox-filtret behöver GiST-indexet.
+    ("char"-kolumnen castas: asyncpg levererar den annars som bytes.)"""
+    async with SessionFactory() as session:
+        generated = await session.scalar(
+            text(
+                """
+                SELECT attgenerated::text FROM pg_attribute
+                WHERE attrelid = 'infrastructure_projects'::regclass
+                  AND attname = 'impact_zone'
+                """
+            )
+        )
+        index_def = await session.scalar(
+            text(
+                "SELECT indexdef FROM pg_indexes "
+                "WHERE indexname = 'idx_infrastructure_projects_impact_zone'"
+            )
+        )
+    assert generated == "s"
+    assert index_def is not None and "gist" in index_def.lower()
 
 
 async def test_nearby_projects(client):

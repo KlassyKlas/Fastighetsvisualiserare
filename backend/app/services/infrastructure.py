@@ -2,8 +2,7 @@ import logging
 from datetime import date
 
 from fastapi import HTTPException
-from geoalchemy2 import Geography, Geometry
-from sqlalchemy import ColumnElement, cast, func, insert, or_, select, update
+from sqlalchemy import ColumnElement, func, insert, or_, select, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -37,9 +36,6 @@ logger = logging.getLogger(__name__)
 # 6 decimaler ≈ 0,1 m — mer precision är brus som fördubblar payloaden
 # (nationell plan-korridorerna är megabytestora i full precision).
 GEOJSON_DECIMALER = 6
-# Påverkanszoner är visuella hjälpytor: förenkla med ~20 m tolerans så
-# att buffrade korridorer inte skickar tiotusentals hörn per svar.
-ZON_FORENKLING_GRADER = 0.0002
 
 
 def _filter_conditions(
@@ -48,7 +44,14 @@ def _filter_conditions(
     project_types: list[ProjectType] | None,
     bbox: Bbox | None,
     year: int | None = None,
+    bbox_column: ColumnElement | None = None,
 ) -> list[ColumnElement[bool]]:
+    """Gemensamma filter för projektlistan och påverkanszonerna.
+
+    bbox_column: vilken geometri bbox-filtret går mot — projektgeometrin
+    (standard) eller den lagrade zonen (påverkanszonsfrågan: en zon kan
+    nudda kartvyn fast projektet ligger utanför).
+    """
     conditions: list[ColumnElement[bool]] = []
     if statuses:
         conditions.append(InfrastructureProject.status.in_(statuses))
@@ -71,11 +74,9 @@ def _filter_conditions(
         )
     if bbox is not None:
         west, south, east, north = bbox
+        column = InfrastructureProject.geometry if bbox_column is None else bbox_column
         conditions.append(
-            func.ST_Intersects(
-                InfrastructureProject.geometry,
-                func.ST_MakeEnvelope(west, south, east, north, WGS84_SRID),
-            )
+            func.ST_Intersects(column, func.ST_MakeEnvelope(west, south, east, north, WGS84_SRID))
         )
     return conditions
 
@@ -173,31 +174,22 @@ async def impact_zones(
     bbox: Bbox | None = None,
     year: int | None = None,
 ) -> ImpactZoneCollection:
-    """Serverberäknade påverkanszoner: projektgeometrin buffrad med
+    """Förberäknade påverkanszoner: projektgeometrin buffrad med
     impact_radius_m i meter (via geography), för alla geometrityper —
-    även linjer och ytor."""
-    conditions = _filter_conditions(
-        statuses=statuses, project_types=project_types, bbox=bbox, year=year
-    )
-    conditions.append(InfrastructureProject.geometry.is_not(None))
+    även linjer och ytor.
 
-    # OBS: Geography(srid=4326) — utan srid renderas geography(GEOMETRY,-1)
-    # som varken är giltig typmod eller matchar det funktionella indexet.
-    # Bufferten förenklas innan serialisering (kräver geometry, därav
-    # casten tillbaka) — en buffrad korridor har annars tiotusentals hörn.
-    zone_geojson = func.ST_AsGeoJSON(
-        func.ST_SimplifyPreserveTopology(
-            cast(
-                func.ST_Buffer(
-                    cast(InfrastructureProject.geometry, Geography(srid=WGS84_SRID)),
-                    InfrastructureProject.impact_radius_m,
-                ),
-                Geometry(srid=WGS84_SRID),
-            ),
-            ZON_FORENKLING_GRADER,
-        ),
-        GEOJSON_DECIMALER,
+    Zonen ligger färdig i kolumnen impact_zone (en generated column som
+    databasen räknar om vid varje skrivning, se modellen) — frågan
+    serialiserar bara. Att buffra korridorerna per anrop kostade ~1,4 s.
+    """
+    conditions = _filter_conditions(
+        statuses=statuses,
+        project_types=project_types,
+        bbox=bbox,
+        year=year,
+        bbox_column=InfrastructureProject.impact_zone,
     )
+    conditions.append(InfrastructureProject.impact_zone.is_not(None))
 
     rows = await session.execute(
         select(
@@ -208,7 +200,7 @@ async def impact_zones(
             InfrastructureProject.start_date,
             InfrastructureProject.end_date,
             InfrastructureProject.impact_radius_m,
-            zone_geojson,
+            func.ST_AsGeoJSON(InfrastructureProject.impact_zone, GEOJSON_DECIMALER),
         )
         .where(*conditions)
         .order_by(InfrastructureProject.id)

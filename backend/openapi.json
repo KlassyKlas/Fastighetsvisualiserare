@@ -3067,7 +3067,7 @@
     },
     "/api/v1/infrastructure/impact-zones": {
       "get": {
-        "description": "Påverkanszoner: projektgeometrier buffrade med sin påverkansradie i meter.\n\nBeräknas i PostGIS över geography, vilket ger korrekta zoner för\npunkter, linjer och ytor oavsett latitud.",
+        "description": "Påverkanszoner: projektgeometrier buffrade med sin påverkansradie i meter.\n\nZonerna är förberäknade i PostGIS (geography, vilket ger korrekta\nzoner för punkter, linjer och ytor oavsett latitud) och räknas om\nnär projektet skrivs — anropet serialiserar bara. bbox filtrerar på\nzonen, inte på projektgeometrin: en zon som når in i kartvyn visas\näven om projektet ligger utanför.",
         "operationId": "impact_zones_api_v1_infrastructure_impact_zones_get",
         "parameters": [
           {

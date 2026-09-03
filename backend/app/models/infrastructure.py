@@ -4,6 +4,7 @@ from typing import Any
 from geoalchemy2 import Geometry, WKBElement
 from sqlalchemy import (
     BigInteger,
+    Computed,
     Date,
     DateTime,
     Float,
@@ -18,6 +19,24 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db import Base
+
+# Påverkanszonen lagras färdigräknad: projektgeometrin buffrad med
+# impact_radius_m meter över geography (rätt för punkter, linjer och ytor
+# oavsett latitud) och förenklad med ~20 m tolerans (0,0002 grader) — en
+# buffrad korridor har annars tiotusentals hörn. Zonen är en visuell
+# hjälpyta för kartlagret; analysfrågorna räknar exakt med ST_DWithin över
+# geography och rör den inte.
+#
+# Kolumnen är en STORED generated column: databasen räknar om zonen när
+# geometry eller impact_radius_m skrivs, oavsett skrivväg (synk, API,
+# skript, handskriven SQL) — det finns ingen appkod som kan glömma den.
+# ST_Buffer(geography, float8) är IMMUTABLE i PostGIS, vilket generated
+# columns kräver. Samma uttryck står ordagrant i migration 0005; ändras
+# det (t.ex. toleransen) krävs en ny migration som droppar och återskapar
+# kolumnen — alembic check varnar om modell och databas glider isär.
+IMPACT_ZONE_SQL = (
+    "ST_SimplifyPreserveTopology(ST_Buffer(geometry::geography, impact_radius_m)::geometry, 0.0002)"
+)
 
 
 class InfrastructureProject(Base):
@@ -50,6 +69,15 @@ class InfrastructureProject(Base):
         Geometry("GEOMETRY", srid=4326), nullable=True
     )
     impact_radius_m: Mapped[float] = mapped_column(Float, default=1000.0)
+    # Se IMPACT_ZONE_SQL. deferred: zonpolygonerna är stora (megabyte för
+    # korridorer) och får inte följa med varje select(InfrastructureProject)
+    # — bara påverkanszonsfrågan läser kolumnen, uttryckligen.
+    impact_zone: Mapped[WKBElement | None] = mapped_column(
+        Geometry("GEOMETRY", srid=4326),
+        Computed(IMPACT_ZONE_SQL, persisted=True),
+        nullable=True,
+        deferred=True,
+    )
     metadata_json: Mapped[dict[str, Any]] = mapped_column(
         JSONB, default=dict, server_default=text("'{}'::jsonb")
     )
