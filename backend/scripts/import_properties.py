@@ -252,10 +252,7 @@ def main(argv: list[str] | None = None) -> int:
             f"Fel: kunde inte skriva till databasen ({type(exc).__name__}): {exc}", file=sys.stderr
         )
         return 1
-    print(
-        f"Fastigheter: {counts.upserted} inskrivna, {counts.unchanged} oförändrade, "
-        f"{counts.skipped} överhoppade"
-    )
+    print(f"Fastigheter: {counts}")
     if args.strict and counts.skipped:
         # Skrivningen är redan committad — det som gick in ligger kvar.
         print(

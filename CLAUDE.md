@@ -27,9 +27,10 @@ Frontend (från `frontend/`):
    **Undantag:** på miljöer utan PostGIS-databas handskrivs migrationen
    (följ mönstret i 0002/0003) — CI kör `alembic upgrade head` + `alembic
    check` mot riktig PostGIS och fångar både trasiga migrationer och
-   modell–schemadrift. Genererade kolumner (`impact_zone`, uttrycket
-   `IMPACT_ZONE_SQL` i modellen) har samma text i modell och migration;
-   ändring = ny migration som droppar och återskapar kolumnen.
+   modell–schemadrift — men **inte** drift i genererade kolumners uttryck
+   (bara en varning): `impact_zone`/`IMPACT_ZONE_SQL` vaktas av tester i
+   stället. Ändrat uttryck = ny migration som droppar och återskapar
+   kolumnen + peka om testerna.
 3. **Geometrier skrivs alltid via `app/services/geo.py`** (`from_shape` med
    SRID 4326). Rena WKT-strängar utan SRID avvisas av PostGIS.
 4. **Spatial analys görs i PostGIS** (geography-cast för meter), inte i Python

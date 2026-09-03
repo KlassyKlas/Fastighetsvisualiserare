@@ -10,20 +10,23 @@ kör `alembic upgrade head` först). Lokalt:
 
 import asyncio
 import os
+import re
 from datetime import UTC, datetime
 
 import pytest
 from geoalchemy2 import Geography
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy import cast, delete, func, select, text
+from sqlalchemy import cast, delete, func, select, text, update
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.datasources import Bbox, DataSource, DataSourceError, InfrastructureProjectIngest
 from app.datasources.base import _registry
 from app.db import SessionFactory
 from app.models import InfrastructureProject, Property, SyncRun
+from app.models.infrastructure import IMPACT_ZONE_SQL
 from app.seed_data import DETAIL_PLANS, INFRASTRUCTURE_PROJECTS, PROPERTIES
 from app.services import infrastructure as infrastructure_service
+from app.services.geo import WGS84_SRID
 from app.services.infrastructure import upsert_projects
 from app.services.planning import upsert_detail_plans
 from app.services.properties import upsert_properties
@@ -143,42 +146,37 @@ async def test_impact_zone_bbox_filters_on_the_zone_not_the_project(client):
 
 
 async def test_impact_zone_follows_radius_changes(client):
-    """Zonen är en generated column: skrivs en ny radie vid synk räknar
-    databasen om zonen — ingen appkod behöver komma ihåg det."""
+    """Zonen är en genererad kolumn: skrivs en ny radie räknar databasen om
+    zonen — ingen appkod behöver komma ihåg det. Allt sker i en transaktion
+    som rullas tillbaka, så seed-radien står kvar för de andra testen."""
     slussen = next(p for p in INFRASTRUCTURE_PROJECTS if p.name == "Nya Slussen")
     zone_area = select(
-        func.ST_Area(cast(InfrastructureProject.impact_zone, Geography(srid=4326)))
+        func.ST_Area(cast(InfrastructureProject.impact_zone, Geography(srid=WGS84_SRID)))
     ).where(InfrastructureProject.external_id == slussen.external_id)
+
     async with SessionFactory() as session:
         before = await session.scalar(zone_area)
+        await session.execute(
+            update(InfrastructureProject)
+            .where(InfrastructureProject.external_id == slussen.external_id)
+            .values(impact_radius_m=slussen.impact_radius_m * 2)
+        )
+        after = await session.scalar(zone_area)
+        await session.rollback()
+
     assert before is not None and before > 0
-
-    doubled = slussen.model_copy(update={"impact_radius_m": slussen.impact_radius_m * 2})
-    try:
-        async with SessionFactory() as session:
-            await upsert_projects(session, [doubled])
-            await session.commit()
-            after = await session.scalar(zone_area)
-        # Punktprojekt: dubbel radie ⇒ fyrdubbel yta (förenklingen ger någon procent)
-        assert after is not None
-        assert after / before == pytest.approx(4, rel=0.05)
-
-        zones = (await client.get("/api/v1/infrastructure/impact-zones")).json()["features"]
-        by_name = {z["properties"]["name"]: z for z in zones}
-        assert by_name["Nya Slussen"]["properties"]["impact_radius_m"] == doubled.impact_radius_m
-    finally:
-        # Återställ — nearby-testet räknar med seed-radien
-        async with SessionFactory() as session:
-            await upsert_projects(session, [slussen])
-            await session.commit()
+    assert after is not None
+    # Punktprojekt: dubbel radie ⇒ fyrdubbel yta (förenklingen ger någon procent)
+    assert after / before == pytest.approx(4, rel=0.05)
 
 
-async def test_stored_impact_zone_matches_live_buffer():
+async def test_stored_impact_zone_matches_live_buffer(client):
     """Den lagrade zonen ska vara samma yta som buffring per anrop gav
     (förenklingen på ~20 m ändrar arean marginellt) — kontrollerat på en
-    linje, där geography-buffringen gör mest skillnad."""
-    project_geog = cast(InfrastructureProject.geometry, Geography(srid=4326))
-    zone_geog = cast(InfrastructureProject.impact_zone, Geography(srid=4326))
+    linje, där geography-buffringen gör mest skillnad. (client-fixturen
+    är den som seedar databasen.)"""
+    project_geog = cast(InfrastructureProject.geometry, Geography(srid=WGS84_SRID))
+    zone_geog = cast(InfrastructureProject.impact_zone, Geography(srid=WGS84_SRID))
     async with SessionFactory() as session:
         stored, live = (
             await session.execute(
@@ -187,16 +185,25 @@ async def test_stored_impact_zone_matches_live_buffer():
                     func.ST_Area(
                         func.ST_Buffer(project_geog, InfrastructureProject.impact_radius_m)
                     ),
-                ).where(InfrastructureProject.name == "Förbifart Stockholm")
+                ).where(InfrastructureProject.external_id == "seed-forbifart-stockholm")
             )
         ).one()
     assert stored == pytest.approx(live, rel=0.02)
 
 
+def _normalize_sql(sql: str) -> str:
+    """Samma grova normalisering som Alembics jämförelse av genererade
+    kolumner: blanksteg, parenteser och citattecken bort, gemener —
+    PostgreSQL deparsar uttrycket med egna parenteser."""
+    return re.sub(r"[ \(\)'\"`\[\]\t\r\n]", "", sql).lower()
+
+
 async def test_impact_zone_is_a_stored_generated_column():
     """Zonen ska räknas av databasen (attgenerated = 's'), inte av appkoden —
-    annars kan en skrivväg glömma den. bbox-filtret behöver GiST-indexet.
-    ("char"-kolumnen castas: asyncpg levererar den annars som bytes.)"""
+    annars kan en skrivväg glömma den; uttrycket i databasen ska vara
+    modellens (alembic check ser inte drift här — bara en varning); och
+    bbox-filtret behöver GiST-indexet. ("char"-kolumnen castas: asyncpg
+    levererar den annars som bytes.)"""
     async with SessionFactory() as session:
         generated = await session.scalar(
             text(
@@ -207,6 +214,17 @@ async def test_impact_zone_is_a_stored_generated_column():
                 """
             )
         )
+        expression = await session.scalar(
+            text(
+                """
+                SELECT pg_get_expr(d.adbin, d.adrelid)
+                FROM pg_attrdef d
+                JOIN pg_attribute a ON a.attrelid = d.adrelid AND a.attnum = d.adnum
+                WHERE d.adrelid = 'infrastructure_projects'::regclass
+                  AND a.attname = 'impact_zone'
+                """
+            )
+        )
         index_def = await session.scalar(
             text(
                 "SELECT indexdef FROM pg_indexes "
@@ -214,7 +232,55 @@ async def test_impact_zone_is_a_stored_generated_column():
             )
         )
     assert generated == "s"
+    assert expression is not None
+    assert _normalize_sql(expression) == _normalize_sql(IMPACT_ZONE_SQL)
     assert index_def is not None and "gist" in index_def.lower()
+
+
+async def test_create_project_reads_back_via_get_and_rejects_bad_input(client):
+    """POST /projects: 201 med samma feature som GET ger, zonen finns direkt
+    (den genererade kolumnen fylls vid INSERT), dubblett på external_id ger
+    409 och koordinater utanför WGS84 stoppas som 422 — inte som databasfel."""
+    payload = {
+        "external_id": "test-skapat-projekt",
+        "name": "Testprojekt",
+        "geometry": {"type": "Point", "coordinates": [18.05, 59.33]},
+        "impact_radius_m": 500,
+    }
+    try:
+        created = await client.post("/api/v1/infrastructure/projects", json=payload)
+        assert created.status_code == 201, created.text
+        feature = created.json()
+        assert feature["properties"]["name"] == "Testprojekt"
+        assert feature["geometry"]["type"] == "Point"
+        project_id = feature["properties"]["id"]
+
+        fetched = await client.get(f"/api/v1/infrastructure/projects/{project_id}")
+        assert fetched.status_code == 200
+        assert fetched.json() == feature
+
+        zones = (await client.get("/api/v1/infrastructure/impact-zones")).json()["features"]
+        assert project_id in {z["properties"]["project_id"] for z in zones}
+
+        duplicate = await client.post("/api/v1/infrastructure/projects", json=payload)
+        assert duplicate.status_code == 409
+
+        sweref = {
+            **payload,
+            "external_id": "test-sweref",
+            "geometry": {"type": "Point", "coordinates": [674000.0, 6580000.0]},
+        }
+        bad = await client.post("/api/v1/infrastructure/projects", json=sweref)
+        assert bad.status_code == 422
+        assert "WGS84" in bad.json()["detail"]
+    finally:
+        async with SessionFactory() as session:
+            await session.execute(
+                delete(InfrastructureProject).where(
+                    InfrastructureProject.external_id.in_(["test-skapat-projekt", "test-sweref"])
+                )
+            )
+            await session.commit()
 
 
 async def test_nearby_projects(client):

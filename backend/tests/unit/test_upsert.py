@@ -1,6 +1,9 @@
 """Enhetstester för den gemensamma upserten (utan databas): räkningarnas
 aritmetik och ändringsdetekteringens SQL."""
 
+from dataclasses import FrozenInstanceError
+
+import pytest
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 
@@ -16,12 +19,12 @@ def test_sync_counts_add_per_field():
 def test_sync_counts_default_to_zero_and_are_immutable():
     counts = SyncCounts()
     assert (counts.upserted, counts.unchanged, counts.skipped) == (0, 0, 0)
-    try:
+    with pytest.raises(FrozenInstanceError):
         counts.upserted = 1  # type: ignore[misc]
-    except AttributeError:
-        pass
-    else:
-        raise AssertionError("SyncCounts ska vara frusen")
+
+
+def test_sync_counts_render_as_report_line():
+    assert str(SyncCounts(upserted=3, unchanged=2)) == "3 inskrivna, 2 oförändrade, 0 överhoppade"
 
 
 def test_changed_where_compares_every_data_column_but_the_key():

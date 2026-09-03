@@ -15,7 +15,7 @@ from app.schemas import (
     PropertyCreate,
     PropertyFeature,
 )
-from app.services.geo import WGS84_SRID, geojson_to_element
+from app.services.geo import geojson_to_element, intersects_bbox
 from app.services.serializers import property_feature
 from app.services.upsert import SyncCounts, upsert_rows
 
@@ -42,15 +42,7 @@ def _filter_conditions(
         # Exakt match: ägarvyn utgår från ett namn ur ägarlistan, inte fritext.
         conditions.append(Property.owner_name == owner)
     if bbox is not None:
-        west, south, east, north = bbox
-        # ST_Intersects (inte ST_Within): geometrier som korsar rutans
-        # kant ska också med i svaret.
-        conditions.append(
-            func.ST_Intersects(
-                Property.geometry,
-                func.ST_MakeEnvelope(west, south, east, north, WGS84_SRID),
-            )
-        )
+        conditions.append(intersects_bbox(Property.geometry, bbox))
     return conditions
 
 

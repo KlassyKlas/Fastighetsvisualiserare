@@ -194,4 +194,5 @@ Bra att veta:
 10. ~~Förberäknade påverkanszoner~~ — byggt: `infrastructure_projects.impact_zone` är en
     genererad kolumn (`GENERATED ALWAYS AS ... STORED`) som PostgreSQL räknar om så fort
     geometri eller radie skrivs, oavsett skrivväg; `GET /impact-zones` serialiserar bara
-    (tidigare buffrades korridorerna per anrop, ~1,4 s) och bbox-filtret går mot zonen
+    (tidigare buffrades korridorerna per anrop, ~1,4 s — nu betalas buffringen vid synk,
+    per rad som skrivs, även oförändrade) och bbox-filtret går mot zonen

@@ -9,13 +9,23 @@ flyttas fram när radens innehåll faktiskt ändrats. Utan det tänder varje
 omsynkning falska "ändrat"-notiser i bevakade områden (händelsefrågan
 jämför updated_at mot last_seen_at) och synkresultatets upserted-räkning
 blir meningslös.
+
+Kostnadsnot: infrastructure_projects.impact_zone är en genererad kolumn,
+och PostgreSQL beräknar den för varje föreslagen rad i INSERT ... ON
+CONFLICT — även rader som WHERE-klausulen sedan lämnar orörda — och en
+gång till för rader som faktiskt uppdateras. Buffringen (~1,4 s för
+samtliga korridorer i nationell plan) betalas alltså per synk i stället
+för per kartanrop. En UPDATE-först-variant skulle göra oförändrade rader
+gratis men kräver två satsformer och geometrin som parameter två gånger;
+inte värt det så länge synk är sällsynt och läsning vanlig.
 """
 
 import logging
 from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Any, Protocol
+from typing import Any
 
+from pydantic import BaseModel
 from sqlalchemy import ColumnElement, func, or_
 from sqlalchemy.dialects.postgresql import Insert
 from sqlalchemy.dialects.postgresql import insert as pg_insert
@@ -43,27 +53,26 @@ class SyncCounts:
             self.skipped + other.skipped,
         )
 
-
-class GeometryIngest(Protocol):
-    """Det ingest-modellerna har gemensamt: en GeoJSON-geometri (eller None)
-    och pydantics model_dump. Övriga fält mappas rakt på modellens kolumner."""
-
-    @property
-    def geometry(self) -> dict[str, Any] | None: ...
-
-    def model_dump(self, *, exclude: set[str]) -> dict[str, Any]: ...
+    def __str__(self) -> str:
+        """Rapportrad för skripten: "3 inskrivna, 2 oförändrade, 0 överhoppade"."""
+        return (
+            f"{self.upserted} inskrivna, {self.unchanged} oförändrade, {self.skipped} överhoppade"
+        )
 
 
 async def upsert_rows(
     session: AsyncSession,
     model: type,
-    items: Iterable[GeometryIngest],
+    items: Iterable[BaseModel],
     *,
     conflict_key: str,
     label: str,
     allowed_geometry_types: tuple[str, ...] | None = None,
 ) -> SyncCounts:
     """Skriv in rader från en datakälla i ``model`` (se modulens docstring).
+
+    items är ingest-modeller vars fält mappar rakt på modellens kolumner,
+    med geometrin som GeoJSON-dict i fältet ``geometry``.
 
     Args:
         conflict_key: kolumnen som identifierar objektet hos källan
@@ -78,19 +87,17 @@ async def upsert_rows(
     skipped = 0
 
     for item in items:
-        key = getattr(item, conflict_key)
-        values = item.model_dump(exclude={"geometry"})
-        if item.geometry is not None:
+        values = item.model_dump()
+        key = values[conflict_key]
+        if values["geometry"] is not None:
             try:
                 values["geometry"] = geojson_to_element(
-                    item.geometry, allowed_types=allowed_geometry_types
+                    values["geometry"], allowed_types=allowed_geometry_types
                 )
             except ValueError:
                 logger.warning("Hoppar över %s %s: ogiltig geometri", label, key)
                 skipped += 1
                 continue
-        else:
-            values["geometry"] = None
 
         stmt = pg_insert(model).values(**values)
         update_columns = {

@@ -32,6 +32,12 @@ class TestGeojsonToElement:
         element = geojson_to_element({"type": "Point", "coordinates": [18.0, 59.0, 12.5]})
         assert to_shape(element).has_z is False
 
+    def test_coordinates_outside_wgs84_are_rejected(self):
+        # SWEREF 99 TM-koordinater som råkat få SRID 4326: geography-casten
+        # (påverkanszonen) skulle annars avvisa raden som ett databasfel
+        with pytest.raises(ValueError, match="utanför WGS84"):
+            geojson_to_element({"type": "Point", "coordinates": [674000.0, 6580000.0]})
+
     def test_allowed_types_rejects_wrong_geometry(self):
         with pytest.raises(ValueError, match="Geometritypen Point"):
             geojson_to_element(

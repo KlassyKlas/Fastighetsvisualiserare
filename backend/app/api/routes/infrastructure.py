@@ -61,11 +61,10 @@ async def impact_zones(
 ) -> ImpactZoneCollection:
     """Påverkanszoner: projektgeometrier buffrade med sin påverkansradie i meter.
 
-    Zonerna är förberäknade i PostGIS (geography, vilket ger korrekta
-    zoner för punkter, linjer och ytor oavsett latitud) och räknas om
-    när projektet skrivs — anropet serialiserar bara. bbox filtrerar på
-    zonen, inte på projektgeometrin: en zon som når in i kartvyn visas
-    även om projektet ligger utanför.
+    Zonerna beräknas i PostGIS över geography (korrekta för punkter,
+    linjer och ytor oavsett latitud) och ligger förberäknade. bbox
+    filtrerar på zonen, inte på projektgeometrin: en zon som når in i
+    kartvyn visas även om projektet ligger utanför.
     """
     return await infrastructure_service.impact_zones(
         session, statuses=status, project_types=project_type, bbox=bbox, year=year

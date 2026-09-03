@@ -15,10 +15,7 @@ from app.services.upsert import SyncCounts
 
 
 def _report(label: str, counts: SyncCounts) -> None:
-    print(
-        f"{label}: {counts.upserted} inskrivna, {counts.unchanged} oförändrade, "
-        f"{counts.skipped} överhoppade"
-    )
+    print(f"{label}: {counts}")
 
 
 async def main() -> None:

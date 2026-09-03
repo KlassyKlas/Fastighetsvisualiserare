@@ -27,15 +27,28 @@ from app.db import Base
 # hjälpyta för kartlagret; analysfrågorna räknar exakt med ST_DWithin över
 # geography och rör den inte.
 #
-# Kolumnen är en STORED generated column: databasen räknar om zonen när
-# geometry eller impact_radius_m skrivs, oavsett skrivväg (synk, API,
-# skript, handskriven SQL) — det finns ingen appkod som kan glömma den.
-# ST_Buffer(geography, float8) är IMMUTABLE i PostGIS, vilket generated
-# columns kräver. Samma uttryck står ordagrant i migration 0005; ändras
-# det (t.ex. toleransen) krävs en ny migration som droppar och återskapar
-# kolumnen — alembic check varnar om modell och databas glider isär.
+# Kolumnen är en genererad kolumn (GENERATED ALWAYS AS … STORED):
+# databasen räknar om zonen när geometry eller impact_radius_m skrivs,
+# oavsett skrivväg (synk, API, skript, handskriven SQL) — det finns ingen
+# appkod som kan glömma den. Priset betalas i synken: INSERT … ON CONFLICT
+# beräknar zonen för varje föreslagen rad, även de som lämnas orörda (se
+# services/upsert.py). ST_Buffer(geography, float8) är IMMUTABLE i
+# PostGIS, vilket genererade kolumner kräver.
+#
+# Samma uttryck står ordagrant i migration 0005. alembic check kan INTE se
+# drift i uttrycket (Alembic jämför genererade kolumner bara med en
+# varning, aldrig som schemaskillnad) — likheten vaktas därför av tester:
+# test_migration_and_model_agree_on_impact_zone (enhetstest: texten i
+# migrationen) och test_impact_zone_is_a_stored_generated_column
+# (integrationstest: uttrycket i databasen). Ändras uttrycket (t.ex.
+# toleransen) krävs en ny migration som droppar och återskapar kolumnen,
+# och båda testerna pekas om. Toleransen castas uttryckligen: PostgreSQL
+# lagrar litteralen som float8 och skriver ut den som
+# "(0.0002)::double precision" — med samma text här kan testet jämföra
+# databasens uttryck rakt av (efter Alembics normalisering).
 IMPACT_ZONE_SQL = (
-    "ST_SimplifyPreserveTopology(ST_Buffer(geometry::geography, impact_radius_m)::geometry, 0.0002)"
+    "ST_SimplifyPreserveTopology("
+    "ST_Buffer(geometry::geography, impact_radius_m)::geometry, 0.0002::double precision)"
 )
 
 
