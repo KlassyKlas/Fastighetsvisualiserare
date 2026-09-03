@@ -56,9 +56,10 @@ docker compose --profile full up --build
   frontendens TypeScript-typer (`npm run typegen`). CI failar om något
   av leden glider isär.
 - **Geoanalysen bor i databasen.** Påverkanszoner buffras med
-  `ST_Buffer` över geography (meter) för punkter, linjer och ytor;
-  berörda fastigheter och närliggande projekt beräknas med `ST_DWithin`.
-  Klienten renderar bara.
+  `ST_Buffer` över geography (meter) för punkter, linjer och ytor och
+  ligger färdiga i en genererad kolumn som PostgreSQL räknar om när
+  projektet skrivs; berörda fastigheter och närliggande projekt beräknas
+  med `ST_DWithin`. Klienten renderar bara.
 - **Datakällor är pluggbara.** En källa implementerar `DataSource`,
   returnerar typade ingest-modeller och registreras med `@register` —
   då finns den automatiskt på `POST /api/v1/infrastructure/sync/{namn}`
@@ -190,5 +191,7 @@ Bra att veta:
    filtrerar kartan på ägaren och zoomar till innehavet, fastighetspanelen har "Visa allt
    ägaren äger" och filterraden visar det aktiva ägarfiltret. I demo-läge speglas
    aggregeringen klientsidigt
-10. Förberäknade påverkanszoner: zon-kolumn som sätts vid synk i stället för
-    ST_Buffer per anrop — korridorgeometrierna gör zonfrågan tung (~1,4 s)
+10. ~~Förberäknade påverkanszoner~~ — byggt: `infrastructure_projects.impact_zone` är en
+    genererad kolumn (`GENERATED ALWAYS AS ... STORED`) som PostgreSQL räknar om så fort
+    geometri eller radie skrivs, oavsett skrivväg; `GET /impact-zones` serialiserar bara
+    (tidigare buffrades korridorerna per anrop, ~1,4 s) och bbox-filtret går mot zonen

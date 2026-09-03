@@ -150,8 +150,11 @@ export interface paths {
          * Impact Zones
          * @description Påverkanszoner: projektgeometrier buffrade med sin påverkansradie i meter.
          *
-         *     Beräknas i PostGIS över geography, vilket ger korrekta zoner för
-         *     punkter, linjer och ytor oavsett latitud.
+         *     Zonerna är förberäknade i PostGIS (geography, vilket ger korrekta
+         *     zoner för punkter, linjer och ytor oavsett latitud) och räknas om
+         *     när projektet skrivs — anropet serialiserar bara. bbox filtrerar på
+         *     zonen, inte på projektgeometrin: en zon som når in i kartvyn visas
+         *     även om projektet ligger utanför.
          */
         get: operations["impact_zones_api_v1_infrastructure_impact_zones_get"];
         put?: never;
