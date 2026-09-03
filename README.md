@@ -81,11 +81,68 @@ docker compose --profile full up --build
 | backend/ | `uv run alembic revision --autogenerate -m "..."` | Ny migration |
 | backend/ | `uv run python -m scripts.export_openapi` | Uppdatera `openapi.json` |
 | backend/ | `uv run python -m scripts.export_sample_data` | Uppdatera demodatat |
+| backend/ | `uv run python -m scripts.import_properties FIL --dry-run` | Importera egna fastigheter ur CSV/GeoJSON (se nedan) |
 | frontend/ | `npm run typegen` | Regenerera API-typer från `openapi.json` |
 | frontend/ | `npm test` / `npm run lint` / `npx tsc -b` | Tester / lint / typkontroll |
 
 Ändrar du API:t: kör `export_openapi` + `typegen` och committa båda —
 annars säger CI ifrån.
+
+## Importera egna fastigheter
+
+Egna fastigheter (t.ex. ur Excel eller QGIS) läses in med
+`scripts/import_properties.py` från en CSV med rubrikrad (`;`, `,` eller
+tab; UTF-8, UTF-16 eller cp1252) eller en GeoJSON FeatureCollection. En
+exempelfil med alla kolumner finns i
+`backend/scripts/examples/fastigheter_exempel.csv`.
+
+```bash
+cd backend
+uv run python -m scripts.import_properties fastigheter.csv --dry-run  # visa tolkningen, skriv inget
+uv run python -m scripts.import_properties fastigheter.csv            # skriv till databasen
+# SWEREF99 TM-koordinater, och 50 m-kvadrater runt rader som bara har en punkt:
+uv run python -m scripts.import_properties tomter.csv --srid 3006 --point-buffer-m 25
+```
+
+| Rubriker som känns igen | Fält |
+|---|---|
+| Beteckning, Fastighetsbeteckning | `designation` — obligatorisk, nyckel vid omkörning |
+| Kommun · Län | `municipality` · `county` |
+| Ägare, Lagfaren ägare · Org.nr | `owner_name` · `owner_org_number` |
+| Typ, Fastighetstyp | `property_type`: bostad, kontor, handel, industri, utbildning, villa |
+| Taxeringsvärde (kr) · Area (m²) · Boarea · Byggår | `assessed_value_sek` · `area_sqm` · `living_area_sqm` · `building_year` |
+| Adress · Postnummer · Ort · Detaljplan | `address` · `postal_code` · `city` · `zoning` |
+| Geometri (WKT `POLYGON`/`MULTIPOLYGON`, EWKT `SRID=3006;POLYGON…` eller GeoJSON) **eller** Lng/Lat (X/Y, Öst/Nord) | `geometry` |
+
+Rubriker matchas oberoende av skiftläge, mellanslag och parentesinnehåll,
+och de engelska fältnamnen fungerar alltid (fullständig lista i
+`COLUMN_ALIASES` i `app/services/property_import.py`). Avgränsaren avgörs
+av rubrikraden (den av `;`, tab och `,` som förekommer flest gånger). Tal
+får ha svenskt format med enhet (`1 250 000 kr`, `12,5 m²`, `4 250 kr/år`,
+`1 250 000,-`); decimaler i ett heltalsfält är ett fel, inte en avrundning. **En ensam punkt är decimaltecken** (`4.250` = 4,25 —
+även i areafält); punkt som tusentalsavgränsare känns bara igen när det
+finns flera (`1.250.000`) eller ett decimalkomma efter (`1.250,50`).
+Kolumner som inte känns igen sparas i `metadata_json` (stäng av med
+`--no-extra-metadata`).
+
+Bra att veta:
+
+- **Ägarnamn måste stavas exakt lika** på alla rader — ägarvyn grupperar
+  på `owner_name`.
+- Rader **utan polygon** importeras men syns inte på kartan. Rader med
+  bara en punkt får en kvadrat (±meter) med `--point-buffer-m`.
+- **Ogiltiga polygoner** (t.ex. självskärande ringar) avvisas som radfel,
+  eftersom de kan störa PostGIS-frågorna för alla fastigheter — rätta
+  dem i t.ex. QGIS (Reparera geometrier).
+- Koordinater i annat system än WGS84 anges med `--srid` (SWEREF99 TM =
+  3006) och transformeras med pyproj.
+- **Omkörning är säker**: upserten nycklar på beteckning och skriver bara
+  faktiska ändringar, så `updated_at` (och bevakningsnotiserna) rörs inte
+  i onödan.
+- Rader med fel listas med radnummer och hoppas över; `--strict` avbryter
+  i stället före skrivningen (exitkod 1). Hoppar databasen ändå över
+  rader vid skrivningen ger `--strict` exitkod 1, men de övriga raderna
+  är då redan inskrivna. `--dry-run` kräver ingen databas.
 
 ## API-nycklar
 

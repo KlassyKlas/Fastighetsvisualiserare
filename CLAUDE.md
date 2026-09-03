@@ -9,6 +9,7 @@ Backend (från `backend/`, kräver `uv`):
 - `uv run pytest` — enhetstester; `INTEGRATION_TESTS=1 uv run pytest` kör även API-testerna (kräver PostGIS via `docker compose up -d` + `uv run alembic upgrade head`)
 - `uv run ruff check . && uv run ruff format .` — lint + format (rader ≤100)
 - `uv run uvicorn app.main:app --reload` — dev-server
+- `uv run python -m scripts.import_properties FIL [--srid 3006] [--point-buffer-m 25] [--dry-run]` — importera egna fastigheter ur CSV/GeoJSON (tolkning i `app/services/property_import.py`, skrivning via `upsert_properties`)
 
 Frontend (från `frontend/`):
 - `npm test` / `npm run lint` / `npx tsc -b` / `npm run build`
